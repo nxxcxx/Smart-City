@@ -1,3 +1,4 @@
+
 module.exports = function(grunt) {/*jshint strict: false*/
 
 	// Project configuration.
@@ -8,11 +9,11 @@ module.exports = function(grunt) {/*jshint strict: false*/
 		concat: {
 			options: {
 				// banner: '/* <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n',
-				banner: '(function main() { "use strict";\n\n',
-				footer: '\n\n})();'
+				// banner: '(function main() { "use strict";\n\n',
+				// footer: '\n\n})();'
 			},
 			build: {
-				src: ['js/main.js', 'js/events.js'],
+				src: ['js/scene.js', 'js/assetManager.js', 'js/loadingManager.js', 'js/main.js', 'js/draw.js', 'js/events.js'],
 				dest: 'js/build/smart-city-app.js'
 			}
 		},
