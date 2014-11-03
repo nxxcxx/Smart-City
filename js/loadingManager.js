@@ -1,6 +1,7 @@
 
 // initialize loaders
 	var loadingManager = new THREE.LoadingManager();
+		console.time('loadingManager');
 		loadingManager.onProgress = function ( item, loaded, total ) {
 			console.log( item, loaded, total );
 		};
@@ -9,6 +10,7 @@
 		};
 		loadingManager.onLoad = function () {
 			console.log('finished loading');
+			console.timeEnd('loadingManager');
 			startScene();
 		};
 

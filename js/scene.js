@@ -1,6 +1,8 @@
 
 	var container, stats;
 	var scene, light, camera, cameraCtrl, renderer;
+	var mouse = new THREE.Vector2();
+
 
 	// ---- Scene
 		container = document.getElementById('canvas-container');
