@@ -39,6 +39,9 @@ module.exports = function(grunt) {/*jshint strict: false*/
 			},
 			html: {
 				files: '*.html'
+			},
+			css: {
+				files: 'css/*.css'
 			}
 		},
 

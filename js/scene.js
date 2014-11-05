@@ -17,7 +17,7 @@
 
 	// ---- Camera
 		// z-near too low will cause artifact when viewing from far distance
-		camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 10.0, 2000000);
+		camera = new THREE.PerspectiveCamera(80, window.innerWidth/window.innerHeight, 10.0, 2000000);
 		// -- camera orbit control
 		cameraCtrl = new THREE.OrbitControls(camera, container);
 		cameraCtrl.object.position.set(-5000, 2000, 0);
@@ -27,8 +27,8 @@
 		renderer = new THREE.WebGLRenderer({antialias: true});
 		renderer.setSize(window.innerWidth, window.innerHeight);
 
-				// renderer.shadowMapEnabled = true;
-				// renderer.shadowMapType = THREE.PCFSoftShadowMap;
+			renderer.shadowMapEnabled = true;
+			renderer.shadowMapType = THREE.PCFSoftShadowMap;
 
 
 		container.appendChild(renderer.domElement);
@@ -52,42 +52,47 @@
 	// ---- Lights
 
 
-			// var SHADOW_MAP_WIDTH = 1024, SHADOW_MAP_HEIGHT = 1024;
+		var SHADOW_MAP_WIDTH = 4096, SHADOW_MAP_HEIGHT = 4096;
 
-		// back light
-		light = new THREE.DirectionalLight(0xffffff, 0.8);
-		light.position.set(0, 1000, -3000);
+		// main light
+		light = new THREE.DirectionalLight(0xffffff, 1.0);
+		light.position.set(-4000, 3000, 3000);
 
-			// light.castShadow = true;
+			light.castShadow = true;
 
-			// light.shadowCameraNear = 100;
-			// light.shadowCameraFar = 10000;
+			light.shadowCameraNear = 3000;
+			light.shadowCameraFar = 7000;
 
-			// light.shadowCameraLeft = -10000;
-			// light.shadowCameraRight = 10000;
-			// light.shadowCameraTop = 10000;
-			// light.shadowCameraBottom = -10000;
-
-			// light.shadowCameraFov = 80;
+			light.shadowCameraLeft = -1500;
+			light.shadowCameraRight = 1500;
+			light.shadowCameraTop = 1500;
+			light.shadowCameraBottom = -1500;
 
 			// light.shadowCameraVisible = true;
 
-			// light.shadowBias = 0.0001;
-			// light.shadowDarkness = 0.7;
+			light.shadowCameraFov = 80;
+			light.shadowBias = 0.0001;
+			light.shadowDarkness = 0.5;
 
-			// light.shadowMapWidth = SHADOW_MAP_WIDTH;
-			// light.shadowMapHeight = SHADOW_MAP_HEIGHT;
+			light.shadowMapWidth = SHADOW_MAP_WIDTH;
+			light.shadowMapHeight = SHADOW_MAP_HEIGHT;
 
 
 		scene.add(light);
 
-		// // hemi
-		// light = new THREE.HemisphereLight(0xffffff, 0xffffff, 1);
-		// light.position.set(370, 200, 20);
-		// scene.add(light);
+		// back light
+		light = new THREE.DirectionalLight(0xffffff, 0.8);
+		light.position.set(4000, 3000, -4000);
 
-		// ambient
-		light = new THREE.AmbientLight(0x111111);
+		// light.castShadow = true;
+		// light.shadowCameraVisible = true;
+
+		var lightHelper = new THREE.DirectionalLightHelper(light, 100);
+		scene.add(lightHelper);
+		scene.add(light);
+
+		// // ambient
+		light = new THREE.AmbientLight(0x000011);
 		scene.add(light);
 
 
@@ -123,8 +128,8 @@
 		composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
 
 		
-		// composer.addPass( renderPass );
-		// composer.addPass( copyPass );
+		composer.addPass( renderPass );
+		// composer.addPass( copyPass ); // dont need copy pass if pass to shader pass
 		// composer.addPass( SSAOpass );
 		// composer.addPass( copyPass );
-		// composer.addPass( FXAApass );
+		composer.addPass( FXAApass );

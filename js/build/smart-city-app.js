@@ -17,7 +17,7 @@
 
 	// ---- Camera
 		// z-near too low will cause artifact when viewing from far distance
-		camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 10.0, 2000000);
+		camera = new THREE.PerspectiveCamera(80, window.innerWidth/window.innerHeight, 10.0, 2000000);
 		// -- camera orbit control
 		cameraCtrl = new THREE.OrbitControls(camera, container);
 		cameraCtrl.object.position.set(-5000, 2000, 0);
@@ -27,8 +27,8 @@
 		renderer = new THREE.WebGLRenderer({antialias: true});
 		renderer.setSize(window.innerWidth, window.innerHeight);
 
-				// renderer.shadowMapEnabled = true;
-				// renderer.shadowMapType = THREE.PCFSoftShadowMap;
+			renderer.shadowMapEnabled = true;
+			renderer.shadowMapType = THREE.PCFSoftShadowMap;
 
 
 		container.appendChild(renderer.domElement);
@@ -52,42 +52,47 @@
 	// ---- Lights
 
 
-			// var SHADOW_MAP_WIDTH = 1024, SHADOW_MAP_HEIGHT = 1024;
+		var SHADOW_MAP_WIDTH = 4096, SHADOW_MAP_HEIGHT = 4096;
 
-		// back light
-		light = new THREE.DirectionalLight(0xffffff, 0.8);
-		light.position.set(0, 1000, -3000);
+		// main light
+		light = new THREE.DirectionalLight(0xffffff, 1.0);
+		light.position.set(-4000, 3000, 3000);
 
-			// light.castShadow = true;
+			light.castShadow = true;
 
-			// light.shadowCameraNear = 100;
-			// light.shadowCameraFar = 10000;
+			light.shadowCameraNear = 3000;
+			light.shadowCameraFar = 7000;
 
-			// light.shadowCameraLeft = -10000;
-			// light.shadowCameraRight = 10000;
-			// light.shadowCameraTop = 10000;
-			// light.shadowCameraBottom = -10000;
-
-			// light.shadowCameraFov = 80;
+			light.shadowCameraLeft = -1500;
+			light.shadowCameraRight = 1500;
+			light.shadowCameraTop = 1500;
+			light.shadowCameraBottom = -1500;
 
 			// light.shadowCameraVisible = true;
 
-			// light.shadowBias = 0.0001;
-			// light.shadowDarkness = 0.7;
+			light.shadowCameraFov = 80;
+			light.shadowBias = 0.0001;
+			light.shadowDarkness = 0.5;
 
-			// light.shadowMapWidth = SHADOW_MAP_WIDTH;
-			// light.shadowMapHeight = SHADOW_MAP_HEIGHT;
+			light.shadowMapWidth = SHADOW_MAP_WIDTH;
+			light.shadowMapHeight = SHADOW_MAP_HEIGHT;
 
 
 		scene.add(light);
 
-		// // hemi
-		// light = new THREE.HemisphereLight(0xffffff, 0xffffff, 1);
-		// light.position.set(370, 200, 20);
-		// scene.add(light);
+		// back light
+		light = new THREE.DirectionalLight(0xffffff, 0.8);
+		light.position.set(4000, 3000, -4000);
 
-		// ambient
-		light = new THREE.AmbientLight(0x111111);
+		// light.castShadow = true;
+		// light.shadowCameraVisible = true;
+
+		var lightHelper = new THREE.DirectionalLightHelper(light, 100);
+		scene.add(lightHelper);
+		scene.add(light);
+
+		// // ambient
+		light = new THREE.AmbientLight(0x000011);
 		scene.add(light);
 
 
@@ -123,11 +128,11 @@
 		composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
 
 		
-		// composer.addPass( renderPass );
-		// composer.addPass( copyPass );
+		composer.addPass( renderPass );
+		// composer.addPass( copyPass ); // dont need copy pass if pass to shader pass
 		// composer.addPass( SSAOpass );
 		// composer.addPass( copyPass );
-		// composer.addPass( FXAApass );
+		composer.addPass( FXAApass );
 
 
 	var assetManager = (function () {
@@ -195,6 +200,10 @@
 
 	assetManager
 
+		// platform hexagon shell
+		.addFile('shellTex', '1024platformShell.png')
+		.addFile('shell', 'platformShell.obj')
+
 		// shore
 		.addFile('shorePlatformTex', 'shore/1024shorePlatform.png')
 		.addFile('shorePlatform', 'shore/shorePlatform.obj')
@@ -222,25 +231,37 @@
 		.addFile('city01Tex', 'city01/1024city01.png')
 		.addFile('city01', 'city01/city01.obj')
 
-
 		// tollway
 		.addFile('tollwayTex', 'tollway/1024tollway.png')
 		.addFile('tollway', 'tollway/tollway.obj')
 
 		.addFile('tollwayLine', 'tollway/tollwayline.obj')
 
+		// city 02 
+		.addFile('city02Tex', 'city02/1024city02.png')
+		.addFile('city02', 'city02/city02.obj')
 
+		// city 03 
+		.addFile('city03Tex', 'city03/1024city03.png')
+		.addFile('city03', 'city03/city03.obj')
 
-
+		// resident 01
+		.addFile('resident01Tex', 'resident01/1024resident01.png')
+		.addFile('resident01', 'resident01/resident01.obj')
 
 	;
 
 
-// initialize loaders
+// initialize loading manager
+
+	var loadingBar = document.getElementById('loading');
+
 	var loadingManager = new THREE.LoadingManager();
 		console.time('loadingManager');
 		loadingManager.onProgress = function ( item, loaded, total ) {
 			console.log( item, loaded, total );
+			var percentageCompleted = loaded/total * 100;
+			loadingBar.style.width = percentageCompleted + '%';
 		};
 		loadingManager.onError = function () {
 			console.error('Error: loading assets');
@@ -248,9 +269,9 @@
 		loadingManager.onLoad = function () {
 			console.log('finished loading');
 			console.timeEnd('loadingManager');
+			loadingBar.style.display = 'none';
 			startScene();
 		};
-
 
 	var textureLoader = new THREE.ImageLoader(loadingManager);
 	var OBJloader = new THREE.OBJLoader(loadingManager);
@@ -268,36 +289,79 @@
 		OBJloader.load( asset.modelUrl, function (object) {
 			asset.model = object.children[0]; // select mesh
 			asset.model.geometry.computeVertexNormals();  // very important ************************************ or NO MATERIAL!
+			
+
+
+			// move later
 			asset.model.receiveShadow = true;
 			asset.model.castShadow = true;
+
+
+
 		});
 	});
 
 
-	// Environment texture
+	// Skybox texture
 	var path = "assets/skybox/";
 	var format = '.bmp';
 	var urls = [
-			path + 'px' + format, path + 'nx' + format,
-			path + 'py' + format, path + 'ny' + format,
-			path + 'pz' + format, path + 'nz' + format
-		];
+		path + 'px' + format, path + 'nx' + format,
+		path + 'py' + format, path + 'ny' + format,
+		path + 'pz' + format, path + 'nz' + format
+	];
 
-	var reflectionCube = THREE.ImageUtils.loadTextureCube(urls);
-	reflectionCube.format = THREE.RGBFormat;
-
+	var reflectionCube = loadTextureCube(urls);
 	assetManager.addTexture('reflectionCube', reflectionCube);
+
+
+	function loadTextureCube(arrayURL, mapping, onLoad) {
+
+		var images = [];
+
+		var loader = new THREE.ImageLoader(loadingManager);
+		loader.crossOrigin = this.crossOrigin;
+
+		var texture = new THREE.CubeTexture( images, mapping );
+		texture.format = THREE.RGBFormat;
+		texture.flipY = false;
+
+		var loaded = 0;
+		var loadTexture = function (i) {
+			loader.load( arrayURL[ i ], function ( image ) {
+				texture.images[ i ] = image;
+				loaded += 1;
+				if ( loaded === 6 ) {
+					texture.needsUpdate = true;
+					if ( onLoad ) onLoad( texture );
+				}
+			});
+		};
+
+		for (var i = 0, il = arrayURL.length; i < il; i++) {
+			loadTexture(i);
+		}
+
+		return texture;
+
+	}
 
 	function startScene() {
 
 		// do magic by zz85
 			initSky();
 
+		// create base for copy
+		var shell = constructModel('shell', {map: 'shellTex'});
+		shell.castShadow = false;
+		shell.receiveShadow = false;
+
 		// Shore
 			var P_Shore = new THREE.Object3D();
 
 			var shorePlatform = constructModel('shorePlatform', {map: 'shorePlatformTex'});
 			var shoreWaterSurface = constructModel('shoreWaterSurface', {map:'shoreWaterSurfaceTex' , envMap: 'reflectionCube', opacity: 0.9, transparent: true});
+			shorePlatform.castShadow = false;
 
 			P_Shore.add(shorePlatform);
 			P_Shore.add(shoreWaterSurface);
@@ -318,7 +382,7 @@
 			var turBase = constructModel('turbineBase', {map: 'turbineBaseTex'});
 			windTurbine.add(turBase);
 
-			var turPro = constructModel('propeller', {map: 'propellerTex'});
+			var turPro = constructModel('propeller', {});
 			turPro.position.set(0, 268, -10);
 
 			windTurbine.add(turPro);
@@ -344,6 +408,9 @@
 			var hubPlatform = constructModel('hubPlatform', {map: 'hubPlatformTex'});
 			var hubStreetLine = constructModel('hubStreetLine', {color: 0x0077ff});
 
+			var hubShell = getNewShell();
+
+			hub.add(hubShell);
 			hub.add(hubPlatform);
 			hub.add(hubWindow);
 			hub.add(hubStreetLine);
@@ -351,17 +418,65 @@
 			scene.add(hub);
 
 		// City 01
-			var city01 = constructModel('city01', {map: 'city01Tex'});
+			var city01 = new THREE.Object3D();
+			var city01Buildings = constructModel('city01', {map: 'city01Tex'});
+			var city01Shell = getNewShell();
+
 			city01.position.set(0, 0, -808);
+			city01.add(city01Buildings);
+			city01.add(city01Shell);
+
 			scene.add(city01);
 
 		// Tollway
-			var tollway = constructModel('tollway', {map: 'tollwayTex'});
+			var tollway = new THREE.Object3D();
+			var tollwayStreet = constructModel('tollway', {map: 'tollwayTex'});
 			var tollwayLine = constructModel('tollwayLine', {color: 0x0077ff});
+			var tollwayShell = getNewShell();
 			tollway.position.set(-702, 0, -403);
-			tollwayLine.position.set(-702, 0, -403);
+
+			tollway.add(tollwayStreet);
+			tollway.add(tollwayLine);
+			tollway.add(tollwayShell);
+
 			scene.add(tollway);
-			scene.add(tollwayLine);
+
+		// City 02
+			var city02 = new THREE.Object3D();
+			var city02Buildings = constructModel('city02', {map: 'city02Tex'});
+			var city02Shell = getNewShell();
+
+			city02.position.set(700, 0, -405);
+			city02.add(city02Buildings);
+			city02.add(city02Shell);
+
+			scene.add(city02);
+
+		// City 03
+			var city03 = new THREE.Object3D();
+			var city03Buildings = constructModel('city03', {map: 'city03Tex'});
+			var city03Shell = getNewShell();
+
+			city03.position.set(0, 0, 810);
+			city03.add(city03Buildings);
+			city03.add(city03Shell);
+
+			scene.add(city03);
+
+		// Resident 01
+			var resident01 = new THREE.Object3D();
+			var resident01Buildings = constructModel('resident01', {map: 'resident01Tex'});
+			var resident01Shell = getNewShell();
+
+			resident01.position.set(-701, 0, -1213);
+			resident01.add(resident01Buildings);
+			resident01.add(resident01Shell);
+
+			scene.add(resident01);
+
+
+
+
 
 
 		// ------- Render and Update ** will move out of closure later
@@ -370,7 +485,6 @@
 				windTurbine.children[1].rotation.z += 0.05;
 				windTurbine2.children[1].rotation.z += 0.05;
 				windTurbine3.children[1].rotation.z += 0.05;
-				// hub.rotation.y+=0.01;
 			}
 
 			// draw loop
@@ -382,8 +496,8 @@
 				
 				// intersectMouse(assetManager.getModel('hubBuilding'));
 
-				renderer.render(scene, camera);
-				// composer.render();
+				// renderer.render(scene, camera);
+				composer.render();
 
 				stats.update();
 			}
@@ -402,7 +516,7 @@
 
 		var model = assetManager.getModel(modelKey);
 
-		var material = new THREE.MeshBasicMaterial({
+		var material = new THREE.MeshLambertMaterial({
 			shading: THREE.FlatShading
 		});
 
@@ -421,71 +535,74 @@
 		return model;
 	}
 
+	function getNewShell() {
+		return assetManager.getModel('shell').clone();
+	}
 
 
 
 	// ------ prototype function
 
 		// --- test animation
-			window.testAnimate = function() {
+			// window.testAnimate = function() {
 
-					var tween = new TWEEN.Tween( platform01.position ).to( {
-							x: Math.random() * 800 - 400,
-							y: Math.random() * 800 - 400,
-							z: Math.random() * 800 - 400 }, 
-							2000 )
-						.easing( TWEEN.Easing.Elastic.Out)
-						.start();
+			// 		var tween = new TWEEN.Tween( platform01.position ).to( {
+			// 				x: Math.random() * 800 - 400,
+			// 				y: Math.random() * 800 - 400,
+			// 				z: Math.random() * 800 - 400 }, 
+			// 				2000 )
+			// 			.easing( TWEEN.Easing.Elastic.Out)
+			// 			.start();
 
-			};
+			// };
 
 
 		// --- test ray caster 3D object-mouse intersection todo: check platform's children if contain intersected mesh then do sth
 
-		// var raycaster = new THREE.Raycaster();
-		// function intersectMouse(mesh) {
-			
-		// 	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 ).unproject( camera );
+			// var raycaster = new THREE.Raycaster();
+			// function intersectMouse(mesh) {
+				
+			// 	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 ).unproject( camera );
 
-		// 	raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
+			// 	raycaster.set( camera.position, vector.sub( camera.position ).normalize() );
 
-		// 	var intersects = raycaster.intersectObject( mesh );
+			// 	var intersects = raycaster.intersectObject( mesh );
 
-		// 	if ( intersects.length > 0 ) {
-		// 		var intersect = intersects[0];
-		// 		console.warn(intersects);
-		// 		if (intersect.object == mesh) {
-		// 			console.warn(111);
-		// 		}
+			// 	if ( intersects.length > 0 ) {
+			// 		var intersect = intersects[0];
+			// 		console.warn(intersects);
+			// 		if (intersect.object == mesh) {
+			// 			console.warn(111);
+			// 		}
 
-		// 	}
-		// }
+			// 	}
+			// }
 		
 		// --- test camera animation
-		// window.testCamAnim = function () {
+			window.testCamAnim = function () {
 
-		// 	//cameraCtrl.target = new THREE.Vector3(); // set camera look At
-		// 	//cameraCtrl.object.position.set(0, 500, 1000);
+				//cameraCtrl.target = new THREE.Vector3(); // set camera look At
+				//cameraCtrl.object.position.set(0, 500, 1000);
 
-		// 	new TWEEN.Tween( cameraCtrl.target ).to( {
-		// 		x: 0,
-		// 		y: 0,
-		// 		z: 0}, 
-		// 		1000 )
-		// 	.easing( TWEEN.Easing.Quadratic.Out)
-		// 	.onUpdate(function() {cameraCtrl.update();}) // important
-		// 	.start();
+				new TWEEN.Tween( cameraCtrl.target )
+					.to( {	x: 0,
+							y: 0,
+							z: 0}, 
+					1000 )
+					.easing( TWEEN.Easing.Quadratic.Out)
+					.onUpdate(function() {cameraCtrl.update();}) // important
+					.start();
 
-		// 	new TWEEN.Tween( cameraCtrl.object.position ).to( {
-		// 		x: 0,
-		// 		y: 500,
-		// 		z: 1000}, 
-		// 		1000 )
-		// 	.easing( TWEEN.Easing.Quadratic.Out)
-		// 	.onUpdate(function() {cameraCtrl.update();}) // important
-		// 	.start();
+				new TWEEN.Tween( cameraCtrl.object.position )
+					.to( {	x: -2000,
+							y: 1000,
+							z: 0}, 
+					1000 )
+					.easing( TWEEN.Easing.Quadratic.Out)
+					.onUpdate(function() {cameraCtrl.update();}) // important
+					.start();
 
-		// };
+			};
 
 	
 

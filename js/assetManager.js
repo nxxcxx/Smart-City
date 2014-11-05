@@ -64,6 +64,10 @@
 
 	assetManager
 
+		// platform hexagon shell
+		.addFile('shellTex', '1024platformShell.png')
+		.addFile('shell', 'platformShell.obj')
+
 		// shore
 		.addFile('shorePlatformTex', 'shore/1024shorePlatform.png')
 		.addFile('shorePlatform', 'shore/shorePlatform.obj')
@@ -91,15 +95,22 @@
 		.addFile('city01Tex', 'city01/1024city01.png')
 		.addFile('city01', 'city01/city01.obj')
 
-
 		// tollway
 		.addFile('tollwayTex', 'tollway/1024tollway.png')
 		.addFile('tollway', 'tollway/tollway.obj')
 
 		.addFile('tollwayLine', 'tollway/tollwayline.obj')
 
+		// city 02 
+		.addFile('city02Tex', 'city02/1024city02.png')
+		.addFile('city02', 'city02/city02.obj')
 
+		// city 03 
+		.addFile('city03Tex', 'city03/1024city03.png')
+		.addFile('city03', 'city03/city03.obj')
 
-
+		// resident 01
+		.addFile('resident01Tex', 'resident01/1024resident01.png')
+		.addFile('resident01', 'resident01/resident01.obj')
 
 	;

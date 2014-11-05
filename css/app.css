@@ -14,3 +14,12 @@ canvas {
 	top: 0;
 	left: 0;	
 }
+
+#loading {
+	z-index: 10;
+	position: absolute;
+	height: 10px;
+	background: red;
+	bottom: 0;
+	left: 0;
+}
