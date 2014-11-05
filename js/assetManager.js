@@ -78,4 +78,28 @@
 		.addFile('propellerTex', 'turbine/1024propeller.png')
 		.addFile('propeller', 'turbine/propeller.obj')
 
+		// hub
+		.addFile('hubPlatformTex', 'hub/1024hubplatform.png')
+		.addFile('hubPlatform', 'hub/hubplatform.obj')
+
+		.addFile('hubWindowTex', 'hub/1024hubwindow.png')
+		.addFile('hubWindow', 'hub/hubwindow.obj')
+
+		.addFile('hubStreetLine', 'hub/hubstreetline.obj')
+
+		// city 01
+		.addFile('city01Tex', 'city01/1024city01.png')
+		.addFile('city01', 'city01/city01.obj')
+
+
+		// tollway
+		.addFile('tollwayTex', 'tollway/1024tollway.png')
+		.addFile('tollway', 'tollway/tollway.obj')
+
+		.addFile('tollwayLine', 'tollway/tollwayline.obj')
+
+
+
+
+
 	;

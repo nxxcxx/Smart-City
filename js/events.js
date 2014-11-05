@@ -14,12 +14,10 @@
 		camera.updateProjectionMatrix();
 		renderer.setSize(screenWidth, screenHeight);
 
-		effectFXAA.uniforms['resolution'].value.set(1 / (window.innerWidth * dpr), 1 / (window.innerHeight * dpr));
+		FXAApass.uniforms['resolution'].value.set(1 / (window.innerWidth * dpr), 1 / (window.innerHeight * dpr));
   		composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
 
 	}
-
-
 
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	function onDocumentMouseMove( event ) {
@@ -27,3 +25,9 @@
 		mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 		mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 	}
+
+	// document.addEventListener( 'click', onClick, false);
+	// function onClick( event ) {
+	// 	event.preventDefault();
+	// 	console.log(cameraCtrl.object.position);
+	// } 

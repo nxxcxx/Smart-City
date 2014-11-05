@@ -16,11 +16,11 @@
 		scene = new THREE.Scene();
 
 	// ---- Camera
-		camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 1.0, 2000000);
+		// z-near too low will cause artifact when viewing from far distance
+		camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 10.0, 2000000);
 		// -- camera orbit control
 		cameraCtrl = new THREE.OrbitControls(camera, container);
-		cameraCtrl.object.position.z = 2000;
-		cameraCtrl.rotateUp(0.5);
+		cameraCtrl.object.position.set(-5000, 2000, 0);
 		cameraCtrl.update();
 
 	// ---- Renderer
@@ -38,14 +38,15 @@
 		container.appendChild( stats.domElement );
 
 	// ---- grid & axis helper
-		var grid = new THREE.GridHelper(600, 50);
-		grid.setColors(0x00bbff, 0xffffff);
-		grid.material.opacity = 0.1;
-		grid.material.transparent = true;
-		grid.position.y = -300;
-		scene.add(grid);
+		// var grid = new THREE.GridHelper(2000, 200);
+		// grid.setColors(0x00bbff, 0xffffff);
+		// grid.material.opacity = 0.1;
+		// grid.material.transparent = true;
+		// grid.position.y = -300;
+		// scene.add(grid);
 
-		var axisHelper = new THREE.AxisHelper(50);
+		var axisHelper = new THREE.AxisHelper(1000);
+		axisHelper.position.y = 2000;
 		scene.add(axisHelper);
 
 	// ---- Lights
@@ -100,22 +101,30 @@
 
 	// ---- post processing
 
-		var effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
-		effectFXAA.uniforms['resolution'].value.set(1 / (window.innerWidth * dpr), 1 / (window.innerHeight * dpr));
-		effectFXAA.renderToScreen = true;
+		var FXAApass = new THREE.ShaderPass( THREE.FXAAShader );
+		FXAApass.uniforms['resolution'].value.set(1 / (window.innerWidth * dpr), 1 / (window.innerHeight * dpr));
+		FXAApass.renderToScreen = true;
 
-		var effectSSAO = new THREE.ShaderPass( THREE.SSAOShader );
+		var SSAOpass = new THREE.ShaderPass( THREE.SSAOShader );
 		var depthTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, format: THREE.RGBAFormat } );
-		effectSSAO.uniforms[ 'tDepth' ].value = depthTarget;
-		effectSSAO.uniforms[ 'size' ].value.set( window.innerWidth, window.innerHeight );
-		effectSSAO.uniforms[ 'cameraNear' ].value = camera.near;
-		effectSSAO.uniforms[ 'cameraFar' ].value = camera.far;
-		effectSSAO.renderToScreen = true;
+		SSAOpass.uniforms[ 'tDepth' ].value = depthTarget;
+		SSAOpass.uniforms[ 'size' ].value.set( window.innerWidth, window.innerHeight );
+		SSAOpass.uniforms[ 'cameraNear' ].value = camera.near;
+		SSAOpass.uniforms[ 'cameraFar' ].value = camera.far;
+		SSAOpass.renderToScreen = true;
+
+		var copyPass = new THREE.ShaderPass( THREE.CopyShader );
+		copyPass.renderToScreen = true;
+
+		var renderPass = new THREE.RenderPass( scene, camera );
+		renderPass.renderToScreen = true;
 
 		var composer = new THREE.EffectComposer( renderer );
 		composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
-		composer.addPass( new THREE.RenderPass( scene, camera ) );
 
 		
-		// composer.addPass( effectSSAO );
-		// composer.addPass( effectFXAA );
+		// composer.addPass( renderPass );
+		// composer.addPass( copyPass );
+		// composer.addPass( SSAOpass );
+		// composer.addPass( copyPass );
+		// composer.addPass( FXAApass );
