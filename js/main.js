@@ -59,7 +59,9 @@
 			var hub = new THREE.Object3D();
 			var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.6});
 			var hubPlatform = constructModel('hubPlatform', {map: 'hubPlatformTex'});
-			var hubStreetLine = constructModel('hubStreetLine', {color: 0x0077ff});
+			var hubStreetLine = constructModel('hubStreetLine', {emissive: 0x0066ff});
+			hubStreetLine.castShadow = false;
+			hubStreetLine.receiveShadow = false;
 
 			var hubShell = getNewShell();
 
@@ -84,7 +86,9 @@
 		// Tollway
 			var tollway = new THREE.Object3D();
 			var tollwayStreet = constructModel('tollway', {map: 'tollwayTex'});
-			var tollwayLine = constructModel('tollwayLine', {color: 0x0077ff});
+			var tollwayLine = constructModel('tollwayLine', {emissive: 0x0066ff});
+			tollwayLine.castShadow = false;
+			tollwayLine.receiveShadow = false;
 			var tollwayShell = getNewShell();
 			tollway.position.set(-702, 0, -403);
 
@@ -176,7 +180,7 @@
 		_.each(settings, function(value, key, list) {
 			if (key === 'map' || key === 'envMap') {
 				value = assetManager.getTexture(value);
-			} else if (key === 'color') {
+			} else if (key === 'color' || key === 'emissive') {
 				value = new THREE.Color(value);
 			}
 			material[key] = value;

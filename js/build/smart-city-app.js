@@ -4,11 +4,10 @@
 	var screenWidth = window.innerWidth;
 	var screenHeight = window.innerHeight;
 	var dpr = 1.0;
-	if (window.devicePixelRatio !== undefined) {
-	  dpr = window.devicePixelRatio;
-	}
+	if (window.devicePixelRatio !== undefined) { dpr = window.devicePixelRatio; }
 
 	var mouse = new THREE.Vector2();
+	var gui = new dat.GUI();
 
 
 	// ---- Scene
@@ -20,7 +19,7 @@
 		camera = new THREE.PerspectiveCamera(80, window.innerWidth/window.innerHeight, 10.0, 2000000);
 		// -- camera orbit control
 		cameraCtrl = new THREE.OrbitControls(camera, container);
-		cameraCtrl.object.position.set(-5000, 2000, 0);
+		cameraCtrl.object.position.set(-3000, 2000, 0);
 		cameraCtrl.update();
 
 	// ---- Renderer
@@ -55,33 +54,39 @@
 		var SHADOW_MAP_WIDTH = 4096, SHADOW_MAP_HEIGHT = 4096;
 
 		// main light
-		light = new THREE.DirectionalLight(0xffffff, 1.0);
-		light.position.set(-4000, 3000, 3000);
+		var DirLight = new THREE.DirectionalLight(0xffe3b1, 1.0);	//0x331100
+		DirLight.position.set(-4000, 3000, 3000);
 
-			light.castShadow = true;
+			DirLight.castShadow = true;
 
-			light.shadowCameraNear = 3000;
-			light.shadowCameraFar = 7000;
+			DirLight.shadowCameraNear = 3000;
+			DirLight.shadowCameraFar = 7000;
 
-			light.shadowCameraLeft = -1500;
-			light.shadowCameraRight = 1500;
-			light.shadowCameraTop = 1500;
-			light.shadowCameraBottom = -1500;
+			DirLight.shadowCameraLeft = -1500;
+			DirLight.shadowCameraRight = 1500;
+			DirLight.shadowCameraTop = 1500;
+			DirLight.shadowCameraBottom = -1500;
 
-			// light.shadowCameraVisible = true;
+			// DirLight.shadowCameraVisible = true;
 
-			light.shadowCameraFov = 80;
-			light.shadowBias = 0.0001;
-			light.shadowDarkness = 0.5;
+			DirLight.shadowCameraFov = 80;
+			DirLight.shadowBias = 0.0001;
+			DirLight.shadowDarkness = 0.5;
 
-			light.shadowMapWidth = SHADOW_MAP_WIDTH;
-			light.shadowMapHeight = SHADOW_MAP_HEIGHT;
+			DirLight.shadowMapWidth = SHADOW_MAP_WIDTH;
+			DirLight.shadowMapHeight = SHADOW_MAP_HEIGHT;
+
+			var dli = {color: '#ffe3b1'};
+			gui.addColor(dli, 'color').name('light color').onChange(updateLightCol);
+			function updateLightCol(c) {
+				DirLight.color.set(c);
+			}
 
 
-		scene.add(light);
+		scene.add(DirLight);
 
 		// back light
-		light = new THREE.DirectionalLight(0xffffff, 0.8);
+		light = new THREE.DirectionalLight(0xffffff, 0.5);
 		light.position.set(4000, 3000, -4000);
 
 		// light.castShadow = true;
@@ -406,7 +411,9 @@
 			var hub = new THREE.Object3D();
 			var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.6});
 			var hubPlatform = constructModel('hubPlatform', {map: 'hubPlatformTex'});
-			var hubStreetLine = constructModel('hubStreetLine', {color: 0x0077ff});
+			var hubStreetLine = constructModel('hubStreetLine', {emissive: 0x0066ff});
+			hubStreetLine.castShadow = false;
+			hubStreetLine.receiveShadow = false;
 
 			var hubShell = getNewShell();
 
@@ -431,7 +438,9 @@
 		// Tollway
 			var tollway = new THREE.Object3D();
 			var tollwayStreet = constructModel('tollway', {map: 'tollwayTex'});
-			var tollwayLine = constructModel('tollwayLine', {color: 0x0077ff});
+			var tollwayLine = constructModel('tollwayLine', {emissive: 0x0066ff});
+			tollwayLine.castShadow = false;
+			tollwayLine.receiveShadow = false;
 			var tollwayShell = getNewShell();
 			tollway.position.set(-702, 0, -403);
 
@@ -523,7 +532,7 @@
 		_.each(settings, function(value, key, list) {
 			if (key === 'map' || key === 'envMap') {
 				value = assetManager.getTexture(value);
-			} else if (key === 'color') {
+			} else if (key === 'color' || key === 'emissive') {
 				value = new THREE.Color(value);
 			}
 			material[key] = value;
@@ -654,12 +663,12 @@ function initSky(){
 
 	/// GUI
 	var effectController  = {
-		turbidity: 10,
-		reileigh: 2,
-		mieCoefficient: 0.005,
-		mieDirectionalG: 0.8,
-		luminance: 1,
-		inclination: 0.49, // elevation / inclination
+		turbidity: 8,	//10
+		reileigh: 4,	//2
+		mieCoefficient: 0.1,//0.005
+		mieDirectionalG: 0.9,//0.8
+		luminance: 0.1,//1
+		inclination: 0.5, // elevation / inclination
 		azimuth: 0.5, // Facing front,					
 		sun: !true
 	};
@@ -682,13 +691,12 @@ function initSky(){
 		sky.uniforms.sunPosition.value.copy(sunSphere.position);
 	}
 
-	var gui = new dat.GUI();
 	var guiSky = gui.addFolder('Sky');
 	guiSky.add( effectController, "turbidity", 1.0, 20.0, 0.1 ).onChange( guiChanged );
 	guiSky.add( effectController, "reileigh", 0.0, 4, 0.001 ).onChange( guiChanged );
 	guiSky.add( effectController, "mieCoefficient", 0.0, 0.1, 0.001 ).onChange( guiChanged );
 	guiSky.add( effectController, "mieDirectionalG", 0.0, 1, 0.001 ).onChange( guiChanged );
-	guiSky.add( effectController, "luminance", 0.0, 2).onChange( guiChanged );;
+	guiSky.add( effectController, "luminance", 0.0, 2).onChange( guiChanged );
 	guiSky.add( effectController, "inclination", 0, 1, 0.0001).onChange( guiChanged );
 	guiSky.add( effectController, "azimuth", 0, 1, 0.0001).onChange( guiChanged );
 	guiSky.add( effectController, "sun").onChange( guiChanged );
