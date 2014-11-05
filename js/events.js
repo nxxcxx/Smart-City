@@ -8,11 +8,15 @@
 
 	window.addEventListener('resize', onWindowResize, false);
 	function onWindowResize() {
-		var w = window.innerWidth;
-		var h = window.innerHeight;
-		camera.aspect = w / h;
+		screenWidth = window.innerWidth;
+		screenHeight = window.innerHeight;
+		camera.aspect = screenWidth / screenHeight;
 		camera.updateProjectionMatrix();
-		renderer.setSize(w, h);
+		renderer.setSize(screenWidth, screenHeight);
+
+		effectFXAA.uniforms['resolution'].value.set(1 / (window.innerWidth * dpr), 1 / (window.innerHeight * dpr));
+  		composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
+
 	}
 
 

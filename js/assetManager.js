@@ -38,6 +38,12 @@
 
 		function getMaterial(key) {return assets.materials[key]; }
 
+		function addTexture(key, texture) {
+			assets.textures[key] = {};
+			assets.textures[key].texture = texture;
+			return this;
+		}
+
 		function addMaterial(key, material) {
 			assets.materials[key] = material;
 			return this;
@@ -49,24 +55,27 @@
 			getModel: getModel,
 			getTexture: getTexture,
 			getMaterial: getMaterial,
-			addMaterial: addMaterial
+			addMaterial: addMaterial,
+			addTexture: addTexture
 		};
 
 	})();
 
+
 	assetManager
-		.addFile('wastePlant', 'p01.png')
-		.addFile('wastePlant', 'p01.obj')
 
-		.addFile('hubStreetLine', 'p05-street-line.png')
-		.addFile('hubStreetLine', 'p05-street-line.obj')
+		// shore
+		.addFile('shorePlatformTex', 'shore/1024shorePlatform.png')
+		.addFile('shorePlatform', 'shore/shorePlatform.obj')
 
-		.addFile('hubPlatform', 'p05-static.png')
-		.addFile('hubPlatform', 'p05-static.obj')
+		.addFile('shoreWaterSurfaceTex', 'shore/1024shoreWaterSurface.png')
+		.addFile('shoreWaterSurface', 'shore/shoreWaterSurface.obj')
 
-		.addFile('hubBuilding', 'p05-hub.png')
-		.addFile('hubBuilding', 'p05-hub.obj')
+		// wind turbine
+		.addFile('turbineBaseTex', 'turbine/1024turbineBase.png')
+		.addFile('turbineBase', 'turbine/turbineBase.obj')
 
-		
+		.addFile('propellerTex', 'turbine/1024propeller.png')
+		.addFile('propeller', 'turbine/propeller.obj')
 
 	;

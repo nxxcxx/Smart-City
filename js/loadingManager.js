@@ -31,13 +31,15 @@
 		OBJloader.load( asset.modelUrl, function (object) {
 			asset.model = object.children[0]; // select mesh
 			asset.model.geometry.computeVertexNormals();  // very important ************************************ or NO MATERIAL!
+			asset.model.receiveShadow = true;
+			asset.model.castShadow = true;
 		});
 	});
 
 
 	// Environment texture
 	var path = "assets/skybox/";
-	var format = '.jpg';
+	var format = '.bmp';
 	var urls = [
 			path + 'px' + format, path + 'nx' + format,
 			path + 'py' + format, path + 'ny' + format,
@@ -46,3 +48,5 @@
 
 	var reflectionCube = THREE.ImageUtils.loadTextureCube(urls);
 	reflectionCube.format = THREE.RGBFormat;
+
+	assetManager.addTexture('reflectionCube', reflectionCube);
