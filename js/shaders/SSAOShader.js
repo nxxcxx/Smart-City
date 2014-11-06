@@ -221,6 +221,8 @@ THREE.SSAOShader = {
 
 			"}",
 
+			// "final = pow(final, vec3(1.25));",
+
 			"gl_FragColor = vec4( final, 1.0 );",
 
 		"}"

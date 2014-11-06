@@ -1,10 +1,15 @@
+/**
+ * @author alteredq / http://alteredqualia.com/
+ *
+ * Color correction
+ */
 
 THREE.ColorCorrectionShader = {
 
 	uniforms: {
 
 		"tDiffuse": { type: "t", value: null },
-		"powRGB":   { type: "v3", value: new THREE.Vector3( 1, 1, 1 ) },
+		"powRGB":   { type: "v3", value: new THREE.Vector3( 2, 2, 2 ) },
 		"mulRGB":   { type: "v3", value: new THREE.Vector3( 1, 1, 1 ) }
 
 	},
@@ -33,11 +38,8 @@ THREE.ColorCorrectionShader = {
 
 		"void main() {",
 
-			"vec4 color = texture2D( tDiffuse, vUv );",
-			"color.rgb = mulRGB * pow( color.rgb, powRGB );",
-			// "color.rgb = sqrt(color.rgb);",
-			"gl_FragColor.rgb = color.rgb;",
-
+			"gl_FragColor = texture2D( tDiffuse, vUv );",
+			"gl_FragColor.rgb = mulRGB * pow( gl_FragColor.rgb, powRGB );",
 
 		"}"
 

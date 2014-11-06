@@ -9,6 +9,13 @@
 	var mouse = new THREE.Vector2();
 	var gui = new dat.GUI();
 
+	// ---- settings
+	var scene_settings = {
+		bgColor: 0x111113,
+		enableShadow: true,
+		maxAnisotropy: null
+	}
+
 
 	// ---- Scene
 		container = document.getElementById('canvas-container');
@@ -25,9 +32,11 @@
 	// ---- Renderer
 		renderer = new THREE.WebGLRenderer({antialias: true});
 		renderer.setSize(window.innerWidth, window.innerHeight);
+		scene_settings.maxAnisotropy = renderer.getMaxAnisotropy();
 
-			renderer.shadowMapEnabled = true;
+			renderer.shadowMapEnabled = scene_settings.enableShadow;
 			renderer.shadowMapType = THREE.PCFSoftShadowMap;
+
 
 
 		container.appendChild(renderer.domElement);
@@ -45,7 +54,7 @@
 		// scene.add(grid);
 
 		var axisHelper = new THREE.AxisHelper(1000);
-		axisHelper.position.y = 2000;
+		axisHelper.position.y = 1000;
 		scene.add(axisHelper);
 
 	// ---- Lights
@@ -54,20 +63,20 @@
 		var SHADOW_MAP_WIDTH = 4096, SHADOW_MAP_HEIGHT = 4096;
 
 		// main light
-		var DirLight = new THREE.DirectionalLight(0xffe3b1, 1.0);	//0x331100
+		var DirLight = new THREE.DirectionalLight(0xffffff, 1.2);	//0x331100
 		DirLight.position.set(-4000, 3000, 3000);
 
 			DirLight.castShadow = true;
 
-			DirLight.shadowCameraNear = 3000;
-			DirLight.shadowCameraFar = 7000;
+			DirLight.shadowCameraNear = 4000;
+			DirLight.shadowCameraFar = 8000;
 
-			DirLight.shadowCameraLeft = -1500;
-			DirLight.shadowCameraRight = 1500;
-			DirLight.shadowCameraTop = 1500;
-			DirLight.shadowCameraBottom = -1500;
+			DirLight.shadowCameraLeft = -2000;
+			DirLight.shadowCameraRight = 2000;
+			DirLight.shadowCameraTop = 2000;
+			DirLight.shadowCameraBottom = -2000;
 
-			// DirLight.shadowCameraVisible = true;
+			DirLight.shadowCameraVisible = true;
 
 			DirLight.shadowCameraFov = 80;
 			DirLight.shadowBias = 0.0001;
@@ -76,8 +85,8 @@
 			DirLight.shadowMapWidth = SHADOW_MAP_WIDTH;
 			DirLight.shadowMapHeight = SHADOW_MAP_HEIGHT;
 
-			var dli = {color: '#ffe3b1'};
-			gui.addColor(dli, 'color').name('light color').onChange(updateLightCol);
+			var dli = {color: '#ffffff'};
+			gui.addColor(dli, 'color').name('dirL').onChange(updateLightCol);
 			function updateLightCol(c) {
 				DirLight.color.set(c);
 			}
@@ -85,59 +94,116 @@
 
 		scene.add(DirLight);
 
-		// back light
+		// // back light
 		light = new THREE.DirectionalLight(0xffffff, 0.5);
 		light.position.set(4000, 3000, -4000);
-
-		// light.castShadow = true;
-		// light.shadowCameraVisible = true;
 
 		var lightHelper = new THREE.DirectionalLightHelper(light, 100);
 		scene.add(lightHelper);
 		scene.add(light);
 
 		// // ambient
-		light = new THREE.AmbientLight(0x000011);
+		light = new THREE.AmbientLight(0x050506);
 		scene.add(light);
 
 
-	// ---- settings
-
-	var maxAnisotropy = renderer.getMaxAnisotropy();
-	var scene_settings = {
-		bgColor: 0x111113
-	};
 
 
 	// ---- post processing
 
-		var FXAApass = new THREE.ShaderPass( THREE.FXAAShader );
-		FXAApass.uniforms['resolution'].value.set(1 / (window.innerWidth * dpr), 1 / (window.innerHeight * dpr));
-		FXAApass.renderToScreen = true;
 
+		var depthTarget = new THREE.WebGLRenderTarget( 512, 512, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat } );
+				
 		var SSAOpass = new THREE.ShaderPass( THREE.SSAOShader );
-		var depthTarget = new THREE.WebGLRenderTarget( window.innerWidth, window.innerHeight, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, format: THREE.RGBAFormat } );
 		SSAOpass.uniforms[ 'tDepth' ].value = depthTarget;
-		SSAOpass.uniforms[ 'size' ].value.set( window.innerWidth, window.innerHeight );
+		SSAOpass.uniforms[ 'size' ].value.set( 512, 512 );
 		SSAOpass.uniforms[ 'cameraNear' ].value = camera.near;
 		SSAOpass.uniforms[ 'cameraFar' ].value = camera.far;
-		SSAOpass.renderToScreen = true;
+		SSAOpass.uniforms[ 'onlyAO' ].value = 0;	// debug
+		SSAOpass.uniforms[ 'lumInfluence' ].value = 0.5;
+		
+
+		// var DOFpass = new THREE.ShaderPass( THREE.BokehShader );	// todo fix broken shader
+		// DOFpass.uniforms[ 'tDepth' ].value = depthTarget;
+		// DOFpass.uniforms[ 'zNear' ].value = camera.near;
+		// DOFpass.uniforms[ 'zFar' ].value = camera.far;
+		
+
+		var FXAApass = new THREE.ShaderPass( THREE.FXAAShader );
+		FXAApass.uniforms['resolution'].value.set(1 / (window.innerWidth * dpr), 1 / (window.innerHeight * dpr));
+
+		var renderPass = new THREE.RenderPass( scene, camera );
+
+		var CCpass = new THREE.ShaderPass( THREE.ColorCorrectionShader );
 
 		var copyPass = new THREE.ShaderPass( THREE.CopyShader );
 		copyPass.renderToScreen = true;
 
-		var renderPass = new THREE.RenderPass( scene, camera );
-		renderPass.renderToScreen = true;
+
+		var postEffect = {
+			SSAO: false,
+			FXAA: true,
+			CC: true
+		};
+
+		var guiPP = gui.addFolder('PostProcessing');
+		guiPP.add( postEffect, 'SSAO').onChange(togglePostEffect);
+		guiPP.add( postEffect, 'FXAA').onChange(togglePostEffect);
+		guiPP.add( postEffect, 'CC').onChange(togglePostEffect);
+
 
 		var composer = new THREE.EffectComposer( renderer );
 		composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
 
-		
-		composer.addPass( renderPass );
-		// composer.addPass( copyPass ); // dont need copy pass if pass to shader pass
-		// composer.addPass( SSAOpass );
-		// composer.addPass( copyPass );
-		composer.addPass( FXAApass );
+
+		function togglePostEffect() {
+
+			composer = new THREE.EffectComposer( renderer );
+			composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
+
+			composer.addPass( renderPass );
+
+			if (postEffect.SSAO) {
+				composer.addPass( SSAOpass );
+			}
+			if (postEffect.FXAA) {
+				composer.addPass( FXAApass );
+			}
+			if (postEffect.CC) {
+				composer.addPass( CCpass );	
+			}
+
+			composer.addPass( copyPass );	// only set render to screen for final pass
+			
+		}
+		togglePostEffect();
+
+
+		var ccu = CCpass.uniforms;
+
+		var ccuEffect = {
+			powR: 1.5,
+			powG: 1.2,
+			powB: 1.0,
+			mulR: 1.0,
+			mulG: 1.0,
+			mulB: 1.0,
+		};
+
+		function adjustCC() {
+			ccu.mulRGB.value.set(ccuEffect.mulR, ccuEffect.mulG, ccuEffect.mulB);
+			ccu.powRGB.value.set(ccuEffect.powR, ccuEffect.powG, ccuEffect.powB);
+		}
+
+		var guiCC = guiPP.addFolder('CC');
+		guiCC.add( ccuEffect, 'powR', 1.0, 3.0, 0.01).onChange(adjustCC);
+		guiCC.add( ccuEffect, 'powG', 1.0, 3.0, 0.01).onChange(adjustCC);
+		guiCC.add( ccuEffect, 'powB', 1.0, 3.0, 0.01).onChange(adjustCC);
+		guiCC.add( ccuEffect, 'mulR', 1.0, 3.0, 0.01).onChange(adjustCC);
+		guiCC.add( ccuEffect, 'mulG', 1.0, 3.0, 0.01).onChange(adjustCC);
+		guiCC.add( ccuEffect, 'mulB', 1.0, 3.0, 0.01).onChange(adjustCC);
+		adjustCC();
+
 
 
 	var assetManager = (function () {
@@ -205,7 +271,11 @@
 
 	assetManager
 
-		// platform hexagon shell
+		// empty hexagon platform 
+		.addFile('emptyPlatformTex', '1024emptyPlatform.png')
+		.addFile('emptyPlatform', 'emptyPlatform.obj')
+
+		// hexagon platform  shell
 		.addFile('shellTex', '1024platformShell.png')
 		.addFile('shell', 'platformShell.obj')
 
@@ -254,6 +324,20 @@
 		.addFile('resident01Tex', 'resident01/1024resident01.png')
 		.addFile('resident01', 'resident01/resident01.obj')
 
+		// resident 02
+		.addFile('resident02Tex', 'resident02/1024resident02.png')
+		.addFile('resident02', 'resident02/resident02.obj')
+
+		// landfill
+		.addFile('landfillTex', 'landfill/1024landfill.png')
+		.addFile('landfill', 'landfill/landfill.obj')
+
+		// water supply
+		.addFile('watersupplyTex', 'watersupply/1024watersupply.png')
+		.addFile('watersupply', 'watersupply/watersupply.obj')
+
+
+
 	;
 
 
@@ -264,7 +348,7 @@
 	var loadingManager = new THREE.LoadingManager();
 		console.time('loadingManager');
 		loadingManager.onProgress = function ( item, loaded, total ) {
-			console.log( item, loaded, total );
+			// console.log( item, loaded, total );
 			var percentageCompleted = loaded/total * 100;
 			loadingBar.style.width = percentageCompleted + '%';
 		};
@@ -356,10 +440,10 @@
 		// do magic by zz85
 			initSky();
 
-		// create base for copy
-		var shell = constructModel('shell', {map: 'shellTex'});
-		shell.castShadow = false;
-		shell.receiveShadow = false;
+		// create base shell for cloning
+			var shell = constructModel('shell', {map: 'shellTex'});
+			shell.castShadow = false;
+			shell.receiveShadow = false;
 
 		// Shore
 			var P_Shore = new THREE.Object3D();
@@ -368,8 +452,7 @@
 			var shoreWaterSurface = constructModel('shoreWaterSurface', {map:'shoreWaterSurfaceTex' , envMap: 'reflectionCube', opacity: 0.9, transparent: true});
 			shorePlatform.castShadow = false;
 
-			P_Shore.add(shorePlatform);
-			P_Shore.add(shoreWaterSurface);
+			P_Shore.add(shorePlatform, shoreWaterSurface);
 			
 			var P_Shore2 = P_Shore.clone();
 			var P_Shore3 = P_Shore.clone();
@@ -378,11 +461,10 @@
 			P_Shore2.position.set(-702, 0, 1215);
 			P_Shore3.position.set(-1, 0, 1623);
 
-			scene.add(P_Shore);
-			scene.add(P_Shore2);
-			scene.add(P_Shore3);
+			scene.add(P_Shore, P_Shore2, P_Shore3);
 
 		// Wind turbine
+			var allTurbines = new THREE.Object3D();
 			var windTurbine = new THREE.Object3D();
 			var turBase = constructModel('turbineBase', {map: 'turbineBaseTex'});
 			windTurbine.add(turBase);
@@ -399,17 +481,16 @@
 			windTurbine2.position.set(-1454, 90, 842);
 			windTurbine3.position.set(-1286, 90, 940);
 
-			windTurbine.rotation.y = THREE.Math.degToRad(110);
-			windTurbine2.rotation.y = THREE.Math.degToRad(110);
+			windTurbine.rotation.y = 
+			windTurbine2.rotation.y = 
 			windTurbine3.rotation.y = THREE.Math.degToRad(110);
 
-			scene.add(windTurbine);
-			scene.add(windTurbine2);
-			scene.add(windTurbine3);
+			allTurbines.add(windTurbine, windTurbine2, windTurbine3);
+			scene.add(allTurbines);
 
 		// Hub building
 			var hub = new THREE.Object3D();
-			var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.6});
+			var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.9});
 			var hubPlatform = constructModel('hubPlatform', {map: 'hubPlatformTex'});
 			var hubStreetLine = constructModel('hubStreetLine', {emissive: 0x0066ff});
 			hubStreetLine.castShadow = false;
@@ -417,11 +498,7 @@
 
 			var hubShell = getNewShell();
 
-			hub.add(hubShell);
-			hub.add(hubPlatform);
-			hub.add(hubWindow);
-			hub.add(hubStreetLine);
-
+			hub.add(hubShell, hubPlatform, hubWindow, hubStreetLine);
 			scene.add(hub);
 
 		// City 01
@@ -430,9 +507,7 @@
 			var city01Shell = getNewShell();
 
 			city01.position.set(0, 0, -808);
-			city01.add(city01Buildings);
-			city01.add(city01Shell);
-
+			city01.add(city01Buildings, city01Shell);
 			scene.add(city01);
 
 		// Tollway
@@ -444,10 +519,7 @@
 			var tollwayShell = getNewShell();
 			tollway.position.set(-702, 0, -403);
 
-			tollway.add(tollwayStreet);
-			tollway.add(tollwayLine);
-			tollway.add(tollwayShell);
-
+			tollway.add(tollwayStreet, tollwayLine, tollwayShell);
 			scene.add(tollway);
 
 		// City 02
@@ -456,9 +528,7 @@
 			var city02Shell = getNewShell();
 
 			city02.position.set(700, 0, -405);
-			city02.add(city02Buildings);
-			city02.add(city02Shell);
-
+			city02.add(city02Buildings, city02Shell);
 			scene.add(city02);
 
 		// City 03
@@ -467,9 +537,7 @@
 			var city03Shell = getNewShell();
 
 			city03.position.set(0, 0, 810);
-			city03.add(city03Buildings);
-			city03.add(city03Shell);
-
+			city03.add(city03Buildings, city03Shell);
 			scene.add(city03);
 
 		// Resident 01
@@ -478,13 +546,81 @@
 			var resident01Shell = getNewShell();
 
 			resident01.position.set(-701, 0, -1213);
-			resident01.add(resident01Buildings);
-			resident01.add(resident01Shell);
+			resident01.rotation.y = THREE.Math.degToRad(120);
 
+			resident01.add(resident01Buildings, resident01Shell);
 			scene.add(resident01);
 
+		// Resident 02
+			var resident02 = new THREE.Object3D();
+			var resident02Buildings = constructModel('resident02', {map: 'resident02Tex'});
+			var resident02Shell = getNewShell();
 
+			resident02.position.set(-1403, 0, -809);
 
+			resident02.add(resident02Buildings, resident02Shell);
+
+			scene.add(resident02);
+
+		// Resident 03  (02 clone)
+			var resident03 = resident02.clone();
+
+			resident03.position.set(-1403, 0, -0);
+			resident03.rotation.y = THREE.Math.degToRad(120);
+
+			scene.add(resident03);
+
+		// Resident 04 (01 clone)
+
+			var resident04 = resident01.clone();
+			resident04.position.set(-701, 0, 406);
+			resident04.rotation.y = THREE.Math.degToRad(0);
+
+			scene.add(resident04);
+
+		// Empty Platform 01
+			var ep01 = new THREE.Object3D();
+			var ep = constructModel('emptyPlatform', {map: 'emptyPlatformTex'});
+			var epshell = getNewShell();
+			ep01.add(ep, epshell);
+			ep01.position.set(0, 0, -1618);
+			scene.add(ep01);
+
+		// Empty Platform 02
+			var ep02 = ep01.clone();
+			ep02.position.set(700, 0, -1211);
+			scene.add(ep02);
+
+		// Empty Platform 03
+			var ep03 = ep01.clone();
+			ep03.position.set(1398, 0, 0);
+			scene.add(ep03);
+
+		// Empty Platform 04
+			var ep04 = ep01.clone();
+			ep04.position.set(1398, 0, 807);
+			scene.add(ep04);
+
+		// Empty Platform 05
+			var ep05 = ep01.clone();
+			ep05.position.set(700, 0, 1216);
+			scene.add(ep05);
+
+		// landfill
+			var landfill = new THREE.Object3D();
+			var lf = constructModel('landfill', {map: 'landfillTex'});
+			var lfshell = getNewShell();
+			landfill.add(lf, lfshell);
+			landfill.position.set(1403, 0, -805);
+			scene.add(landfill);
+
+		// water supply
+			var watersupply = new THREE.Object3D();
+			var ws = constructModel('watersupply', {map: 'watersupplyTex'});
+			var wsshell = getNewShell();
+			watersupply.add(ws, wsshell);
+			watersupply.position.set(700, 0, 405);
+			scene.add(watersupply);
 
 
 
@@ -530,12 +666,14 @@
 		});
 
 		_.each(settings, function(value, key, list) {
+
 			if (key === 'map' || key === 'envMap') {
 				value = assetManager.getTexture(value);
 			} else if (key === 'color' || key === 'emissive') {
 				value = new THREE.Color(value);
 			}
 			material[key] = value;
+
 		});
 
 		assetManager.addMaterial(modelKey, material);	// use modelName as materialName
@@ -580,7 +718,7 @@
 			// 	if ( intersects.length > 0 ) {
 			// 		var intersect = intersects[0];
 			// 		console.warn(intersects);
-			// 		if (intersect.object == mesh) {
+			// 		if (intersect.object == mesh) {  // r69 now return face3
 			// 			console.warn(111);
 			// 		}
 
@@ -663,13 +801,13 @@ function initSky(){
 
 	/// GUI
 	var effectController  = {
-		turbidity: 8,	//10
-		reileigh: 4,	//2
-		mieCoefficient: 0.1,//0.005
-		mieDirectionalG: 0.9,//0.8
-		luminance: 0.1,//1
-		inclination: 0.5, // elevation / inclination
-		azimuth: 0.5, // Facing front,					
+		turbidity: 4.8,
+		reileigh: 4,
+		mieCoefficient: 0.06,
+		mieDirectionalG: 0.76,
+		luminance: 0.35,
+		inclination: 0.83,
+		azimuth: 0.9,				
 		sun: !true
 	};
 
@@ -689,6 +827,14 @@ function initSky(){
 		sunSphere.position.z = distance * Math.sin(phi) * Math.cos(theta); 
 		sunSphere.visible = effectController.sun;
 		sky.uniforms.sunPosition.value.copy(sunSphere.position);
+
+
+		var lightDist = 6000;
+		theta += 0.2;
+		DirLight.position.x = lightDist * Math.cos(phi);
+		DirLight.position.y = lightDist * Math.sin(phi) * Math.sin(theta); 
+		DirLight.position.z = lightDist * Math.sin(phi) * Math.cos(theta); 
+
 	}
 
 	var guiSky = gui.addFolder('Sky');

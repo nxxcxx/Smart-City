@@ -64,7 +64,11 @@
 
 	assetManager
 
-		// platform hexagon shell
+		// empty hexagon platform 
+		.addFile('emptyPlatformTex', '1024emptyPlatform.png')
+		.addFile('emptyPlatform', 'emptyPlatform.obj')
+
+		// hexagon platform  shell
 		.addFile('shellTex', '1024platformShell.png')
 		.addFile('shell', 'platformShell.obj')
 
@@ -112,5 +116,19 @@
 		// resident 01
 		.addFile('resident01Tex', 'resident01/1024resident01.png')
 		.addFile('resident01', 'resident01/resident01.obj')
+
+		// resident 02
+		.addFile('resident02Tex', 'resident02/1024resident02.png')
+		.addFile('resident02', 'resident02/resident02.obj')
+
+		// landfill
+		.addFile('landfillTex', 'landfill/1024landfill.png')
+		.addFile('landfill', 'landfill/landfill.obj')
+
+		// water supply
+		.addFile('watersupplyTex', 'watersupply/1024watersupply.png')
+		.addFile('watersupply', 'watersupply/watersupply.obj')
+
+
 
 	;

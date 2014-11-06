@@ -21,7 +21,7 @@ THREE.BokehShader = {
 		"focalLength":   { type: "f", value: 24.0 },
 		"fstop": { type: "f", value: 0.9 },
 
-		"tDiffuse":   { type: "t", value: null },
+		"tColor":   { type: "t", value: null },
 		"tDepth":   { type: "t", value: null },
 
 		"maxblur":  { type: "f", value: 1.0 },
@@ -66,7 +66,7 @@ THREE.BokehShader = {
 
 		"varying vec2 vUv;",
 
-		"uniform sampler2D tDiffuse;",
+		"uniform sampler2D tColor;",
 		"uniform sampler2D tDepth;",
 		"uniform float textureWidth;",
 		"uniform float textureHeight;",
@@ -224,9 +224,9 @@ THREE.BokehShader = {
 
 			"vec3 col = vec3(0.0);",
 
-			"col.r = texture2D(tDiffuse,coords + vec2(0.0,1.0)*texel*fringe*blur).r;",
-			"col.g = texture2D(tDiffuse,coords + vec2(-0.866,-0.5)*texel*fringe*blur).g;",
-			"col.b = texture2D(tDiffuse,coords + vec2(0.866,-0.5)*texel*fringe*blur).b;",
+			"col.r = texture2D(tColor,coords + vec2(0.0,1.0)*texel*fringe*blur).r;",
+			"col.g = texture2D(tColor,coords + vec2(-0.866,-0.5)*texel*fringe*blur).g;",
+			"col.b = texture2D(tColor,coords + vec2(0.866,-0.5)*texel*fringe*blur).b;",
 
 			"vec3 lumcoeff = vec3(0.299,0.587,0.114);",
 			"float lum = dot(col.rgb, lumcoeff);",
@@ -341,9 +341,9 @@ THREE.BokehShader = {
 
 			"if(blur < 0.05) {",
 				"//some optimization thingy",
-				"col = texture2D(tDiffuse, vUv.xy).rgb;",
+				"col = texture2D(tColor, vUv.xy).rgb;",
 			"} else {",
-				"col = texture2D(tDiffuse, vUv.xy).rgb;",
+				"col = texture2D(tColor, vUv.xy).rgb;",
 				"float s = 1.0;",
 				"int ringsamples;",
 

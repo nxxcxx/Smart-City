@@ -14,13 +14,13 @@ function initSky(){
 
 	/// GUI
 	var effectController  = {
-		turbidity: 8,	//10
-		reileigh: 4,	//2
-		mieCoefficient: 0.1,//0.005
-		mieDirectionalG: 0.9,//0.8
-		luminance: 0.1,//1
-		inclination: 0.5, // elevation / inclination
-		azimuth: 0.5, // Facing front,					
+		turbidity: 4.8,
+		reileigh: 4,
+		mieCoefficient: 0.06,
+		mieDirectionalG: 0.76,
+		luminance: 0.35,
+		inclination: 0.83,
+		azimuth: 0.9,				
 		sun: !true
 	};
 
@@ -40,6 +40,14 @@ function initSky(){
 		sunSphere.position.z = distance * Math.sin(phi) * Math.cos(theta); 
 		sunSphere.visible = effectController.sun;
 		sky.uniforms.sunPosition.value.copy(sunSphere.position);
+
+
+		var lightDist = 6000;
+		theta += 0.2;
+		DirLight.position.x = lightDist * Math.cos(phi);
+		DirLight.position.y = lightDist * Math.sin(phi) * Math.sin(theta); 
+		DirLight.position.z = lightDist * Math.sin(phi) * Math.cos(theta); 
+
 	}
 
 	var guiSky = gui.addFolder('Sky');
