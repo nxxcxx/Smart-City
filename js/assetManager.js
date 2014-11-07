@@ -1,5 +1,5 @@
 
-	var assetManager = (function () {
+	var assetManager = (function assetManager() {
 
 		var texPath = 'assets/';
 		var texFormat = '.png';

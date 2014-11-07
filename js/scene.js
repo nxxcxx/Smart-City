@@ -11,10 +11,11 @@
 
 	// ---- settings
 	var scene_settings = {
+		enableHelper: false,
 		bgColor: 0x111113,
 		enableShadow: true,
 		maxAnisotropy: null
-	}
+	};
 
 
 	// ---- Scene
@@ -44,6 +45,8 @@
 	// ---- Stats
 		stats = new Stats();
 		container.appendChild( stats.domElement );
+		// disable graph
+		// document.getElementById('fpsGraph').style.display = 'none';
 
 	// ---- grid & axis helper
 		// var grid = new THREE.GridHelper(2000, 200);
@@ -95,18 +98,26 @@
 		scene.add(DirLight);
 
 		// // back light
-		light = new THREE.DirectionalLight(0xffffff, 0.5);
-		light.position.set(4000, 3000, -4000);
+		backLight = new THREE.DirectionalLight(0xffffff, 0.5);
+		backLight.position.set(4000, 3000, -4000);
 
-		var lightHelper = new THREE.DirectionalLightHelper(light, 100);
-		scene.add(lightHelper);
-		scene.add(light);
+		var backLightHelper = new THREE.DirectionalLightHelper(backLight, 100);
+		scene.add(backLightHelper);
+		scene.add(backLight);
 
 		// // ambient
 		light = new THREE.AmbientLight(0x050506);
 		scene.add(light);
 
 
+
+		function toggleHelper() {
+			axisHelper.visible = scene_settings.enableHelper;
+			DirLight.shadowCameraVisible = scene_settings.enableHelper;
+			backLightHelper.visible = scene_settings.enableHelper;
+			scene_settings.enableHelper = !scene_settings.enableHelper;
+		}
+		toggleHelper();
 
 
 	// ---- post processing
@@ -139,6 +150,9 @@
 		var copyPass = new THREE.ShaderPass( THREE.CopyShader );
 		copyPass.renderToScreen = true;
 
+		var composer = new THREE.EffectComposer( renderer );
+		composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
+
 
 		var postEffect = {
 			SSAO: false,
@@ -150,33 +164,6 @@
 		guiPP.add( postEffect, 'SSAO').onChange(togglePostEffect);
 		guiPP.add( postEffect, 'FXAA').onChange(togglePostEffect);
 		guiPP.add( postEffect, 'CC').onChange(togglePostEffect);
-
-
-		var composer = new THREE.EffectComposer( renderer );
-		composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
-
-
-		function togglePostEffect() {
-
-			composer = new THREE.EffectComposer( renderer );
-			composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
-
-			composer.addPass( renderPass );
-
-			if (postEffect.SSAO) {
-				composer.addPass( SSAOpass );
-			}
-			if (postEffect.FXAA) {
-				composer.addPass( FXAApass );
-			}
-			if (postEffect.CC) {
-				composer.addPass( CCpass );	
-			}
-
-			composer.addPass( copyPass );	// only set render to screen for final pass
-			
-		}
-		togglePostEffect();
 
 
 		var ccu = CCpass.uniforms;
@@ -203,4 +190,27 @@
 		guiCC.add( ccuEffect, 'mulG', 1.0, 3.0, 0.01).onChange(adjustCC);
 		guiCC.add( ccuEffect, 'mulB', 1.0, 3.0, 0.01).onChange(adjustCC);
 		adjustCC();
+
+
+		function togglePostEffect() {
+
+			composer = new THREE.EffectComposer( renderer );
+			composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
+
+			composer.addPass( renderPass );
+
+			if (postEffect.SSAO) {
+				composer.addPass( SSAOpass );
+			}
+			if (postEffect.FXAA) {
+				composer.addPass( FXAApass );
+			}
+			if (postEffect.CC) {
+				composer.addPass( CCpass );	
+			}
+
+			composer.addPass( copyPass );	// only set render to screen for final pass
+			
+		}
+		togglePostEffect();
 

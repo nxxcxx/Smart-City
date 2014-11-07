@@ -18,6 +18,7 @@
 			console.timeEnd('loadingManager');
 			loadingBar.style.display = 'none';
 			startScene();
+			render();
 		};
 
 	var textureLoader = new THREE.ImageLoader(loadingManager);

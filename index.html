@@ -11,6 +11,55 @@
 	
 	<div id="canvas-container"></div>
 
+		<script id="vertexShader" type="x-shader/x-vertex">
+
+			varying vec2 vUv;
+
+			void main()
+			{
+				vUv = uv;
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+				gl_Position = projectionMatrix * mvPosition;
+			}
+
+		</script>
+
+		<script id="fragmentShader" type="x-shader/x-fragment">
+
+			#define TAU 10.28318530718
+			#define MAX_ITER 5
+
+			uniform vec2 resolution;
+			uniform float time;
+
+			varying vec2 vUv;
+
+			void main( void ) {
+
+				vec2 sp = vUv;
+				
+				vec2 p = sp*TAU - 20.0;
+				vec2 i = p;
+				float c = 1.0;
+				float inten = .05;
+
+				for (int n = 0; n < MAX_ITER; n++) 
+				{
+					float t = time * (1.0 - (3.5 / float(n+1)));
+					i = p + vec2(cos(t - i.x) + sin(t + i.y), sin(t - i.y) + cos(t + i.x));
+					c += 1.0/length(vec2(p.x / (sin(i.x+t)/inten),p.y / (cos(i.y+t)/inten)));
+				}
+				c /= float(MAX_ITER);
+				c = 1.55-sqrt(c);
+				vec3 colour = vec3(pow(abs(c), 6.0));
+				gl_FragColor = vec4(clamp(colour + vec3(0.0, 0.3, 0.5), 0.0, 1.0), 1.0);
+			}
+
+		</script>
+
+
+
+
 
 	<script src="js/vendor/tween.min.js"></script>
 	<script src="js/vendor/underscore.js"></script>
