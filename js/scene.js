@@ -8,6 +8,8 @@
 
 	var mouse = new THREE.Vector2();
 	var gui = new dat.GUI();
+	var guiCtrl = gui.addFolder('Controls');
+	var guiDebug = gui.addFolder('Debug');
 
 	// ---- settings
 	var scene_settings = {
@@ -65,7 +67,7 @@
 
 		var SHADOW_MAP_WIDTH = 4096, SHADOW_MAP_HEIGHT = 4096;
 
-		// main light
+		// sun light
 		var DirLight = new THREE.DirectionalLight(0xffffff, 1.2);	//0x331100
 		DirLight.position.set(-4000, 3000, 3000);
 
@@ -89,13 +91,18 @@
 			DirLight.shadowMapHeight = SHADOW_MAP_HEIGHT;
 
 			var dli = {color: '#ffffff'};
-			gui.addColor(dli, 'color').name('dirL').onChange(updateLightCol);
+			guiDebug.addColor(dli, 'color').name('dirL').onChange(updateLightCol);
 			function updateLightCol(c) {
 				DirLight.color.set(c);
 			}
 
 
 		scene.add(DirLight);
+
+		// front light
+		// var frontLight = new THREE.DirectionalLight(0xffffff, 1.0);	//0x331100
+		// frontLight.position.set(-4000, 3000, 3000);
+		// scene.add(frontLight);
 
 		// // back light
 		backLight = new THREE.DirectionalLight(0xffffff, 0.5);
@@ -160,7 +167,7 @@
 			CC: true
 		};
 
-		var guiPP = gui.addFolder('PostProcessing');
+		var guiPP = guiDebug.addFolder('PostProcessing');
 		guiPP.add( postEffect, 'SSAO').onChange(togglePostEffect);
 		guiPP.add( postEffect, 'FXAA').onChange(togglePostEffect);
 		guiPP.add( postEffect, 'CC').onChange(togglePostEffect);
@@ -182,7 +189,7 @@
 			ccu.powRGB.value.set(ccuEffect.powR, ccuEffect.powG, ccuEffect.powB);
 		}
 
-		var guiCC = guiPP.addFolder('CC');
+		var guiCC = guiDebug.addFolder('CC');
 		guiCC.add( ccuEffect, 'powR', 1.0, 3.0, 0.01).onChange(adjustCC);
 		guiCC.add( ccuEffect, 'powG', 1.0, 3.0, 0.01).onChange(adjustCC);
 		guiCC.add( ccuEffect, 'powB', 1.0, 3.0, 0.01).onChange(adjustCC);

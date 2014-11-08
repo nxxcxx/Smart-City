@@ -1,5 +1,4 @@
 
-	// browser events
 	window.addEventListener('keypress', function (event) {
 		if (event.keyCode === 32) {	// if spacebar is pressed
 			event.preventDefault();
@@ -11,6 +10,14 @@
 			console.log('FOV:', camera.fov);
 		}
 	});
+
+	// fullscreen
+	document.body.addEventListener('keypress', function(event) {
+		if (event.keyCode === 102) {	// if 'F' is pressed
+			event.preventDefault();
+			THREEx.FullScreen.request();
+		}
+	}, false);
 
 	window.addEventListener('resize', onWindowResize, false);
 	function onWindowResize() {
