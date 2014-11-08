@@ -1107,6 +1107,8 @@
 	window.addEventListener('keypress', function (event) {
 		if (event.keyCode === 32) {	// if spacebar is pressed
 			event.preventDefault();
+			gui.closed =! gui.closed; // toggle gui
+
 		}
 		if (event.keyCode === 99) {	// if 'C' is pressed
 			event.preventDefault();
