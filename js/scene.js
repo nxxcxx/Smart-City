@@ -10,6 +10,7 @@
 	var gui = new dat.GUI();
 	var guiCtrl = gui.addFolder('Controls');
 	var guiDebug = gui.addFolder('Debug');
+	gui.close();
 
 	// ---- settings
 	var scene_settings = {
@@ -160,17 +161,18 @@
 		var composer = new THREE.EffectComposer( renderer );
 		composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
 
+		composer.addPass(renderPass);
+		composer.addPass(SSAOpass);
+		composer.addPass(FXAApass);
+		composer.addPass(CCpass);
+		composer.addPass(copyPass);
 
-		var postEffect = {
-			SSAO: false,
-			FXAA: true,
-			CC: true
-		};
+		SSAOpass.enabled = false;
 
 		var guiPP = guiDebug.addFolder('PostProcessing');
-		guiPP.add( postEffect, 'SSAO').onChange(togglePostEffect);
-		guiPP.add( postEffect, 'FXAA').onChange(togglePostEffect);
-		guiPP.add( postEffect, 'CC').onChange(togglePostEffect);
+		guiPP.add( SSAOpass, 'enabled').name('SSAO');
+		guiPP.add( FXAApass, 'enabled').name('FXAA');
+		guiPP.add( CCpass, 'enabled').name('Color Correction');
 
 
 		var ccu = CCpass.uniforms;
@@ -189,7 +191,7 @@
 			ccu.powRGB.value.set(ccuEffect.powR, ccuEffect.powG, ccuEffect.powB);
 		}
 
-		var guiCC = guiDebug.addFolder('CC');
+		var guiCC = guiPP.addFolder('Color Correction');
 		guiCC.add( ccuEffect, 'powR', 1.0, 3.0, 0.01).onChange(adjustCC);
 		guiCC.add( ccuEffect, 'powG', 1.0, 3.0, 0.01).onChange(adjustCC);
 		guiCC.add( ccuEffect, 'powB', 1.0, 3.0, 0.01).onChange(adjustCC);
@@ -199,25 +201,5 @@
 		adjustCC();
 
 
-		function togglePostEffect() {
 
-			composer = new THREE.EffectComposer( renderer );
-			composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
-
-			composer.addPass( renderPass );
-
-			if (postEffect.SSAO) {
-				composer.addPass( SSAOpass );
-			}
-			if (postEffect.FXAA) {
-				composer.addPass( FXAApass );
-			}
-			if (postEffect.CC) {
-				composer.addPass( CCpass );	
-			}
-
-			composer.addPass( copyPass );	// only set render to screen for final pass
-			
-		}
-		togglePostEffect();
 

@@ -10,6 +10,7 @@
 	var gui = new dat.GUI();
 	var guiCtrl = gui.addFolder('Controls');
 	var guiDebug = gui.addFolder('Debug');
+	gui.close();
 
 	// ---- settings
 	var scene_settings = {
@@ -160,17 +161,18 @@
 		var composer = new THREE.EffectComposer( renderer );
 		composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
 
+		composer.addPass(renderPass);
+		composer.addPass(SSAOpass);
+		composer.addPass(FXAApass);
+		composer.addPass(CCpass);
+		composer.addPass(copyPass);
 
-		var postEffect = {
-			SSAO: false,
-			FXAA: true,
-			CC: true
-		};
+		SSAOpass.enabled = false;
 
 		var guiPP = guiDebug.addFolder('PostProcessing');
-		guiPP.add( postEffect, 'SSAO').onChange(togglePostEffect);
-		guiPP.add( postEffect, 'FXAA').onChange(togglePostEffect);
-		guiPP.add( postEffect, 'CC').onChange(togglePostEffect);
+		guiPP.add( SSAOpass, 'enabled').name('SSAO');
+		guiPP.add( FXAApass, 'enabled').name('FXAA');
+		guiPP.add( CCpass, 'enabled').name('Color Correction');
 
 
 		var ccu = CCpass.uniforms;
@@ -189,7 +191,7 @@
 			ccu.powRGB.value.set(ccuEffect.powR, ccuEffect.powG, ccuEffect.powB);
 		}
 
-		var guiCC = guiDebug.addFolder('CC');
+		var guiCC = guiPP.addFolder('Color Correction');
 		guiCC.add( ccuEffect, 'powR', 1.0, 3.0, 0.01).onChange(adjustCC);
 		guiCC.add( ccuEffect, 'powG', 1.0, 3.0, 0.01).onChange(adjustCC);
 		guiCC.add( ccuEffect, 'powB', 1.0, 3.0, 0.01).onChange(adjustCC);
@@ -199,27 +201,7 @@
 		adjustCC();
 
 
-		function togglePostEffect() {
 
-			composer = new THREE.EffectComposer( renderer );
-			composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
-
-			composer.addPass( renderPass );
-
-			if (postEffect.SSAO) {
-				composer.addPass( SSAOpass );
-			}
-			if (postEffect.FXAA) {
-				composer.addPass( FXAApass );
-			}
-			if (postEffect.CC) {
-				composer.addPass( CCpass );	
-			}
-
-			composer.addPass( copyPass );	// only set render to screen for final pass
-			
-		}
-		togglePostEffect();
 
 
 
@@ -845,12 +827,23 @@
 		// seaShaderUniforms.time.value = time*0.0005;
 		world.turbines.spin();
 
-		if (currView === 'waterNetwork') {
-			world.watersupply.rotation.y += 0.01;
-			if (world.watersupply.rotation.y > Math.PI*2.0) {
-				world.watersupply.rotation.y = 0;
+		// if (currView === 'waterNetwork') {
+		// 	world.watersupply.rotation.y += 0.01;
+		// 	if (world.watersupply.rotation.y > Math.PI*2.0) {
+		// 		world.watersupply.rotation.y = 0;
+		// 	}
+		// }
+
+
+		if (guiSky && guiCC) {
+			for (var i in guiSky.__controllers) {
+				guiSky.__controllers[i].updateDisplay();
+			}
+			for (var i in guiCC.__controllers) {
+				guiCC.__controllers[i].updateDisplay();
 			}
 		}
+		
 		
 	}
 
@@ -1048,8 +1041,8 @@
 
 			if (currView === 'waterNetwork') return;
 
-			animateCameraTo(new THREE.Vector3(861.37 , 376.77 , 372.15), 
-							new THREE.Vector3(-113.32 , 709.78 , 628.31));
+			animateCameraTo(new THREE.Vector3(854.92 , 415.85 , 514.55), 
+							new THREE.Vector3(-60.48 , 697.84 , 524.37));
 
 			animateFOV(80);
 			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
@@ -1072,7 +1065,6 @@
 			setFov(5);
 			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
 			animateDirLightColor(1, 1, 1);
-			currView = 'lowPerspectiveView';
 
 			resetView();
 
@@ -1150,6 +1142,9 @@
 	// function onClick( event ) {
 	// 	event.preventDefault();
 	// } 
+
+var guiSky;
+
 // sky by zz85
 function initSky() {
 
@@ -1210,7 +1205,7 @@ function initSky() {
 
 	};
 
-	var guiSky = guiDebug.addFolder('Sky');
+	guiSky = guiDebug.addFolder('Sky');
 	guiSky.add( sky.mesh.ctrl, "turbidity", 1.0, 20.0, 0.1 ).onChange( sky.mesh.updateCtrl );
 	guiSky.add( sky.mesh.ctrl, "reileigh", 0.0, 4, 0.001 ).onChange( sky.mesh.updateCtrl );
 	guiSky.add( sky.mesh.ctrl, "mieCoefficient", 0.0, 0.1, 0.001 ).onChange( sky.mesh.updateCtrl );

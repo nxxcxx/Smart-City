@@ -23,3 +23,42 @@ canvas {
 	bottom: 0;
 	left: 0;
 }
+
+
+div.content {
+	position: absolute;
+	width: 40%;
+	height: 100%;
+	right: 0px;
+	top: 0px;
+	background-color: rgba(0, 0, 0, 0.2);
+}
+
+.photo {
+	position: relative;
+	margin: auto;
+	top: 150px;
+	width: 95%;
+	height: 40%;
+	background-color: rgba(255, 255, 255, 0.0);
+}
+
+
+.text-area {
+	padding: 10px;
+	position: relative;
+	margin: auto;
+	top: 150px;
+	width: 90%;
+	height: 30%;
+	background-color: rgba(255, 255, 255, 0.5);
+}
+
+.header {
+	font: bold 30px/150% Arial, Helvetica, sans-serif;
+
+}
+
+.text-body {
+	font: 20px/150% Arial, Helvetica, sans-serif;
+}

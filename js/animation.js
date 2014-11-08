@@ -7,12 +7,23 @@
 		// seaShaderUniforms.time.value = time*0.0005;
 		world.turbines.spin();
 
-		if (currView === 'waterNetwork') {
-			world.watersupply.rotation.y += 0.01;
-			if (world.watersupply.rotation.y > Math.PI*2.0) {
-				world.watersupply.rotation.y = 0;
+		// if (currView === 'waterNetwork') {
+		// 	world.watersupply.rotation.y += 0.01;
+		// 	if (world.watersupply.rotation.y > Math.PI*2.0) {
+		// 		world.watersupply.rotation.y = 0;
+		// 	}
+		// }
+
+
+		if (guiSky && guiCC) {
+			for (var i in guiSky.__controllers) {
+				guiSky.__controllers[i].updateDisplay();
+			}
+			for (var i in guiCC.__controllers) {
+				guiCC.__controllers[i].updateDisplay();
 			}
 		}
+		
 		
 	}
 
@@ -210,8 +221,8 @@
 
 			if (currView === 'waterNetwork') return;
 
-			animateCameraTo(new THREE.Vector3(861.37 , 376.77 , 372.15), 
-							new THREE.Vector3(-113.32 , 709.78 , 628.31));
+			animateCameraTo(new THREE.Vector3(854.92 , 415.85 , 514.55), 
+							new THREE.Vector3(-60.48 , 697.84 , 524.37));
 
 			animateFOV(80);
 			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
@@ -234,7 +245,6 @@
 			setFov(5);
 			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
 			animateDirLightColor(1, 1, 1);
-			currView = 'lowPerspectiveView';
 
 			resetView();
 
