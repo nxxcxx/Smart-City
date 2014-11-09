@@ -11,15 +11,11 @@
 			console.log('CPOS:', cameraCtrl.object.position.x.toFixed(2), ',', cameraCtrl.object.position.y.toFixed(2), ',', cameraCtrl.object.position.z.toFixed(2));
 			console.log('FOV:', camera.fov);
 		}
-	});
-
-	// fullscreen
-	document.body.addEventListener('keypress', function(event) {
 		if (event.keyCode === 102) {	// if 'F' is pressed
 			event.preventDefault();
 			THREEx.FullScreen.request();
 		}
-	}, false);
+	});
 
 	window.addEventListener('resize', onWindowResize, false);
 	function onWindowResize() {

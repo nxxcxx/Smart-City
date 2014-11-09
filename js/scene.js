@@ -39,6 +39,7 @@
 
 	// ---- Renderer
 		renderer = new THREE.WebGLRenderer({antialias: true});
+		renderer.setClearColor(scene_settings.bgColor, 1);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		
 		renderer.shadowMapEnabled = scene_settings.enableShadow;

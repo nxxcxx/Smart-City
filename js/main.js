@@ -7,16 +7,15 @@
 
 	function render(time) {
 		requestAnimationFrame(render);
+		stats.update();
 		TWEEN.update(time);
 		animate(time);
-		renderer.setClearColor(scene_settings.bgColor, 1);
 		
-		// intersectMouse(assetManager.getModel('hubBuilding'));
+		// intersectMouse(world.hub);
 
 		// renderer.render(scene, camera);
 		composer.render();
 
-		stats.update();
 	}
 
 

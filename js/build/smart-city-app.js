@@ -39,6 +39,7 @@
 
 	// ---- Renderer
 		renderer = new THREE.WebGLRenderer({antialias: true});
+		renderer.setClearColor(scene_settings.bgColor, 1);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		
 		renderer.shadowMapEnabled = scene_settings.enableShadow;
@@ -346,10 +347,14 @@
 
 	var loadingBar = document.getElementById('loading');
 
+	var totalItems;
+	var loadedItems;
 	var loadingManager = new THREE.LoadingManager();
 		console.time('loadingManager');
 		loadingManager.onProgress = function ( item, loaded, total ) {
-			console.log( item, loaded, total );
+			// console.log( item, loaded, total );
+			totalItems = total;
+			loadedItems = loaded;
 			var percentageCompleted = loaded/total * 100;
 			loadingBar.style.width = percentageCompleted + '%';
 		};
@@ -357,7 +362,7 @@
 			console.error('Error: loading assets');
 		};
 		loadingManager.onLoad = function () {
-			console.log('finished loading');
+			console.log(loadedItems + '/' + totalItems + ' assets loaded');
 			console.timeEnd('loadingManager');
 			loadingBar.style.display = 'none';
 			startScene();
@@ -381,14 +386,10 @@
 			asset.model = object.children[0]; // select mesh
 			asset.model.geometry.computeVertexNormals();  // very important ************************************ or NO MATERIAL!
 			
-
-
 			// move later
 			asset.model.receiveShadow = true;
 			asset.model.castShadow = true;
-
-
-
+			
 		});
 	});
 
@@ -445,16 +446,15 @@
 
 	function render(time) {
 		requestAnimationFrame(render);
+		stats.update();
 		TWEEN.update(time);
 		animate(time);
-		renderer.setClearColor(scene_settings.bgColor, 1);
 		
-		// intersectMouse(assetManager.getModel('hubBuilding'));
+		// intersectMouse(world.hub);
 
 		// renderer.render(scene, camera);
 		composer.render();
 
-		stats.update();
 	}
 
 
@@ -1112,15 +1112,11 @@ function setupWorld() {
 			console.log('CPOS:', cameraCtrl.object.position.x.toFixed(2), ',', cameraCtrl.object.position.y.toFixed(2), ',', cameraCtrl.object.position.z.toFixed(2));
 			console.log('FOV:', camera.fov);
 		}
-	});
-
-	// fullscreen
-	document.body.addEventListener('keypress', function(event) {
 		if (event.keyCode === 102) {	// if 'F' is pressed
 			event.preventDefault();
 			THREEx.FullScreen.request();
 		}
-	}, false);
+	});
 
 	window.addEventListener('resize', onWindowResize, false);
 	function onWindowResize() {

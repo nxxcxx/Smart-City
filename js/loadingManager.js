@@ -3,10 +3,14 @@
 
 	var loadingBar = document.getElementById('loading');
 
+	var totalItems;
+	var loadedItems;
 	var loadingManager = new THREE.LoadingManager();
 		console.time('loadingManager');
 		loadingManager.onProgress = function ( item, loaded, total ) {
-			console.log( item, loaded, total );
+			// console.log( item, loaded, total );
+			totalItems = total;
+			loadedItems = loaded;
 			var percentageCompleted = loaded/total * 100;
 			loadingBar.style.width = percentageCompleted + '%';
 		};
@@ -14,7 +18,7 @@
 			console.error('Error: loading assets');
 		};
 		loadingManager.onLoad = function () {
-			console.log('finished loading');
+			console.log(loadedItems + '/' + totalItems + ' assets loaded');
 			console.timeEnd('loadingManager');
 			loadingBar.style.display = 'none';
 			startScene();
@@ -38,14 +42,10 @@
 			asset.model = object.children[0]; // select mesh
 			asset.model.geometry.computeVertexNormals();  // very important ************************************ or NO MATERIAL!
 			
-
-
 			// move later
 			asset.model.receiveShadow = true;
 			asset.model.castShadow = true;
-
-
-
+			
 		});
 	});
 
