@@ -39,11 +39,11 @@
 	// ---- Renderer
 		renderer = new THREE.WebGLRenderer({antialias: true});
 		renderer.setSize(window.innerWidth, window.innerHeight);
+		
+		renderer.shadowMapEnabled = scene_settings.enableShadow;
+		renderer.shadowMapType = THREE.PCFSoftShadowMap;
+
 		scene_settings.maxAnisotropy = renderer.getMaxAnisotropy();
-
-			renderer.shadowMapEnabled = scene_settings.enableShadow;
-			renderer.shadowMapType = THREE.PCFSoftShadowMap;
-
 
 
 		container.appendChild(renderer.domElement);
@@ -55,12 +55,12 @@
 		// document.getElementById('fpsGraph').style.display = 'none';
 
 	// ---- grid & axis helper
-		// var grid = new THREE.GridHelper(2000, 200);
-		// grid.setColors(0x00bbff, 0xffffff);
-		// grid.material.opacity = 0.1;
-		// grid.material.transparent = true;
-		// grid.position.y = -300;
-		// scene.add(grid);
+		var grid = new THREE.GridHelper(4000, 500);
+		grid.setColors(0xff8800, 0x000000);
+		grid.material.opacity = 0.7;
+		grid.material.transparent = true;
+		grid.position.y = -300;
+		scene.add(grid);
 
 		var axisHelper = new THREE.AxisHelper(1000);
 		axisHelper.position.y = 1000;
@@ -126,83 +126,10 @@
 			axisHelper.visible = scene_settings.enableHelper;
 			DirLight.shadowCameraVisible = scene_settings.enableHelper;
 			backLightHelper.visible = scene_settings.enableHelper;
+			grid.visible = scene_settings.enableHelper;
 			scene_settings.enableHelper = !scene_settings.enableHelper;
 		}
 		toggleHelper();
-
-
-	// ---- post processing
-
-
-		var depthTarget = new THREE.WebGLRenderTarget( 512, 512, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat } );
-				
-		var SSAOpass = new THREE.ShaderPass( THREE.SSAOShader );
-		SSAOpass.uniforms[ 'tDepth' ].value = depthTarget;
-		SSAOpass.uniforms[ 'size' ].value.set( 512, 512 );
-		SSAOpass.uniforms[ 'cameraNear' ].value = camera.near;
-		SSAOpass.uniforms[ 'cameraFar' ].value = camera.far;
-		SSAOpass.uniforms[ 'onlyAO' ].value = 0;	// debug
-		SSAOpass.uniforms[ 'lumInfluence' ].value = 0.5;
-		
-
-		// var DOFpass = new THREE.ShaderPass( THREE.BokehShader );	// todo fix broken shader
-		// DOFpass.uniforms[ 'tDepth' ].value = depthTarget;
-		// DOFpass.uniforms[ 'zNear' ].value = camera.near;
-		// DOFpass.uniforms[ 'zFar' ].value = camera.far;
-		
-
-		var FXAApass = new THREE.ShaderPass( THREE.FXAAShader );
-		FXAApass.uniforms['resolution'].value.set(1 / (window.innerWidth * dpr), 1 / (window.innerHeight * dpr));
-
-		var renderPass = new THREE.RenderPass( scene, camera );
-
-		var CCpass = new THREE.ShaderPass( THREE.ColorCorrectionShader );
-
-		var copyPass = new THREE.ShaderPass( THREE.CopyShader );
-		copyPass.renderToScreen = true;
-
-		var composer = new THREE.EffectComposer( renderer );
-		composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
-
-		composer.addPass(renderPass);
-		composer.addPass(SSAOpass);
-		composer.addPass(FXAApass);
-		composer.addPass(CCpass);
-		composer.addPass(copyPass);
-
-		SSAOpass.enabled = false;
-
-		var guiPP = guiDebug.addFolder('Post-Processing');
-		guiPP.add( SSAOpass, 'enabled').name('SSAO');
-		guiPP.add( FXAApass, 'enabled').name('FXAA');
-		guiPP.add( CCpass, 'enabled').name('Color Correction');
-
-
-		var ccu = CCpass.uniforms;
-
-		var ccuEffect = {
-			powR: 1.5,
-			powG: 1.2,
-			powB: 1.0,
-			mulR: 1.0,
-			mulG: 1.0,
-			mulB: 1.0,
-		};
-
-		function adjustCC() {
-			ccu.mulRGB.value.set(ccuEffect.mulR, ccuEffect.mulG, ccuEffect.mulB);
-			ccu.powRGB.value.set(ccuEffect.powR, ccuEffect.powG, ccuEffect.powB);
-		}
-
-		var guiCC = guiPP.addFolder('Color Correction');
-		guiCC.add( ccuEffect, 'powR', 1.0, 3.0, 0.01).onChange(adjustCC);
-		guiCC.add( ccuEffect, 'powG', 1.0, 3.0, 0.01).onChange(adjustCC);
-		guiCC.add( ccuEffect, 'powB', 1.0, 3.0, 0.01).onChange(adjustCC);
-		guiCC.add( ccuEffect, 'mulR', 1.0, 3.0, 0.01).onChange(adjustCC);
-		guiCC.add( ccuEffect, 'mulG', 1.0, 3.0, 0.01).onChange(adjustCC);
-		guiCC.add( ccuEffect, 'mulB', 1.0, 3.0, 0.01).onChange(adjustCC);
-		adjustCC();
-
 
 
 

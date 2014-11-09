@@ -115,7 +115,7 @@
 						liminance: e,
 						inclination: f,
 						azimuth: g
-					 }, 3000 )
+					 }, 5000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() {sky.updateCtrl();})
 			.start();
@@ -132,6 +132,13 @@
 			.start();
 		}
 
+		function animateClearSky() {
+			animateSky(18.9, 4, 0.063, 0.94, 0.35, 0.86, 0.9);
+		}
+
+		function animateSunsetSky() {
+			animateSky(20, 4, 0.1, 0.93, 0.11, 0.5, 0.65);
+		}
 
 
 	// --------- City Views Animation
@@ -148,7 +155,7 @@
 							new THREE.Vector3(-1830.50 , 2112.81 , -25.24));
 
 			animateFOV(80);
-			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9); // clear sky
+			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
 			resetView();
@@ -163,7 +170,7 @@
 							new THREE.Vector3(-570.12 , 216.03 , -188.98));
 
 			animateFOV(100);
-			animateSky(20, 4, 0.1, 0.93, 0.11, 0.5, 0.65);	//sunset sky: 20, 4, 0.1, 0.93, 0.11, 0.5, 0.67
+			animateSunsetSky();
 			animateDirLightColor(0, 0, 0);
 
 			resetView();
@@ -178,7 +185,7 @@
 							new THREE.Vector3(-462.15, 171.85, -245.54));
 
 			animateFOV(120);
-			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
+			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
 			resetView();
@@ -193,7 +200,7 @@
 							new THREE.Vector3(-1859.96 , 453.77 , 1066.81));
 
 			animateFOV(90);
-			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
+			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
 			resetView();
@@ -208,7 +215,7 @@
 							new THREE.Vector3(1294.15 , 509.40 , -1416.20));
 
 			animateFOV(80);
-			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
+			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
 			resetView();
@@ -225,7 +232,7 @@
 							new THREE.Vector3(-60.48 , 697.84 , 524.37));
 
 			animateFOV(80);
-			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
+			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
 			world.watersupply.animateY(700);
@@ -241,8 +248,8 @@
 			animateCameraTo(new THREE.Vector3(-23.30 , 721.89 , -9.59), 
 							new THREE.Vector3(-15511.88 , 912.70 , 4339.07));
 
-			setFov(5);
-			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
+			animateFOV(5);
+			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
 			resetView();

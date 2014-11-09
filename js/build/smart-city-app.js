@@ -39,11 +39,11 @@
 	// ---- Renderer
 		renderer = new THREE.WebGLRenderer({antialias: true});
 		renderer.setSize(window.innerWidth, window.innerHeight);
+		
+		renderer.shadowMapEnabled = scene_settings.enableShadow;
+		renderer.shadowMapType = THREE.PCFSoftShadowMap;
+
 		scene_settings.maxAnisotropy = renderer.getMaxAnisotropy();
-
-			renderer.shadowMapEnabled = scene_settings.enableShadow;
-			renderer.shadowMapType = THREE.PCFSoftShadowMap;
-
 
 
 		container.appendChild(renderer.domElement);
@@ -55,12 +55,12 @@
 		// document.getElementById('fpsGraph').style.display = 'none';
 
 	// ---- grid & axis helper
-		// var grid = new THREE.GridHelper(2000, 200);
-		// grid.setColors(0x00bbff, 0xffffff);
-		// grid.material.opacity = 0.1;
-		// grid.material.transparent = true;
-		// grid.position.y = -300;
-		// scene.add(grid);
+		var grid = new THREE.GridHelper(4000, 500);
+		grid.setColors(0xff8800, 0x000000);
+		grid.material.opacity = 0.7;
+		grid.material.transparent = true;
+		grid.position.y = -300;
+		scene.add(grid);
 
 		var axisHelper = new THREE.AxisHelper(1000);
 		axisHelper.position.y = 1000;
@@ -126,87 +126,85 @@
 			axisHelper.visible = scene_settings.enableHelper;
 			DirLight.shadowCameraVisible = scene_settings.enableHelper;
 			backLightHelper.visible = scene_settings.enableHelper;
+			grid.visible = scene_settings.enableHelper;
 			scene_settings.enableHelper = !scene_settings.enableHelper;
 		}
 		toggleHelper();
 
 
-	// ---- post processing
-
-
-		var depthTarget = new THREE.WebGLRenderTarget( 512, 512, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat } );
-				
-		var SSAOpass = new THREE.ShaderPass( THREE.SSAOShader );
-		SSAOpass.uniforms[ 'tDepth' ].value = depthTarget;
-		SSAOpass.uniforms[ 'size' ].value.set( 512, 512 );
-		SSAOpass.uniforms[ 'cameraNear' ].value = camera.near;
-		SSAOpass.uniforms[ 'cameraFar' ].value = camera.far;
-		SSAOpass.uniforms[ 'onlyAO' ].value = 0;	// debug
-		SSAOpass.uniforms[ 'lumInfluence' ].value = 0.5;
-		
-
-		// var DOFpass = new THREE.ShaderPass( THREE.BokehShader );	// todo fix broken shader
-		// DOFpass.uniforms[ 'tDepth' ].value = depthTarget;
-		// DOFpass.uniforms[ 'zNear' ].value = camera.near;
-		// DOFpass.uniforms[ 'zFar' ].value = camera.far;
-		
-
-		var FXAApass = new THREE.ShaderPass( THREE.FXAAShader );
-		FXAApass.uniforms['resolution'].value.set(1 / (window.innerWidth * dpr), 1 / (window.innerHeight * dpr));
-
-		var renderPass = new THREE.RenderPass( scene, camera );
-
-		var CCpass = new THREE.ShaderPass( THREE.ColorCorrectionShader );
-
-		var copyPass = new THREE.ShaderPass( THREE.CopyShader );
-		copyPass.renderToScreen = true;
-
-		var composer = new THREE.EffectComposer( renderer );
-		composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
-
-		composer.addPass(renderPass);
-		composer.addPass(SSAOpass);
-		composer.addPass(FXAApass);
-		composer.addPass(CCpass);
-		composer.addPass(copyPass);
-
-		SSAOpass.enabled = false;
-
-		var guiPP = guiDebug.addFolder('Post-Processing');
-		guiPP.add( SSAOpass, 'enabled').name('SSAO');
-		guiPP.add( FXAApass, 'enabled').name('FXAA');
-		guiPP.add( CCpass, 'enabled').name('Color Correction');
-
-
-		var ccu = CCpass.uniforms;
-
-		var ccuEffect = {
-			powR: 1.5,
-			powG: 1.2,
-			powB: 1.0,
-			mulR: 1.0,
-			mulG: 1.0,
-			mulB: 1.0,
-		};
-
-		function adjustCC() {
-			ccu.mulRGB.value.set(ccuEffect.mulR, ccuEffect.mulG, ccuEffect.mulB);
-			ccu.powRGB.value.set(ccuEffect.powR, ccuEffect.powG, ccuEffect.powB);
-		}
-
-		var guiCC = guiPP.addFolder('Color Correction');
-		guiCC.add( ccuEffect, 'powR', 1.0, 3.0, 0.01).onChange(adjustCC);
-		guiCC.add( ccuEffect, 'powG', 1.0, 3.0, 0.01).onChange(adjustCC);
-		guiCC.add( ccuEffect, 'powB', 1.0, 3.0, 0.01).onChange(adjustCC);
-		guiCC.add( ccuEffect, 'mulR', 1.0, 3.0, 0.01).onChange(adjustCC);
-		guiCC.add( ccuEffect, 'mulG', 1.0, 3.0, 0.01).onChange(adjustCC);
-		guiCC.add( ccuEffect, 'mulB', 1.0, 3.0, 0.01).onChange(adjustCC);
-		adjustCC();
 
 
 
+// ---- Post-Processing
+
+	var depthTarget = new THREE.WebGLRenderTarget( 512, 512, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat } );
+			
+	var SSAOpass = new THREE.ShaderPass( THREE.SSAOShader );
+	SSAOpass.uniforms[ 'tDepth' ].value = depthTarget;
+	SSAOpass.uniforms[ 'size' ].value.set( 512, 512 );
+	SSAOpass.uniforms[ 'cameraNear' ].value = camera.near;
+	SSAOpass.uniforms[ 'cameraFar' ].value = camera.far;
+	SSAOpass.uniforms[ 'onlyAO' ].value = 0;	// debug
+	SSAOpass.uniforms[ 'lumInfluence' ].value = 0.5;
 
 
+	var FXAApass = new THREE.ShaderPass( THREE.FXAAShader );
+	FXAApass.uniforms['resolution'].value.set(1 / (screenWidth * dpr), 1 / (screenHeight * dpr));
+
+	var renderPass = new THREE.RenderPass( scene, camera );
+
+	var CCpass = new THREE.ShaderPass( THREE.ColorCorrectionShader );
+
+	var copyPass = new THREE.ShaderPass( THREE.CopyShader );
+	copyPass.renderToScreen = true;
+
+	var composer = new THREE.EffectComposer( renderer );
+	composer.setSize(screenWidth * dpr, screenHeight * dpr);
+
+	composer.addPass(renderPass);
+	composer.addPass(SSAOpass);
+
+	// 4xFXAA
+	composer.addPass(FXAApass);
+	composer.addPass(FXAApass);
+	composer.addPass(FXAApass);
+	composer.addPass(FXAApass);
+
+	composer.addPass(CCpass);
+	composer.addPass(copyPass);
+
+	SSAOpass.enabled = false;
+
+	var guiPP = guiDebug.addFolder('Post-Processing');
+	guiPP.add( SSAOpass, 'enabled').name('SSAO');
+	guiPP.add( FXAApass, 'enabled').name('FXAA');
+	guiPP.add( CCpass, 'enabled').name('Color Correction');
+
+
+	var ccu = CCpass.uniforms;
+
+	var ccuEffect = {
+		powR: 1.5,
+		powG: 1.2,
+		powB: 1.0,
+		mulR: 1.0,
+		mulG: 1.0,
+		mulB: 1.0,
+	};
+
+	function adjustCC() {
+		ccu.mulRGB.value.set(ccuEffect.mulR, ccuEffect.mulG, ccuEffect.mulB);
+		ccu.powRGB.value.set(ccuEffect.powR, ccuEffect.powG, ccuEffect.powB);
+	}
+
+	var guiCC = guiPP.addFolder('Color Correction');
+	guiCC.add( ccuEffect, 'powR', 1.0, 3.0, 0.01).onChange(adjustCC);
+	guiCC.add( ccuEffect, 'powG', 1.0, 3.0, 0.01).onChange(adjustCC);
+	guiCC.add( ccuEffect, 'powB', 1.0, 3.0, 0.01).onChange(adjustCC);
+	guiCC.add( ccuEffect, 'mulR', 1.0, 3.0, 0.01).onChange(adjustCC);
+	guiCC.add( ccuEffect, 'mulG', 1.0, 3.0, 0.01).onChange(adjustCC);
+	guiCC.add( ccuEffect, 'mulB', 1.0, 3.0, 0.01).onChange(adjustCC);
+	adjustCC();
 
 	var assetManager = (function assetManager() {
 
@@ -938,7 +936,7 @@
 						liminance: e,
 						inclination: f,
 						azimuth: g
-					 }, 3000 )
+					 }, 5000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() {sky.updateCtrl();})
 			.start();
@@ -955,6 +953,13 @@
 			.start();
 		}
 
+		function animateClearSky() {
+			animateSky(18.9, 4, 0.063, 0.94, 0.35, 0.86, 0.9);
+		}
+
+		function animateSunsetSky() {
+			animateSky(20, 4, 0.1, 0.93, 0.11, 0.5, 0.65);
+		}
 
 
 	// --------- City Views Animation
@@ -971,7 +976,7 @@
 							new THREE.Vector3(-1830.50 , 2112.81 , -25.24));
 
 			animateFOV(80);
-			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9); // clear sky
+			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
 			resetView();
@@ -986,7 +991,7 @@
 							new THREE.Vector3(-570.12 , 216.03 , -188.98));
 
 			animateFOV(100);
-			animateSky(20, 4, 0.1, 0.93, 0.11, 0.5, 0.65);	//sunset sky: 20, 4, 0.1, 0.93, 0.11, 0.5, 0.67
+			animateSunsetSky();
 			animateDirLightColor(0, 0, 0);
 
 			resetView();
@@ -1001,7 +1006,7 @@
 							new THREE.Vector3(-462.15, 171.85, -245.54));
 
 			animateFOV(120);
-			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
+			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
 			resetView();
@@ -1016,7 +1021,7 @@
 							new THREE.Vector3(-1859.96 , 453.77 , 1066.81));
 
 			animateFOV(90);
-			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
+			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
 			resetView();
@@ -1031,7 +1036,7 @@
 							new THREE.Vector3(1294.15 , 509.40 , -1416.20));
 
 			animateFOV(80);
-			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
+			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
 			resetView();
@@ -1048,7 +1053,7 @@
 							new THREE.Vector3(-60.48 , 697.84 , 524.37));
 
 			animateFOV(80);
-			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
+			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
 			world.watersupply.animateY(700);
@@ -1064,8 +1069,8 @@
 			animateCameraTo(new THREE.Vector3(-23.30 , 721.89 , -9.59), 
 							new THREE.Vector3(-15511.88 , 912.70 , 4339.07));
 
-			setFov(5);
-			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
+			animateFOV(5);
+			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
 			resetView();
