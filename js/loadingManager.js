@@ -6,7 +6,7 @@
 	var loadingManager = new THREE.LoadingManager();
 		console.time('loadingManager');
 		loadingManager.onProgress = function ( item, loaded, total ) {
-			// console.log( item, loaded, total );
+			console.log( item, loaded, total );
 			var percentageCompleted = loaded/total * 100;
 			loadingBar.style.width = percentageCompleted + '%';
 		};

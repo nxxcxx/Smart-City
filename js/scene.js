@@ -1,6 +1,7 @@
 
 	var container, stats;
 	var scene, light, camera, cameraCtrl, renderer;
+	var world = {};
 	var screenWidth = window.innerWidth;
 	var screenHeight = window.innerHeight;
 	var dpr = 1.0;

@@ -13,7 +13,7 @@ module.exports = function(grunt) {/*jshint strict: false*/
 				// footer: '\n\n})();'
 			},
 			build: {
-				src: ['js/scene.js', 'js/postprocessing.js', 'js/assetManager.js', 'js/loadingManager.js', 'js/main.js', 'js/animation.js', 'js/events.js', 'js/sky.js'],
+				src: ['js/scene.js', 'js/postprocessing.js', 'js/assetManager.js', 'js/loadingManager.js', 'js/main.js', 'js/world.js', 'js/animation.js', 'js/events.js', 'js/sky.js'],
 				dest: 'js/build/smart-city-app.js'
 			}
 		},

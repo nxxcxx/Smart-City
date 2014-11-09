@@ -122,7 +122,7 @@
 		.addFile('resident02', 'resident02/resident02.obj')
 
 		// landfill
-		.addFile('landfillTex', 'landfill/1024landfill.png')
+		// .addFile('landfillTex', 'landfill/1024landfill.png')
 		.addFile('landfill', 'landfill/landfill.obj')
 
 		// water supply
