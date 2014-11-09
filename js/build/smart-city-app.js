@@ -96,8 +96,8 @@
 			DirLight.shadowMapWidth = SHADOW_MAP_WIDTH;
 			DirLight.shadowMapHeight = SHADOW_MAP_HEIGHT;
 
-			var dli = {color: '#ffffff'};
-			guiDebug.addColor(dli, 'color').name('dirL').onChange(updateLightCol);
+			var dirLightColor = {color: '#ffffff'};
+			guiDebug.addColor(dirLightColor, 'color').name('DirLight').onChange(updateLightCol);
 			function updateLightCol(c) {
 				DirLight.color.set(c);
 			}
@@ -450,7 +450,7 @@
 		TWEEN.update(time);
 		animate(time);
 		
-		intersectMouse(world.hub.children[1]);
+		intersectMouse(world.hub);
 
 		// renderer.render(scene, camera);
 		composer.render();
@@ -469,19 +469,18 @@
 				
 				var mo = new THREE.Vector3( mouse.x, mouse.y, 1 ).unproject( camera );
 
+
 				raycaster.set( camera.position, mo.sub( camera.position ).normalize() );
 
 				var intersects = raycaster.intersectObject( mesh , true ); // also check all descendants
 
 				if ( intersects.length > 0 ) {
 
-					var intersect = intersects[0];
-
 					console.warn(intersects);
 
-					if (intersect.object == mesh) {  // r69 now return face3
-						console.warn(111);
-					}
+					var intersect = intersects[0];
+
+					intersect.object.material.color.setRGB(1, 0, 0);
 
 				}
 			}
@@ -837,17 +836,33 @@ function setupWorld() {
 		// }
 
 
-		if (guiSky && guiCC) {
-			for (var i in guiSky.__controllers) {
-				guiSky.__controllers[i].updateDisplay();
-			}
-			for (var i in guiCC.__controllers) {
-				guiCC.__controllers[i].updateDisplay();
-			}
-		}
+		// if (guiSky && guiCC) {
+		// 	for (var i in guiSky.__controllers) {
+		// 		guiSky.__controllers[i].updateDisplay();
+		// 	}
+		// 	for (var i in guiCC.__controllers) {
+		// 		guiCC.__controllers[i].updateDisplay();
+		// 	}
+		// }
 		
 		
 	}
+
+	// Gui auto update
+
+	function updateGuiSky() {
+		for (var i in guiSky.__controllers) {
+			guiSky.__controllers[i].updateDisplay();
+		}
+	}
+
+	function updateGuiDirLight() {
+		dirLightColor.color = '#' + DirLight.color.getHexString();
+		for (var i in guiDebug.__controllers) {
+			guiDebug.__controllers[i].updateDisplay();
+		}
+	}
+
 
 	// --------- Extend animation methods to Object3D
 
@@ -939,7 +954,10 @@ function setupWorld() {
 						azimuth: g
 					 }, 5000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
-				.onUpdate(function() {sky.updateCtrl();})
+				.onUpdate(function() {
+					sky.updateCtrl();
+					updateGuiSky();
+				})
 			.start();
 		}
 
@@ -950,7 +968,9 @@ function setupWorld() {
 						b: b
 					 }, 3000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
-				.onUpdate(function() {})
+				.onUpdate(function() {
+					updateGuiDirLight();
+				})
 			.start();
 		}
 
@@ -1134,12 +1154,12 @@ function setupWorld() {
 
 	}
 
-	// document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-	// function onDocumentMouseMove( event ) {
-	// 	event.preventDefault();
-	// 	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-	// 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-	// }
+	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+	function onDocumentMouseMove( event ) {
+		event.preventDefault();
+		mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+		mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+	}
 
 	// document.addEventListener( 'click', onClick, false);
 	// function onClick( event ) {

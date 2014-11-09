@@ -15,17 +15,33 @@
 		// }
 
 
-		if (guiSky && guiCC) {
-			for (var i in guiSky.__controllers) {
-				guiSky.__controllers[i].updateDisplay();
-			}
-			for (var i in guiCC.__controllers) {
-				guiCC.__controllers[i].updateDisplay();
-			}
-		}
+		// if (guiSky && guiCC) {
+		// 	for (var i in guiSky.__controllers) {
+		// 		guiSky.__controllers[i].updateDisplay();
+		// 	}
+		// 	for (var i in guiCC.__controllers) {
+		// 		guiCC.__controllers[i].updateDisplay();
+		// 	}
+		// }
 		
 		
 	}
+
+	// Gui auto update
+
+	function updateGuiSky() {
+		for (var i in guiSky.__controllers) {
+			guiSky.__controllers[i].updateDisplay();
+		}
+	}
+
+	function updateGuiDirLight() {
+		dirLightColor.color = '#' + DirLight.color.getHexString();
+		for (var i in guiDebug.__controllers) {
+			guiDebug.__controllers[i].updateDisplay();
+		}
+	}
+
 
 	// --------- Extend animation methods to Object3D
 
@@ -117,7 +133,10 @@
 						azimuth: g
 					 }, 5000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
-				.onUpdate(function() {sky.updateCtrl();})
+				.onUpdate(function() {
+					sky.updateCtrl();
+					updateGuiSky();
+				})
 			.start();
 		}
 
@@ -128,7 +147,9 @@
 						b: b
 					 }, 3000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
-				.onUpdate(function() {})
+				.onUpdate(function() {
+					updateGuiDirLight();
+				})
 			.start();
 		}
 

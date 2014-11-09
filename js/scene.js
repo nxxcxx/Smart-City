@@ -96,8 +96,8 @@
 			DirLight.shadowMapWidth = SHADOW_MAP_WIDTH;
 			DirLight.shadowMapHeight = SHADOW_MAP_HEIGHT;
 
-			var dli = {color: '#ffffff'};
-			guiDebug.addColor(dli, 'color').name('dirL').onChange(updateLightCol);
+			var dirLightColor = {color: '#ffffff'};
+			guiDebug.addColor(dirLightColor, 'color').name('DirLight').onChange(updateLightCol);
 			function updateLightCol(c) {
 				DirLight.color.set(c);
 			}
