@@ -9,8 +9,11 @@
 	var mouse = new THREE.Vector2();
 	var gui = new dat.GUI();
 	var guiCtrl = gui.addFolder('Controls');
+	var guiViews = guiCtrl.addFolder('Views');
 	var guiDebug = gui.addFolder('Debug');
-	gui.close();
+	gui.open();
+	guiCtrl.open();
+	guiViews.open();
 
 	// ---- settings
 	var scene_settings = {
@@ -169,7 +172,7 @@
 
 		SSAOpass.enabled = false;
 
-		var guiPP = guiDebug.addFolder('PostProcessing');
+		var guiPP = guiDebug.addFolder('Post-Processing');
 		guiPP.add( SSAOpass, 'enabled').name('SSAO');
 		guiPP.add( FXAApass, 'enabled').name('FXAA');
 		guiPP.add( CCpass, 'enabled').name('Color Correction');
@@ -452,25 +455,25 @@
 	function startScene() {
 
 		
-		// Experiment stuff
+		// Experimental stuff
 			// // test shader 
 
-			// 	var seaShaderUniforms = {
-			// 		time: { type: "f", value: 1.0 },
-			// 		resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
-			// 	};
+				// var seaShaderUniforms = {
+				// 	time: { type: "f", value: 1.0 },
+				// 	resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+				// };
 
-			// 	var seaShaderMat = new THREE.ShaderMaterial( {
+				// var seaShaderMat = new THREE.ShaderMaterial( {
 
-			// 		uniforms: seaShaderUniforms,
-			// 		vertexShader: document.getElementById( 'vertexShader' ).textContent,
-			// 		fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+				// 	uniforms: seaShaderUniforms,
+				// 	vertexShader: document.getElementById( 'vertexShader' ).textContent,
+				// 	fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
 
-			// 	} );
+				// } );
 
-			// 	// var shaderMesh = new THREE.Mesh( new THREE.BoxGeometry(2000, 10, 2000), seaShaderMat );
-			// 	// shaderMesh.position.y = 2000;
-			// 	// scene.add( shaderMesh );
+				// var shaderMesh = new THREE.Mesh( new THREE.BoxGeometry(2000, 10, 2000), seaShaderMat );
+				// shaderMesh.position.y = 2000;
+				// scene.add( shaderMesh );
 
 
 
@@ -525,7 +528,7 @@
 		world.shore1 = (function () {
 
 			var shore = new THREE.Object3D();
-			var shorePlatform = constructModel('shorePlatform', {map: 'shorePlatformTex'});
+			var shorePlatform = constructModel('shorePlatform', {color: 0xddddee});
 			var shoreWaterSurface = constructModel('shoreWaterSurface', {map:'shoreWaterSurfaceTex' , envMap: 'reflectionCube', opacity: 0.9, transparent: true});
 			shorePlatform.castShadow = false;
 
@@ -533,7 +536,7 @@
 			// shoreWaterSurface.material = seaShaderMat;
 
 			shore.add(shorePlatform, shoreWaterSurface);
-			shore.setDefaultPos(-1402, 0, 811);
+			shore.setDefaultPos(-1400, 0, 805);
 
 			return shore;
 
@@ -542,7 +545,7 @@
 		world.shore2 = (function () {
 
 			var shore = world.shore1.clone();
-			shore.setDefaultPos(-702, 0, 1215);
+			shore.setDefaultPos(-700, 0, 1215);
 			return shore;
 
 		})();
@@ -550,7 +553,7 @@
 		world.shore3 = (function () {
 
 			var shore = world.shore1.clone();
-			shore.setDefaultPos(-1, 0, 1623);
+			shore.setDefaultPos(0, 0, 1623);
 			return shore;
 
 		})();
@@ -559,8 +562,8 @@
 
 			var allTurbines = new THREE.Object3D();
 			var windTurbine = new THREE.Object3D();
-			var turBase = constructModel('turbineBase', {map: 'turbineBaseTex'});
-			var turPro = constructModel('propeller', {});
+			var turBase = constructModel('turbineBase', {color: 0xddddee});
+			var turPro = constructModel('propeller', {color: 0xddddee});
 
 
 			turPro.position.set(0, 268, -10);
@@ -595,7 +598,7 @@
 
 			var hub = new THREE.Object3D();
 			var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.9});
-			var hubPlatform = constructModel('hubPlatform', {map: 'hubPlatformTex'});
+			var hubPlatform = constructModel('hubPlatform', {color: 0xddddee});
 			var hubStreetLine = constructModel('hubStreetLine', {emissive: 0x0066ff});
 			hubStreetLine.castShadow = false;
 			hubStreetLine.receiveShadow = false;
@@ -609,7 +612,7 @@
 		world.city01 = (function () {
 
 			var city01 = new THREE.Object3D();
-			var city01Buildings = constructModel('city01', {map: 'city01Tex'});
+			var city01Buildings = constructModel('city01', {color: 0xddddee});
 			var city01Shell = getNewShell();
 			city01.setDefaultPos(0, 0, -808);
 			city01.add(city01Buildings, city01Shell);
@@ -620,7 +623,7 @@
 		world.city02 = (function () {
 
 			var city02 = new THREE.Object3D();
-			var city02Buildings = constructModel('city02', {map: 'city02Tex'});
+			var city02Buildings = constructModel('city02', {color: 0xddddee});
 			var city02Shell = getNewShell();
 			city02.setDefaultPos(700, 0, -405);
 			city02.add(city02Buildings, city02Shell);
@@ -631,7 +634,7 @@
 		world.city03 = (function () {
 
 			var city03 = new THREE.Object3D();
-			var city03Buildings = constructModel('city03', {map: 'city03Tex'});
+			var city03Buildings = constructModel('city03', {color: 0xddddee});
 			var city03Shell = getNewShell();
 			city03.setDefaultPos(0, 0, 810);
 			city03.add(city03Buildings, city03Shell);
@@ -642,7 +645,7 @@
 		world.tollway = (function () {
 
 			var tollway = new THREE.Object3D();
-			var tollwayStreet = constructModel('tollway', {map: 'tollwayTex'});
+			var tollwayStreet = constructModel('tollway', {color: 0xddddee});
 			var tollwayLine = constructModel('tollwayLine', {emissive: 0x0066ff});
 			tollwayLine.castShadow = false;
 			tollwayLine.receiveShadow = false;
@@ -656,10 +659,10 @@
 		world.landfill = (function () {
 
 			var landfill = new THREE.Object3D();
-			var lf = constructModel('landfill', {map: 'landfillTex'});
+			var lf = constructModel('landfill', {color: 0xddddee});
 			var lfshell = getNewShell();
 			landfill.add(lf, lfshell);
-			landfill.setDefaultPos(1403, 0, -805);
+			landfill.setDefaultPos(1400, 0, -805);
 			return landfill;
 
 		})();
@@ -667,7 +670,7 @@
 		world.watersupply = (function () {
 
 			var watersupply = new THREE.Object3D();
-			var ws = constructModel('watersupply', {map: 'watersupplyTex'});
+			var ws = constructModel('watersupply', {color: 0xddddee});
 			var wsshell = getNewShell();
 			watersupply.add(ws, wsshell);
 			watersupply.setDefaultPos(700, 0, 405);
@@ -678,9 +681,9 @@
 		world.resident1 = (function () {
 
 			var resident01 = new THREE.Object3D();
-			var resident01Buildings = constructModel('resident01', {map: 'resident01Tex'});
+			var resident01Buildings = constructModel('resident01', {color: 0xddddee});
 			var resident01Shell = getNewShell();
-			resident01.setDefaultPos(-701, 0, -1213);
+			resident01.setDefaultPos(-700, 0, -1213);
 			resident01.rotation.y = THREE.Math.degToRad(120);
 			resident01.add(resident01Buildings, resident01Shell);
 			return resident01;
@@ -690,9 +693,9 @@
 		world.resident2 = (function () {
 
 			var resident02 = new THREE.Object3D();
-			var resident02Buildings = constructModel('resident02', {map: 'resident02Tex'});
+			var resident02Buildings = constructModel('resident02', {color: 0xddddee});
 			var resident02Shell = getNewShell();
-			resident02.setDefaultPos(-1403, 0, -809);
+			resident02.setDefaultPos(-1400, 0, -809);
 			resident02.add(resident02Buildings, resident02Shell);
 			return resident02;
 
@@ -701,7 +704,7 @@
 		world.resident3 = (function () {
 
 			var resident03 = world.resident2.clone();
-			resident03.setDefaultPos(-1403, 0, -0);
+			resident03.setDefaultPos(-1400, 0, -0);
 			resident03.rotation.y = THREE.Math.degToRad(120);
 			return resident03;
 
@@ -710,7 +713,7 @@
 		world.resident4 = (function () {
 
 			var resident04 = world.resident1.clone();
-			resident04.setDefaultPos(-701, 0, 406);
+			resident04.setDefaultPos(-700, 0, 406);
 			resident04.rotation.y = THREE.Math.degToRad(0);
 			return resident04;
 
@@ -719,7 +722,7 @@
 		world.eplatform1 = (function () {
 
 			var ep01 = new THREE.Object3D();
-			var ep = constructModel('emptyPlatform', {map: 'emptyPlatformTex'});
+			var ep = constructModel('emptyPlatform', {color: 0xddddee});
 			var epshell = getNewShell();
 			ep01.add(ep, epshell);
 			ep01.setDefaultPos(0, 0, -1618);
@@ -755,7 +758,7 @@
 		world.eplatform5 = (function () {
 
 			var ep05 = world.eplatform1.clone();
-			ep05.setDefaultPos(700, 0, 1216);
+			ep05.setDefaultPos(700, 0, 1210);
 			return ep05;
 
 		})();
@@ -1059,8 +1062,7 @@
 		function animateLowPerspectiveView() {
 
 			animateCameraTo(new THREE.Vector3(-23.30 , 721.89 , -9.59), 
-							new THREE.Vector3(-15511.88 , 912.70 , 4339.07),
-							10);
+							new THREE.Vector3(-15511.88 , 912.70 , 4339.07));
 
 			setFov(5);
 			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
@@ -1075,8 +1077,7 @@
 
 	// view ctrl GUI
 
-		var guiViews = guiCtrl.addFolder('Views');
-
+		
 		var viewCtrl = {
 			lowPerspective: animateLowPerspectiveView,
 			city: animateCityView,

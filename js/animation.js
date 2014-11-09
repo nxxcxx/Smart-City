@@ -239,8 +239,7 @@
 		function animateLowPerspectiveView() {
 
 			animateCameraTo(new THREE.Vector3(-23.30 , 721.89 , -9.59), 
-							new THREE.Vector3(-15511.88 , 912.70 , 4339.07),
-							10);
+							new THREE.Vector3(-15511.88 , 912.70 , 4339.07));
 
 			setFov(5);
 			animateSky(4.8, 4, 0.06, 0.76, 0.35, 0.86, 0.9);
@@ -255,8 +254,7 @@
 
 	// view ctrl GUI
 
-		var guiViews = guiCtrl.addFolder('Views');
-
+		
 		var viewCtrl = {
 			lowPerspective: animateLowPerspectiveView,
 			city: animateCityView,

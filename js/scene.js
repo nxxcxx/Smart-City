@@ -9,8 +9,11 @@
 	var mouse = new THREE.Vector2();
 	var gui = new dat.GUI();
 	var guiCtrl = gui.addFolder('Controls');
+	var guiViews = guiCtrl.addFolder('Views');
 	var guiDebug = gui.addFolder('Debug');
-	gui.close();
+	gui.open();
+	guiCtrl.open();
+	guiViews.open();
 
 	// ---- settings
 	var scene_settings = {
@@ -169,7 +172,7 @@
 
 		SSAOpass.enabled = false;
 
-		var guiPP = guiDebug.addFolder('PostProcessing');
+		var guiPP = guiDebug.addFolder('Post-Processing');
 		guiPP.add( SSAOpass, 'enabled').name('SSAO');
 		guiPP.add( FXAApass, 'enabled').name('FXAA');
 		guiPP.add( CCpass, 'enabled').name('Color Correction');
