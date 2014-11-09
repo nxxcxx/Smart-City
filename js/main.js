@@ -42,7 +42,7 @@
 		(function init() {
 
 			// create base shell for cloning
-			var shell = constructModel('shell', {map: 'shellTex'});
+			var shell = constructModel('shell', {color: 0xddddee});
 			shell.castShadow = false;
 			shell.receiveShadow = false;
 

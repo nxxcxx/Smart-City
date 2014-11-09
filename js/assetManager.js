@@ -65,29 +65,29 @@
 	assetManager
 
 		// empty hexagon platform 
-		.addFile('emptyPlatformTex', '1024emptyPlatform.png')
+		// .addFile('emptyPlatformTex', '1024emptyPlatform.png')
 		.addFile('emptyPlatform', 'emptyPlatform.obj')
 
 		// hexagon platform  shell
-		.addFile('shellTex', '1024platformShell.png')
+		// .addFile('shellTex', '1024platformShell.png')
 		.addFile('shell', 'platformShell.obj')
 
 		// shore
-		.addFile('shorePlatformTex', 'shore/1024shorePlatform.png')
+		// .addFile('shorePlatformTex', 'shore/1024shorePlatform.png')
 		.addFile('shorePlatform', 'shore/shorePlatform.obj')
 
 		.addFile('shoreWaterSurfaceTex', 'shore/1024shoreWaterSurface.png')
 		.addFile('shoreWaterSurface', 'shore/shoreWaterSurface.obj')
 
 		// wind turbine
-		.addFile('turbineBaseTex', 'turbine/1024turbineBase.png')
+		// .addFile('turbineBaseTex', 'turbine/1024turbineBase.png')
 		.addFile('turbineBase', 'turbine/turbineBase.obj')
 
-		.addFile('propellerTex', 'turbine/1024propeller.png')
+		// .addFile('propellerTex', 'turbine/1024propeller.png')
 		.addFile('propeller', 'turbine/propeller.obj')
 
 		// hub
-		.addFile('hubPlatformTex', 'hub/1024hubplatform.png')
+		// .addFile('hubPlatformTex', 'hub/1024hubplatform.png')
 		.addFile('hubPlatform', 'hub/hubplatform.obj')
 
 		.addFile('hubWindowTex', 'hub/1024hubwindow.png')
@@ -96,29 +96,29 @@
 		.addFile('hubStreetLine', 'hub/hubstreetline.obj')
 
 		// city 01
-		.addFile('city01Tex', 'city01/1024city01.png')
+		// .addFile('city01Tex', 'city01/1024city01.png')
 		.addFile('city01', 'city01/city01.obj')
 
 		// tollway
-		.addFile('tollwayTex', 'tollway/1024tollway.png')
+		// .addFile('tollwayTex', 'tollway/1024tollway.png')
 		.addFile('tollway', 'tollway/tollway.obj')
 
 		.addFile('tollwayLine', 'tollway/tollwayline.obj')
 
 		// city 02 
-		.addFile('city02Tex', 'city02/1024city02.png')
+		// .addFile('city02Tex', 'city02/1024city02.png')
 		.addFile('city02', 'city02/city02.obj')
 
 		// city 03 
-		.addFile('city03Tex', 'city03/1024city03.png')
+		// .addFile('city03Tex', 'city03/1024city03.png')
 		.addFile('city03', 'city03/city03.obj')
 
 		// resident 01
-		.addFile('resident01Tex', 'resident01/1024resident01.png')
+		// .addFile('resident01Tex', 'resident01/1024resident01.png')
 		.addFile('resident01', 'resident01/resident01.obj')
 
 		// resident 02
-		.addFile('resident02Tex', 'resident02/1024resident02.png')
+		// .addFile('resident02Tex', 'resident02/1024resident02.png')
 		.addFile('resident02', 'resident02/resident02.obj')
 
 		// landfill
