@@ -38,7 +38,7 @@
 		cameraCtrl.update();
 
 	// ---- Renderer
-		renderer = new THREE.WebGLRenderer({antialias: true});
+		renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
 		renderer.setClearColor(scene_settings.bgColor, 1);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		
@@ -348,9 +348,12 @@
 		.addFile('watersupplyPipeTex', 'watersupply/1024watersupplyPipe.png')
 		.addFile('watersupplyPipe', 'watersupply/watersupplyPipe.obj')
 
+		// .addFile('lensflareTex', 'lensflare2.png')
 
 
 	;
+
+
 
 
 // initialize loading manager
@@ -449,6 +452,7 @@
 	}
 
 	function startScene() {
+
 		setupWorld();
 		// set default view
 		animateCityView();
@@ -815,7 +819,7 @@ function setupWorld() {
 
 		var watersupply = new THREE.Object3D();
 		var ws = constructModel('watersupply', {color: 0xddddee});
-		var wp = constructModel('watersupplyPipe', {map: 'watersupplyPipeTex', envMap: 'reflectionCube', reflectivity: 0.4})
+		var wp = constructModel('watersupplyPipe', {map: 'watersupplyPipeTex', envMap: 'reflectionCube', reflectivity: 0.6})
 		var shell = getNewShell();
 		watersupply.add(ws, wp, shell);
 		watersupply.setDefaultPos(700, 0, 405);
@@ -923,6 +927,28 @@ function setupWorld() {
 		});
 		return k;
 	}
+
+
+
+	// test lens flare
+
+
+	// var material = new THREE.SpriteMaterial( { 
+	// 	blending: THREE.AdditiveBlending, 
+	// 	map:assetManager.getTexture('lensflareTex'),
+	// 	opacity: 0.9,
+	// 	transparent: true,
+	// } );
+
+	// var flareColor = new THREE.Color( 0xffffff );
+	// // flareColor.setHSL( h, s, l + 0.5 );
+	// var lensFlare = new THREE.LensFlare( assetManager.getTexture('lensflareTex'),
+	// 									 700, 0.0, THREE.AdditiveBlending, flareColor );
+
+	// lensFlare.position.copy(DirLight.position);
+	// scene.add( lensFlare );
+
+
 
 
 } // end setup world
@@ -1101,6 +1127,8 @@ function setupWorld() {
 
 		function animateCityView() {
 
+			resetView();
+
 			animateCameraTo(new THREE.Vector3(-350.15 , -278.71 , -5.32), 
 							new THREE.Vector3(-1830.50 , 2112.81 , -25.24));
 
@@ -1108,13 +1136,14 @@ function setupWorld() {
 			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
-			resetView();
 
 			currView = 'city';
 
 		}
 
 		function animateTollwayView() {
+
+			resetView();
 
 			animateCameraTo(new THREE.Vector3(215.35 , 70.55 , 1377.40), 
 							new THREE.Vector3(-570.12 , 216.03 , -188.98));
@@ -1123,13 +1152,14 @@ function setupWorld() {
 			animateSunsetSky();
 			animateDirLightColor(0, 0, 0);
 
-			resetView();
 
 			currView = 'tollway';
 
 		}
 
 		function animateLowAngleView() {
+
+			resetView();
 
 			animateCameraTo(new THREE.Vector3(-31.30, 581.13, 372.64), 
 							new THREE.Vector3(-462.15, 171.85, -245.54));
@@ -1138,13 +1168,13 @@ function setupWorld() {
 			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
-			resetView();
-
 			currView = 'lowAngle';
 
 		}
 
 		function animateTurbinesView() {
+
+			resetView();
 
 			animateCameraTo(new THREE.Vector3(-1005.12 , 91.27 , 865.27), 
 							new THREE.Vector3(-1859.96 , 453.77 , 1066.81));
@@ -1153,13 +1183,14 @@ function setupWorld() {
 			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
-			resetView();
 
 			currView = 'turbines';
 
 		}
 
 		function animateLandfillView() {
+
+			resetView();
 
 			animateCameraTo(new THREE.Vector3(1538.19 , -314.89 , 245.60), 
 							new THREE.Vector3(989.74 , 481.44 , -1133.21));
@@ -1168,7 +1199,6 @@ function setupWorld() {
 			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
-			resetView();
 
 			currView = 'landfill';
 
@@ -1176,7 +1206,7 @@ function setupWorld() {
 
 		function animateWaterNetworkView() {
 
-			if (currView === 'waterNetwork') return;
+			resetView();
 
 			animateCameraTo(new THREE.Vector3(854.92 , 415.85 , 514.55), 
 							new THREE.Vector3(-60.48 , 697.84 , 524.37));
@@ -1186,14 +1216,15 @@ function setupWorld() {
 			animateDirLightColor(1, 1, 1);
 
 			world.watersupply.animateY(700);
-
-			resetView();
+			
 
 			currView = 'waterNetwork';
 
 		}
 
 		function animateLowFOV() {
+
+			resetView();
 
 			animateCameraTo(new THREE.Vector3(-46.34 , 671.43 , -89.42), 
 							new THREE.Vector3(-15534.92 , 862.24 , 4259.24));
@@ -1202,7 +1233,6 @@ function setupWorld() {
 			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
-			resetView();
 
 			currView = 'lowFOV';
 

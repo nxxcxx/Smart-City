@@ -38,7 +38,7 @@
 		cameraCtrl.update();
 
 	// ---- Renderer
-		renderer = new THREE.WebGLRenderer({antialias: true});
+		renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
 		renderer.setClearColor(scene_settings.bgColor, 1);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		

@@ -24,6 +24,24 @@ canvas {
 	left: 0;
 }
 
+#top-aspect-bar {
+	height: 50px;
+	width: 100%;
+	background: #000;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+#bot-aspect-bar {
+	height: 50px;
+	width: 100%;
+	background: #000;
+	position: absolute;
+	bottom: 0px; 
+	left: 0px;
+}
+
 
 div.content {
 	position: absolute;
@@ -60,5 +78,5 @@ div.content {
 }
 
 .text-body {
-	font: 20px/150% Arial, Helvetica, sans-serif;
+	font: 25px/150% Arial, Helvetica, sans-serif;
 }

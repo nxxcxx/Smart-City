@@ -173,6 +173,8 @@
 
 		function animateCityView() {
 
+			resetView();
+
 			animateCameraTo(new THREE.Vector3(-350.15 , -278.71 , -5.32), 
 							new THREE.Vector3(-1830.50 , 2112.81 , -25.24));
 
@@ -180,13 +182,14 @@
 			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
-			resetView();
 
 			currView = 'city';
 
 		}
 
 		function animateTollwayView() {
+
+			resetView();
 
 			animateCameraTo(new THREE.Vector3(215.35 , 70.55 , 1377.40), 
 							new THREE.Vector3(-570.12 , 216.03 , -188.98));
@@ -195,13 +198,14 @@
 			animateSunsetSky();
 			animateDirLightColor(0, 0, 0);
 
-			resetView();
 
 			currView = 'tollway';
 
 		}
 
 		function animateLowAngleView() {
+
+			resetView();
 
 			animateCameraTo(new THREE.Vector3(-31.30, 581.13, 372.64), 
 							new THREE.Vector3(-462.15, 171.85, -245.54));
@@ -210,13 +214,13 @@
 			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
-			resetView();
-
 			currView = 'lowAngle';
 
 		}
 
 		function animateTurbinesView() {
+
+			resetView();
 
 			animateCameraTo(new THREE.Vector3(-1005.12 , 91.27 , 865.27), 
 							new THREE.Vector3(-1859.96 , 453.77 , 1066.81));
@@ -225,13 +229,14 @@
 			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
-			resetView();
 
 			currView = 'turbines';
 
 		}
 
 		function animateLandfillView() {
+
+			resetView();
 
 			animateCameraTo(new THREE.Vector3(1538.19 , -314.89 , 245.60), 
 							new THREE.Vector3(989.74 , 481.44 , -1133.21));
@@ -240,7 +245,6 @@
 			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
-			resetView();
 
 			currView = 'landfill';
 
@@ -248,7 +252,7 @@
 
 		function animateWaterNetworkView() {
 
-			if (currView === 'waterNetwork') return;
+			resetView();
 
 			animateCameraTo(new THREE.Vector3(854.92 , 415.85 , 514.55), 
 							new THREE.Vector3(-60.48 , 697.84 , 524.37));
@@ -258,14 +262,15 @@
 			animateDirLightColor(1, 1, 1);
 
 			world.watersupply.animateY(700);
-
-			resetView();
+			
 
 			currView = 'waterNetwork';
 
 		}
 
 		function animateLowFOV() {
+
+			resetView();
 
 			animateCameraTo(new THREE.Vector3(-46.34 , 671.43 , -89.42), 
 							new THREE.Vector3(-15534.92 , 862.24 , 4259.24));
@@ -274,7 +279,6 @@
 			animateClearSky();
 			animateDirLightColor(1, 1, 1);
 
-			resetView();
 
 			currView = 'lowFOV';
 

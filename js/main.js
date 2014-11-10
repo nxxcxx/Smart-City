@@ -1,5 +1,6 @@
 
 	function startScene() {
+
 		setupWorld();
 		// set default view
 		animateCityView();

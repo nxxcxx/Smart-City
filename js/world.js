@@ -275,7 +275,7 @@ function setupWorld() {
 
 		var watersupply = new THREE.Object3D();
 		var ws = constructModel('watersupply', {color: 0xddddee});
-		var wp = constructModel('watersupplyPipe', {map: 'watersupplyPipeTex', envMap: 'reflectionCube', reflectivity: 0.4})
+		var wp = constructModel('watersupplyPipe', {map: 'watersupplyPipeTex', envMap: 'reflectionCube', reflectivity: 0.6})
 		var shell = getNewShell();
 		watersupply.add(ws, wp, shell);
 		watersupply.setDefaultPos(700, 0, 405);
@@ -383,6 +383,28 @@ function setupWorld() {
 		});
 		return k;
 	}
+
+
+
+	// test lens flare
+
+
+	// var material = new THREE.SpriteMaterial( { 
+	// 	blending: THREE.AdditiveBlending, 
+	// 	map:assetManager.getTexture('lensflareTex'),
+	// 	opacity: 0.9,
+	// 	transparent: true,
+	// } );
+
+	// var flareColor = new THREE.Color( 0xffffff );
+	// // flareColor.setHSL( h, s, l + 0.5 );
+	// var lensFlare = new THREE.LensFlare( assetManager.getTexture('lensflareTex'),
+	// 									 700, 0.0, THREE.AdditiveBlending, flareColor );
+
+	// lensFlare.position.copy(DirLight.position);
+	// scene.add( lensFlare );
+
+
 
 
 } // end setup world
