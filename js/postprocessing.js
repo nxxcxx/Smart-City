@@ -27,13 +27,7 @@
 
 	composer.addPass(renderPass);
 	composer.addPass(SSAOpass);
-
-	// 4xFXAA
 	composer.addPass(FXAApass);
-	composer.addPass(FXAApass);
-	composer.addPass(FXAApass);
-	composer.addPass(FXAApass);
-
 	composer.addPass(CCpass);
 	composer.addPass(copyPass);
 

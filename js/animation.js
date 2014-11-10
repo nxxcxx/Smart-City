@@ -5,7 +5,8 @@
 	function animate(time) {
 
 		// seaShaderUniforms.time.value = time*0.0005;
-		world.turbines.spin();
+
+		world.shore1.spinTurbines();
 
 		// if (currView === 'waterNetwork') {
 		// 	world.watersupply.rotation.y += 0.01;

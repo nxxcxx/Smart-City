@@ -13,14 +13,15 @@ function initSky() {
 	sunSphere.position.y = -700000;
 	scene.add( sunSphere );
 
+
 	/// GUI
 	sky.mesh.ctrl  = {
-		turbidity: 4.8,
+		turbidity: 18.9,
 		reileigh: 4,
-		mieCoefficient: 0.06,
-		mieDirectionalG: 0.76,
+		mieCoefficient: 0.063,
+		mieDirectionalG: 0.94,
 		luminance: 0.35,
-		inclination: 0.83,
+		inclination: 0.86,
 		azimuth: 0.9,				
 		sun: !true
 	};

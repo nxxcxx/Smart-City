@@ -7,7 +7,7 @@
 	var dpr = 1.0;
 	if (window.devicePixelRatio !== undefined) { dpr = window.devicePixelRatio; }
 
-	var mouse = new THREE.Vector2();
+	var mouse = new THREE.Vector2(-1, -1);
 	var gui = new dat.GUI();
 	var guiCtrl = gui.addFolder('Controls');
 	var guiViews = guiCtrl.addFolder('Views');
@@ -165,13 +165,7 @@
 
 	composer.addPass(renderPass);
 	composer.addPass(SSAOpass);
-
-	// 4xFXAA
 	composer.addPass(FXAApass);
-	composer.addPass(FXAApass);
-	composer.addPass(FXAApass);
-	composer.addPass(FXAApass);
-
 	composer.addPass(CCpass);
 	composer.addPass(copyPass);
 
@@ -450,7 +444,7 @@
 		TWEEN.update(time);
 		animate(time);
 		
-		intersectMouse(world.hub);
+		intersectMouse(world);
 
 		// renderer.render(scene, camera);
 		composer.render();
@@ -464,6 +458,8 @@
 
 		// --- test ray caster 3D object-mouse intersection todo: check platform's children if contain intersected mesh then do sth
 
+		var prevIntersected = null;
+
 			var raycaster = new THREE.Raycaster();
 			function intersectMouse(mesh) {
 				
@@ -472,23 +468,58 @@
 
 				raycaster.set( camera.position, mo.sub( camera.position ).normalize() );
 
-				var intersects = raycaster.intersectObject( mesh , true ); // also check all descendants
+				// var intersects = raycaster.intersectObject( mesh , true ); // also check all descendants
+
+				var objArr = _.toArray(mesh);
+					objArr = _.without(objArr, world.sky);
+				var intersects = raycaster.intersectObjects( objArr , true ); // also check all descendants
 
 				if ( intersects.length > 0 ) {
 
-					console.warn(intersects);
+					// console.log(intersects[0].object.parent.children.length);
+					var closestMesh = intersects[0].object;
 
-					var intersect = intersects[0];
+					var rootModel = getRootModel(closestMesh);
+					
+					
+					intersected = rootModel.name;
 
-					intersect.object.material.color.setRGB(1, 0, 0);
+					if (prevIntersected === intersected) return;
+
+					var iMat = getAllMaterials(rootModel);
+					_.forEach(iMat, function (value, key, list) {
+						value.wireframe = true;
+					});
+
+					prevIntersected = intersected;	
+					console.log(intersected);
+
 
 				}
 			}
-		
 
+			function getRootModel(object) {
+				if ( object.parent && !(object.parent instanceof THREE.Scene) ) {
+					return getRootModel(object.parent);
+				}
+				return object;
+			}
 
+			function getAllMaterials(object) {
 
+				var mat = [];
 
+				if (object.material) mat.push(object.material);
+
+				for (var i=0; i<object.children.length; i++) {
+
+					mat = mat.concat( getAllMaterials(object.children[i]) );
+
+				}
+
+				return mat;
+
+			}
 
 
 
@@ -539,6 +570,57 @@ function setupWorld() {
 		}
 	};
 
+	// override default clone to also clone material
+	THREE.Object3D.prototype.clone = function(object, recursive) { 
+
+		if ( object === undefined ) object = new THREE.Object3D();
+		if ( recursive === undefined ) recursive = true;
+
+		object.name = this.name;
+
+		object.up.copy( this.up );
+
+		object.position.copy( this.position );
+		object.quaternion.copy( this.quaternion );
+		object.scale.copy( this.scale );
+
+		object.renderDepth = this.renderDepth;
+
+		object.rotationAutoUpdate = this.rotationAutoUpdate;
+
+		object.matrix.copy( this.matrix );
+		object.matrixWorld.copy( this.matrixWorld );
+
+		object.matrixAutoUpdate = this.matrixAutoUpdate;
+		object.matrixWorldNeedsUpdate = this.matrixWorldNeedsUpdate;
+
+		if (object.material) {
+			object.material = this.material.clone();
+		}
+
+		object.visible = this.visible;
+
+		object.castShadow = this.castShadow;
+		object.receiveShadow = this.receiveShadow;
+
+		object.frustumCulled = this.frustumCulled;
+
+		object.userData = JSON.parse( JSON.stringify( this.userData ) );
+
+		if ( recursive === true ) {
+
+			for ( var i = 0; i < this.children.length; i ++ ) {
+
+				var child = this.children[ i ];
+				object.add( child.clone() );
+
+			}
+
+		}
+
+		return object;
+	};
+
 	function constructModel(modelKey, settings) {
 
 		var model = assetManager.getModel(modelKey);
@@ -565,8 +647,9 @@ function setupWorld() {
 	}
 
 	function getNewShell() {
-
-		return assetManager.getModel('shell').clone();
+		var shell = assetManager.getModel('shell').clone();
+		shell.material = shell.material.clone();
+		return shell; 
 	}
 
 
@@ -607,14 +690,11 @@ function setupWorld() {
 
 	})();
 	
-	world.turbines = (function () {
-
+	// add turbines to shore1
 		var allTurbines = new THREE.Object3D();
 		var windTurbine = new THREE.Object3D();
 		var turBase = constructModel('turbineBase', {color: 0xddddee});
 		var turPro = constructModel('propeller', {color: 0xddddee});
-
-
 		turPro.position.set(0, 268, -10);
 
 		windTurbine.add(turBase);
@@ -623,9 +703,10 @@ function setupWorld() {
 		var windTurbine2 = windTurbine.clone();
 		var windTurbine3 = windTurbine.clone();
 
-		windTurbine.position.set(-1629, 90, 740);
-		windTurbine2.position.set(-1454, 90, 842);
-		windTurbine3.position.set(-1286, 90, 940);
+		// relative postiton
+		windTurbine.position.set(-223, 90, -75);
+		windTurbine2.position.set(-22, 90, 40);
+		windTurbine3.position.set(175, 90, 153);
 
 		windTurbine.rotation.y = 
 		windTurbine2.rotation.y = 
@@ -633,15 +714,13 @@ function setupWorld() {
 
 		allTurbines.add(windTurbine, windTurbine2, windTurbine3);
 
-		allTurbines.spin = function () {
+		world.shore1.add(allTurbines);
+
+		world.shore1.spinTurbines = function () {
 			windTurbine.children[1].rotation.z += 0.05;
 			windTurbine2.children[1].rotation.z += 0.05;
 			windTurbine3.children[1].rotation.z += 0.05;
 		};
-
-		return allTurbines;
-
-	})();
 		
 	world.hub = (function () {
 
@@ -814,8 +893,19 @@ function setupWorld() {
 
 	// --- add all to scene
 	_.each(world, function (object) {
+		object.name = getModelName(object);
 		scene.add(object);
 	});
+
+	function getModelName(model) {
+		var k;
+		_.each(world, function (value, key, list) {
+			if (value === model) {
+				k = key;
+			}
+		});
+		return k;
+	}
 
 
 } // end setup world
@@ -826,7 +916,8 @@ function setupWorld() {
 	function animate(time) {
 
 		// seaShaderUniforms.time.value = time*0.0005;
-		world.turbines.spin();
+
+		world.shore1.spinTurbines();
 
 		// if (currView === 'waterNetwork') {
 		// 	world.watersupply.rotation.y += 0.01;
@@ -1181,14 +1272,15 @@ function initSky() {
 	sunSphere.position.y = -700000;
 	scene.add( sunSphere );
 
+
 	/// GUI
 	sky.mesh.ctrl  = {
-		turbidity: 4.8,
+		turbidity: 18.9,
 		reileigh: 4,
-		mieCoefficient: 0.06,
-		mieDirectionalG: 0.76,
+		mieCoefficient: 0.063,
+		mieDirectionalG: 0.94,
 		luminance: 0.35,
-		inclination: 0.83,
+		inclination: 0.86,
 		azimuth: 0.9,				
 		sun: !true
 	};

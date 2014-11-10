@@ -11,7 +11,7 @@
 		TWEEN.update(time);
 		animate(time);
 		
-		intersectMouse(world.hub);
+		intersectMouse(world);
 
 		// renderer.render(scene, camera);
 		composer.render();
@@ -25,6 +25,8 @@
 
 		// --- test ray caster 3D object-mouse intersection todo: check platform's children if contain intersected mesh then do sth
 
+		var prevIntersected = null;
+
 			var raycaster = new THREE.Raycaster();
 			function intersectMouse(mesh) {
 				
@@ -33,21 +35,56 @@
 
 				raycaster.set( camera.position, mo.sub( camera.position ).normalize() );
 
-				var intersects = raycaster.intersectObject( mesh , true ); // also check all descendants
+				// var intersects = raycaster.intersectObject( mesh , true ); // also check all descendants
+
+				var objArr = _.toArray(mesh);
+					objArr = _.without(objArr, world.sky);
+				var intersects = raycaster.intersectObjects( objArr , true ); // also check all descendants
 
 				if ( intersects.length > 0 ) {
 
-					console.warn(intersects);
+					// console.log(intersects[0].object.parent.children.length);
+					var closestMesh = intersects[0].object;
 
-					var intersect = intersects[0];
+					var rootModel = getRootModel(closestMesh);
+					
+					
+					intersected = rootModel.name;
 
-					intersect.object.material.color.setRGB(1, 0, 0);
+					if (prevIntersected === intersected) return;
+
+					var iMat = getAllMaterials(rootModel);
+					_.forEach(iMat, function (value, key, list) {
+						value.wireframe = true;
+					});
+
+					prevIntersected = intersected;	
+					console.log(intersected);
+
 
 				}
 			}
-		
 
+			function getRootModel(object) {
+				if ( object.parent && !(object.parent instanceof THREE.Scene) ) {
+					return getRootModel(object.parent);
+				}
+				return object;
+			}
 
+			function getAllMaterials(object) {
 
+				var mat = [];
 
+				if (object.material) mat.push(object.material);
+
+				for (var i=0; i<object.children.length; i++) {
+
+					mat = mat.concat( getAllMaterials(object.children[i]) );
+
+				}
+
+				return mat;
+
+			}
 

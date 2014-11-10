@@ -46,6 +46,57 @@ function setupWorld() {
 		}
 	};
 
+	// override default clone to also clone material
+	THREE.Object3D.prototype.clone = function(object, recursive) { 
+
+		if ( object === undefined ) object = new THREE.Object3D();
+		if ( recursive === undefined ) recursive = true;
+
+		object.name = this.name;
+
+		object.up.copy( this.up );
+
+		object.position.copy( this.position );
+		object.quaternion.copy( this.quaternion );
+		object.scale.copy( this.scale );
+
+		object.renderDepth = this.renderDepth;
+
+		object.rotationAutoUpdate = this.rotationAutoUpdate;
+
+		object.matrix.copy( this.matrix );
+		object.matrixWorld.copy( this.matrixWorld );
+
+		object.matrixAutoUpdate = this.matrixAutoUpdate;
+		object.matrixWorldNeedsUpdate = this.matrixWorldNeedsUpdate;
+
+		if (object.material) {
+			object.material = this.material.clone();
+		}
+
+		object.visible = this.visible;
+
+		object.castShadow = this.castShadow;
+		object.receiveShadow = this.receiveShadow;
+
+		object.frustumCulled = this.frustumCulled;
+
+		object.userData = JSON.parse( JSON.stringify( this.userData ) );
+
+		if ( recursive === true ) {
+
+			for ( var i = 0; i < this.children.length; i ++ ) {
+
+				var child = this.children[ i ];
+				object.add( child.clone() );
+
+			}
+
+		}
+
+		return object;
+	};
+
 	function constructModel(modelKey, settings) {
 
 		var model = assetManager.getModel(modelKey);
@@ -72,8 +123,9 @@ function setupWorld() {
 	}
 
 	function getNewShell() {
-
-		return assetManager.getModel('shell').clone();
+		var shell = assetManager.getModel('shell').clone();
+		shell.material = shell.material.clone();
+		return shell; 
 	}
 
 
@@ -114,14 +166,11 @@ function setupWorld() {
 
 	})();
 	
-	world.turbines = (function () {
-
+	// add turbines to shore1
 		var allTurbines = new THREE.Object3D();
 		var windTurbine = new THREE.Object3D();
 		var turBase = constructModel('turbineBase', {color: 0xddddee});
 		var turPro = constructModel('propeller', {color: 0xddddee});
-
-
 		turPro.position.set(0, 268, -10);
 
 		windTurbine.add(turBase);
@@ -130,9 +179,10 @@ function setupWorld() {
 		var windTurbine2 = windTurbine.clone();
 		var windTurbine3 = windTurbine.clone();
 
-		windTurbine.position.set(-1629, 90, 740);
-		windTurbine2.position.set(-1454, 90, 842);
-		windTurbine3.position.set(-1286, 90, 940);
+		// relative postiton
+		windTurbine.position.set(-223, 90, -75);
+		windTurbine2.position.set(-22, 90, 40);
+		windTurbine3.position.set(175, 90, 153);
 
 		windTurbine.rotation.y = 
 		windTurbine2.rotation.y = 
@@ -140,15 +190,13 @@ function setupWorld() {
 
 		allTurbines.add(windTurbine, windTurbine2, windTurbine3);
 
-		allTurbines.spin = function () {
+		world.shore1.add(allTurbines);
+
+		world.shore1.spinTurbines = function () {
 			windTurbine.children[1].rotation.z += 0.05;
 			windTurbine2.children[1].rotation.z += 0.05;
 			windTurbine3.children[1].rotation.z += 0.05;
 		};
-
-		return allTurbines;
-
-	})();
 		
 	world.hub = (function () {
 
@@ -321,8 +369,19 @@ function setupWorld() {
 
 	// --- add all to scene
 	_.each(world, function (object) {
+		object.name = getModelName(object);
 		scene.add(object);
 	});
+
+	function getModelName(model) {
+		var k;
+		_.each(world, function (value, key, list) {
+			if (value === model) {
+				k = key;
+			}
+		});
+		return k;
+	}
 
 
 } // end setup world

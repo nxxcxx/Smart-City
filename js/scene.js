@@ -7,7 +7,7 @@
 	var dpr = 1.0;
 	if (window.devicePixelRatio !== undefined) { dpr = window.devicePixelRatio; }
 
-	var mouse = new THREE.Vector2();
+	var mouse = new THREE.Vector2(-1, -1);
 	var gui = new dat.GUI();
 	var guiCtrl = gui.addFolder('Controls');
 	var guiViews = guiCtrl.addFolder('Views');
