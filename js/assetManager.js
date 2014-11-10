@@ -32,7 +32,12 @@
 
 		function get() { return assets; }
 
-		function getModel(key) { return assets.models[key].model; }
+		function getModel(key) { 
+			if (assets.models[key]) 
+				return assets.models[key].model; 
+			else 
+				return null;
+		}
 
 		function getTexture(key) {return assets.textures[key].texture; }
 
@@ -122,12 +127,20 @@
 		.addFile('resident02', 'resident02/resident02.obj')
 
 		// landfill
-		// .addFile('landfillTex', 'landfill/1024landfill.png')
+		.addFile('landfillTex', 'landfill/1024landfill.png')
 		.addFile('landfill', 'landfill/landfill.obj')
 
+		.addFile('landfillPipeTex', 'landfill/1024landfillPipe.png')
+		.addFile('landfillPipe', 'landfill/landfillPipe.obj')
+
+		.addFile('landfillWindowTex', 'landfill/1024landfillWindow.png')
+		.addFile('landfillWindow', 'landfill/landfillWindow.obj')
+
 		// water supply
-		.addFile('watersupplyTex', 'watersupply/1024watersupply.png')
 		.addFile('watersupply', 'watersupply/watersupply.obj')
+
+		.addFile('watersupplyPipeTex', 'watersupply/1024watersupplyPipe.png')
+		.addFile('watersupplyPipe', 'watersupply/watersupplyPipe.obj')
 
 
 

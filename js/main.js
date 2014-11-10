@@ -53,13 +53,13 @@
 
 					if (prevIntersected === intersected) return;
 
-					var iMat = getAllMaterials(rootModel);
-					_.forEach(iMat, function (value, key, list) {
-						value.wireframe = true;
-					});
+					// var iMat = getAllMaterials(rootModel);
+					// _.forEach(iMat, function (value, key, list) {
+					// 	value.wireframe = true;
+					// });
 
 					prevIntersected = intersected;	
-					console.log(intersected);
+					// console.log(intersected);
 
 
 				}

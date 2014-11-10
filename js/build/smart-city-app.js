@@ -165,7 +165,10 @@
 
 	composer.addPass(renderPass);
 	composer.addPass(SSAOpass);
+
 	composer.addPass(FXAApass);
+	composer.addPass(FXAApass);
+	
 	composer.addPass(CCpass);
 	composer.addPass(copyPass);
 
@@ -235,7 +238,12 @@
 
 		function get() { return assets; }
 
-		function getModel(key) { return assets.models[key].model; }
+		function getModel(key) { 
+			if (assets.models[key]) 
+				return assets.models[key].model; 
+			else 
+				return null;
+		}
 
 		function getTexture(key) {return assets.textures[key].texture; }
 
@@ -325,12 +333,20 @@
 		.addFile('resident02', 'resident02/resident02.obj')
 
 		// landfill
-		// .addFile('landfillTex', 'landfill/1024landfill.png')
+		.addFile('landfillTex', 'landfill/1024landfill.png')
 		.addFile('landfill', 'landfill/landfill.obj')
 
+		.addFile('landfillPipeTex', 'landfill/1024landfillPipe.png')
+		.addFile('landfillPipe', 'landfill/landfillPipe.obj')
+
+		.addFile('landfillWindowTex', 'landfill/1024landfillWindow.png')
+		.addFile('landfillWindow', 'landfill/landfillWindow.obj')
+
 		// water supply
-		.addFile('watersupplyTex', 'watersupply/1024watersupply.png')
 		.addFile('watersupply', 'watersupply/watersupply.obj')
+
+		.addFile('watersupplyPipeTex', 'watersupply/1024watersupplyPipe.png')
+		.addFile('watersupplyPipe', 'watersupply/watersupplyPipe.obj')
 
 
 
@@ -486,13 +502,13 @@
 
 					if (prevIntersected === intersected) return;
 
-					var iMat = getAllMaterials(rootModel);
-					_.forEach(iMat, function (value, key, list) {
-						value.wireframe = true;
-					});
+					// var iMat = getAllMaterials(rootModel);
+					// _.forEach(iMat, function (value, key, list) {
+					// 	value.wireframe = true;
+					// });
 
 					prevIntersected = intersected;	
-					console.log(intersected);
+					// console.log(intersected);
 
 
 				}
@@ -546,18 +562,6 @@ function setupWorld() {
 			// shaderMesh.position.y = 2000;
 			// scene.add( shaderMesh );
 
-
-
-	// private stuff
-	(function init() {
-
-		// create base shell for cloning
-		var shell = constructModel('shell', {color: 0xddddee});
-		shell.castShadow = false;
-		shell.receiveShadow = false;
-
-	})();
-
 	// ------- Model helper
 
 	THREE.Object3D.prototype.setDefaultPos = function(x, y, z, rx, ry, rz) {
@@ -594,7 +598,7 @@ function setupWorld() {
 		object.matrixAutoUpdate = this.matrixAutoUpdate;
 		object.matrixWorldNeedsUpdate = this.matrixWorldNeedsUpdate;
 
-		if (object.material) {
+		if (object.material && this.material) {
 			object.material = this.material.clone();
 		}
 
@@ -646,10 +650,18 @@ function setupWorld() {
 		return model;
 	}
 
+	constructModel('emptyPlatform', {color: 0xddddee});
+	var shell = constructModel('shell', {color: 0xddddee});
+	shell.castShadow = false;
+	shell.receiveShadow = false;
+
 	function getNewShell() {
-		var shell = assetManager.getModel('shell').clone();
-		shell.material = shell.material.clone();
-		return shell; 
+		return assetManager.getModel('shell').clone(); 
+	}
+
+
+	function getNewPlatform() {
+		return assetManager.getModel('emptyPlatform').clone();;
 	}
 
 
@@ -661,7 +673,7 @@ function setupWorld() {
 
 		var shore = new THREE.Object3D();
 		var shorePlatform = constructModel('shorePlatform', {color: 0xddddee});
-		var shoreWaterSurface = constructModel('shoreWaterSurface', {map:'shoreWaterSurfaceTex' , envMap: 'reflectionCube', opacity: 0.9, transparent: true});
+		var shoreWaterSurface = constructModel('shoreWaterSurface', {map:'shoreWaterSurfaceTex' , envMap: 'reflectionCube', opacity: 0.7, transparent: true});
 		shorePlatform.castShadow = false;
 
 		// overridw w/ shader
@@ -787,9 +799,13 @@ function setupWorld() {
 	world.landfill = (function () {
 
 		var landfill = new THREE.Object3D();
-		var lf = constructModel('landfill', {color: 0xddddee});
+		var lfbuilding = constructModel('landfill', {map: 'landfillTex'});
+		var lfpipe = constructModel('landfillWindow', {map: 'landfillWindowTex', envMap: 'reflectionCube'})
+		var lfwindow = constructModel('landfillPipe', {map: 'landfillPipeTex', envMap: 'reflectionCube', reflectivity: 0.4})
+		lfbuilding.position.x = lfpipe.position.x = lfwindow.position.x = -30;
+		var ep = getNewPlatform(); 
 		var lfshell = getNewShell();
-		landfill.add(lf, lfshell);
+		landfill.add(lfbuilding, lfpipe, lfwindow, ep, lfshell);
 		landfill.setDefaultPos(1400, 0, -805);
 		return landfill;
 
@@ -799,8 +815,9 @@ function setupWorld() {
 
 		var watersupply = new THREE.Object3D();
 		var ws = constructModel('watersupply', {color: 0xddddee});
-		var wsshell = getNewShell();
-		watersupply.add(ws, wsshell);
+		var wp = constructModel('watersupplyPipe', {map: 'watersupplyPipeTex', envMap: 'reflectionCube', reflectivity: 0.4})
+		var shell = getNewShell();
+		watersupply.add(ws, wp, shell);
 		watersupply.setDefaultPos(700, 0, 405);
 		return watersupply;
 
@@ -850,7 +867,7 @@ function setupWorld() {
 	world.eplatform1 = (function () {
 
 		var ep01 = new THREE.Object3D();
-		var ep = constructModel('emptyPlatform', {color: 0xddddee});
+		var ep = getNewPlatform();
 		var epshell = getNewShell();
 		ep01.add(ep, epshell);
 		ep01.setDefaultPos(0, 0, -1618);
@@ -1144,8 +1161,8 @@ function setupWorld() {
 
 		function animateLandfillView() {
 
-			animateCameraTo(new THREE.Vector3(1141.98 , -180.74 , 416.46), 
-							new THREE.Vector3(1294.15 , 509.40 , -1416.20));
+			animateCameraTo(new THREE.Vector3(1538.19 , -314.89 , 245.60), 
+							new THREE.Vector3(989.74 , 481.44 , -1133.21));
 
 			animateFOV(80);
 			animateClearSky();
@@ -1176,10 +1193,10 @@ function setupWorld() {
 
 		}
 
-		function animateLowPerspectiveView() {
+		function animateLowFOV() {
 
-			animateCameraTo(new THREE.Vector3(-23.30 , 721.89 , -9.59), 
-							new THREE.Vector3(-15511.88 , 912.70 , 4339.07));
+			animateCameraTo(new THREE.Vector3(-46.34 , 671.43 , -89.42), 
+							new THREE.Vector3(-15534.92 , 862.24 , 4259.24));
 
 			animateFOV(5);
 			animateClearSky();
@@ -1187,7 +1204,7 @@ function setupWorld() {
 
 			resetView();
 
-			currView = 'lowPerspective';
+			currView = 'lowFOV';
 
 		}
 
@@ -1196,7 +1213,7 @@ function setupWorld() {
 
 		
 		var viewCtrl = {
-			lowPerspective: animateLowPerspectiveView,
+			lowFOV: animateLowFOV,
 			city: animateCityView,
 			turbines: animateTurbinesView,
 			landfill: animateLandfillView,
@@ -1205,7 +1222,7 @@ function setupWorld() {
 			lowAngle: animateLowAngleView
 		};
 
-		guiViews.add(viewCtrl, 'lowPerspective');
+		guiViews.add(viewCtrl, 'lowFOV');
 		guiViews.add(viewCtrl, 'city');
 		guiViews.add(viewCtrl, 'turbines');
 		guiViews.add(viewCtrl, 'landfill');

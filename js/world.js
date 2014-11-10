@@ -22,18 +22,6 @@ function setupWorld() {
 			// shaderMesh.position.y = 2000;
 			// scene.add( shaderMesh );
 
-
-
-	// private stuff
-	(function init() {
-
-		// create base shell for cloning
-		var shell = constructModel('shell', {color: 0xddddee});
-		shell.castShadow = false;
-		shell.receiveShadow = false;
-
-	})();
-
 	// ------- Model helper
 
 	THREE.Object3D.prototype.setDefaultPos = function(x, y, z, rx, ry, rz) {
@@ -70,7 +58,7 @@ function setupWorld() {
 		object.matrixAutoUpdate = this.matrixAutoUpdate;
 		object.matrixWorldNeedsUpdate = this.matrixWorldNeedsUpdate;
 
-		if (object.material) {
+		if (object.material && this.material) {
 			object.material = this.material.clone();
 		}
 
@@ -122,10 +110,18 @@ function setupWorld() {
 		return model;
 	}
 
+	constructModel('emptyPlatform', {color: 0xddddee});
+	var shell = constructModel('shell', {color: 0xddddee});
+	shell.castShadow = false;
+	shell.receiveShadow = false;
+
 	function getNewShell() {
-		var shell = assetManager.getModel('shell').clone();
-		shell.material = shell.material.clone();
-		return shell; 
+		return assetManager.getModel('shell').clone(); 
+	}
+
+
+	function getNewPlatform() {
+		return assetManager.getModel('emptyPlatform').clone();;
 	}
 
 
@@ -137,7 +133,7 @@ function setupWorld() {
 
 		var shore = new THREE.Object3D();
 		var shorePlatform = constructModel('shorePlatform', {color: 0xddddee});
-		var shoreWaterSurface = constructModel('shoreWaterSurface', {map:'shoreWaterSurfaceTex' , envMap: 'reflectionCube', opacity: 0.9, transparent: true});
+		var shoreWaterSurface = constructModel('shoreWaterSurface', {map:'shoreWaterSurfaceTex' , envMap: 'reflectionCube', opacity: 0.7, transparent: true});
 		shorePlatform.castShadow = false;
 
 		// overridw w/ shader
@@ -263,9 +259,13 @@ function setupWorld() {
 	world.landfill = (function () {
 
 		var landfill = new THREE.Object3D();
-		var lf = constructModel('landfill', {color: 0xddddee});
+		var lfbuilding = constructModel('landfill', {map: 'landfillTex'});
+		var lfpipe = constructModel('landfillWindow', {map: 'landfillWindowTex', envMap: 'reflectionCube'})
+		var lfwindow = constructModel('landfillPipe', {map: 'landfillPipeTex', envMap: 'reflectionCube', reflectivity: 0.4})
+		lfbuilding.position.x = lfpipe.position.x = lfwindow.position.x = -30;
+		var ep = getNewPlatform(); 
 		var lfshell = getNewShell();
-		landfill.add(lf, lfshell);
+		landfill.add(lfbuilding, lfpipe, lfwindow, ep, lfshell);
 		landfill.setDefaultPos(1400, 0, -805);
 		return landfill;
 
@@ -275,8 +275,9 @@ function setupWorld() {
 
 		var watersupply = new THREE.Object3D();
 		var ws = constructModel('watersupply', {color: 0xddddee});
-		var wsshell = getNewShell();
-		watersupply.add(ws, wsshell);
+		var wp = constructModel('watersupplyPipe', {map: 'watersupplyPipeTex', envMap: 'reflectionCube', reflectivity: 0.4})
+		var shell = getNewShell();
+		watersupply.add(ws, wp, shell);
 		watersupply.setDefaultPos(700, 0, 405);
 		return watersupply;
 
@@ -326,7 +327,7 @@ function setupWorld() {
 	world.eplatform1 = (function () {
 
 		var ep01 = new THREE.Object3D();
-		var ep = constructModel('emptyPlatform', {color: 0xddddee});
+		var ep = getNewPlatform();
 		var epshell = getNewShell();
 		ep01.add(ep, epshell);
 		ep01.setDefaultPos(0, 0, -1618);

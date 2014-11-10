@@ -233,8 +233,8 @@
 
 		function animateLandfillView() {
 
-			animateCameraTo(new THREE.Vector3(1141.98 , -180.74 , 416.46), 
-							new THREE.Vector3(1294.15 , 509.40 , -1416.20));
+			animateCameraTo(new THREE.Vector3(1538.19 , -314.89 , 245.60), 
+							new THREE.Vector3(989.74 , 481.44 , -1133.21));
 
 			animateFOV(80);
 			animateClearSky();
@@ -265,10 +265,10 @@
 
 		}
 
-		function animateLowPerspectiveView() {
+		function animateLowFOV() {
 
-			animateCameraTo(new THREE.Vector3(-23.30 , 721.89 , -9.59), 
-							new THREE.Vector3(-15511.88 , 912.70 , 4339.07));
+			animateCameraTo(new THREE.Vector3(-46.34 , 671.43 , -89.42), 
+							new THREE.Vector3(-15534.92 , 862.24 , 4259.24));
 
 			animateFOV(5);
 			animateClearSky();
@@ -276,7 +276,7 @@
 
 			resetView();
 
-			currView = 'lowPerspective';
+			currView = 'lowFOV';
 
 		}
 
@@ -285,7 +285,7 @@
 
 		
 		var viewCtrl = {
-			lowPerspective: animateLowPerspectiveView,
+			lowFOV: animateLowFOV,
 			city: animateCityView,
 			turbines: animateTurbinesView,
 			landfill: animateLandfillView,
@@ -294,7 +294,7 @@
 			lowAngle: animateLowAngleView
 		};
 
-		guiViews.add(viewCtrl, 'lowPerspective');
+		guiViews.add(viewCtrl, 'lowFOV');
 		guiViews.add(viewCtrl, 'city');
 		guiViews.add(viewCtrl, 'turbines');
 		guiViews.add(viewCtrl, 'landfill');
