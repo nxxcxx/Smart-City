@@ -22,6 +22,7 @@
 			console.timeEnd('loadingManager');
 			loadingBar.style.display = 'none';
 			startScene();
+			initDebugInfo();
 			render();
 		};
 

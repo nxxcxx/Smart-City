@@ -7,13 +7,42 @@
 		animateSilhouetteView();
 	}
 
+
+	var debugCTGT = $('.ctgt');
+	var debugCPOS = $('.cpos');
+	var debugFOV  = $('.fov');
+
+	var debugGL = $('.debug-gl');
+
+	function initDebugInfo() {
+
+		var gl = renderer.context;
+		debugGL.html(
+			'Version: ' + gl.getParameter(gl.VERSION) + '<br/>' + 
+			'Shading language: ' + gl.getParameter(gl.SHADING_LANGUAGE_VERSION) + '<br/>' +
+			'Vendor: ' + gl.getParameter(gl.VENDOR) + '<br/>' +
+			'Renderer: ' + gl.getParameter(gl.RENDERER) + '<br/>'
+		);
+
+	}
+
+	function updateDebugInfo() {
+		debugCTGT.html( 'CTGT: ' + cameraCtrl.target.x.toFixed(2) + ', '+ cameraCtrl.target.y.toFixed(2) + ', ' + cameraCtrl.target.z.toFixed(2) );
+		debugCPOS.html( 'CPOS: ' + cameraCtrl.object.position.x.toFixed(2) + ', ' + cameraCtrl.object.position.y.toFixed(2) + ', ' + cameraCtrl.object.position.z.toFixed(2) );
+		debugFOV.html( 'CFOV: ' + camera.fov.toFixed(2) );
+	}
+
 	function render(time) {
 		requestAnimationFrame(render);
 		stats.update();
 		TWEEN.update(time);
 		animate(time);
+
 		
-		intersectMouse(world);
+		// intersectMouse(world);
+
+		updateDebugInfo();
+
 
 		// renderer.render(scene, camera);
 		composer.render();

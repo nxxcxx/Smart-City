@@ -19,7 +19,7 @@ canvas {
 	z-index: 10;
 	position: absolute;
 	height: 10px;
-	background: white;
+	background: #fff;
 	bottom: 0;
 	left: 0;
 }
@@ -40,6 +40,42 @@ canvas {
 	bottom: 0px; 
 	left: 0px;
 }
+
+
+.debug-info {
+	overflow: hidden;
+	position: absolute;
+	top: 5px;
+	left: 100px;
+	width: 700px;
+	height: 80px;
+	color: #fff;
+	font: 11px/150% Arial, Helvetica, sans-serif;
+	/*background: yellow;*/
+}
+
+	.debug-camera {
+		position: absolute;
+	}
+
+	.debug-camera div {
+		overflow: hidden;
+		/*background: red;*/
+		width: 200px;
+
+	}
+
+	.debug-gl {
+		position: absolute;
+		left: 200px;
+		overflow: hidden;
+		/*background: green;*/
+		width: 400px;
+		height: 100px;
+		font-size: 10px;
+	}
+
+
 
 
 div.content {

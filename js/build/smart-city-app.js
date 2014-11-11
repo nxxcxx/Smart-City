@@ -435,6 +435,7 @@
 			console.timeEnd('loadingManager');
 			loadingBar.style.display = 'none';
 			startScene();
+			initDebugInfo();
 			render();
 		};
 
@@ -515,13 +516,42 @@
 		animateSilhouetteView();
 	}
 
+
+	var debugCTGT = $('.ctgt');
+	var debugCPOS = $('.cpos');
+	var debugFOV  = $('.fov');
+
+	var debugGL = $('.debug-gl');
+
+	function initDebugInfo() {
+
+		var gl = renderer.context;
+		debugGL.html(
+			'Version: ' + gl.getParameter(gl.VERSION) + '<br/>' + 
+			'Shading language: ' + gl.getParameter(gl.SHADING_LANGUAGE_VERSION) + '<br/>' +
+			'Vendor: ' + gl.getParameter(gl.VENDOR) + '<br/>' +
+			'Renderer: ' + gl.getParameter(gl.RENDERER) + '<br/>'
+		);
+
+	}
+
+	function updateDebugInfo() {
+		debugCTGT.html( 'CTGT: ' + cameraCtrl.target.x.toFixed(2) + ', '+ cameraCtrl.target.y.toFixed(2) + ', ' + cameraCtrl.target.z.toFixed(2) );
+		debugCPOS.html( 'CPOS: ' + cameraCtrl.object.position.x.toFixed(2) + ', ' + cameraCtrl.object.position.y.toFixed(2) + ', ' + cameraCtrl.object.position.z.toFixed(2) );
+		debugFOV.html( 'CFOV: ' + camera.fov.toFixed(2) );
+	}
+
 	function render(time) {
 		requestAnimationFrame(render);
 		stats.update();
 		TWEEN.update(time);
 		animate(time);
+
 		
-		intersectMouse(world);
+		// intersectMouse(world);
+
+		updateDebugInfo();
+
 
 		// renderer.render(scene, camera);
 		composer.render();
@@ -1149,15 +1179,19 @@ function setupWorld() {
 		}
 
 		function animateSunsetSky(speed) {
-			animateSky(20, 4, 0.1, 0.93, 0.11, 0.5, 0.65, speed);
-		}
-
-		function animateSunsetSky2(speed) {
 			animateSky(20, 4, 0.1, 0.93, 0.35, 0.49, 0.86, speed);
 		}
 
 		function animateSilhouetteSky(speed) {
 			animateSky(20, 0.9, 0.067, 0.58, 1.17, 0.38, 0.48, speed);
+		}
+
+		function animateCityViewSky(speed) {
+			animateSky(15, 2.7, 0.02, 0.75, 0.79, 0.7, 0.84, speed);
+		}
+
+		function animateWaterNetworkViewSky(speed) {
+			animateSky(4, 2, 0.057, 0.49, 0.22, 0.73, 0.94, speed);
 		}
 
 
@@ -1181,7 +1215,7 @@ function setupWorld() {
 							new THREE.Vector3(-1830.50 , 2112.81 , -25.24));
 
 			animateFOV(80);
-			animateClearSky();
+			animateCityViewSky();
 			animateSunLightIntensity(1);
 
 
@@ -1193,27 +1227,11 @@ function setupWorld() {
 
 			resetView();
 
-			animateCameraTo(new THREE.Vector3(215.35 , 70.55 , 1377.40), 
-							new THREE.Vector3(-570.12 , 216.03 , -188.98));
-
-			animateFOV(100);
-			animateSunsetSky();
-			animateSunLightIntensity(0, 0, 0);
-
-
-			currView = 'tollway';
-
-		}
-
-		function animateTollwayView2() {
-
-			resetView();
-
 			animateCameraTo(new THREE.Vector3(-1568.77 , -343.81 , 262.49), 
 							new THREE.Vector3(-134.94 , 246.37 , -75.15), 2000);
 
 			animateFOV(110);
-			animateSunsetSky2(3000);
+			animateSunsetSky(3000);
 			animateSunLightIntensity(0, 0, 0);
 
 
@@ -1272,11 +1290,11 @@ function setupWorld() {
 
 			resetView();
 
-			animateCameraTo(new THREE.Vector3(854.92 , 415.85 , 514.55), 
-							new THREE.Vector3(-60.48 , 697.84 , 524.37));
+			animateCameraTo(new THREE.Vector3(832.43 , 397.33 , 697.43),
+							new THREE.Vector3(21.29 , 694.72 , 666.29));
 
 			animateFOV(80);
-			animateClearSky();
+			animateWaterNetworkViewSky();
 			animateSunLightIntensity(1);
 
 			world.watersupply.animateY(700);
@@ -1307,13 +1325,13 @@ function setupWorld() {
 
 		
 		var viewCtrl = {
-			
+
 			silhouette: animateSilhouetteView,
 			city: animateCityView,
 			turbines: animateTurbinesView,
 			landfill: animateLandfillView,
 			waterNetwork: animateWaterNetworkView,
-			tollway: animateTollwayView2,
+			tollway: animateTollwayView,
 			lowAngle: animateLowAngleView,
 			
 		};
