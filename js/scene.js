@@ -8,17 +8,20 @@
 	if (window.devicePixelRatio !== undefined) { dpr = window.devicePixelRatio; }
 
 	var mouse = new THREE.Vector2(-1, -1);
+
+	// ---- GUI initial setup
 	var gui = new dat.GUI();
 	var guiCtrl = gui.addFolder('Controls');
 	var guiViews = guiCtrl.addFolder('Views');
 	var guiDebug = gui.addFolder('Debug');
 	gui.open();
 	guiCtrl.open();
-	guiViews.open();
+	guiViews.open(); 
+	guiDebug.open();
 
 	// ---- settings
 	var scene_settings = {
-		enableHelper: false,
+		enableHelper: true,
 		bgColor: 0x111113,
 		enableShadow: true,
 		maxAnisotropy: null
@@ -38,7 +41,7 @@
 		cameraCtrl.update();
 
 	// ---- Renderer
-		renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+		renderer = new THREE.WebGLRenderer({ antialias: true , alpha: true});
 		renderer.setClearColor(scene_settings.bgColor, 1);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		
@@ -74,36 +77,41 @@
 		var SHADOW_MAP_WIDTH = 4096, SHADOW_MAP_HEIGHT = 4096;
 
 		// sun light
-		var DirLight = new THREE.DirectionalLight(0xffffff, 1.2);	//0x331100
-		DirLight.position.set(-4000, 3000, 3000);
+		var sunLight = new THREE.DirectionalLight(0xffffff, 1.0);	//0x331100
 
-			DirLight.castShadow = true;
+		// sunlight pos now control by sky
+		// var sunLightDir = new THREE.Vector3(-4000, 3000, 3000);
+		// var sunLightDist = 1000;
+		// sunLight.position.set( sunLightDir.normalize().multiplyScalar(sunLightDist) );
 
-			DirLight.shadowCameraNear = 4000;
-			DirLight.shadowCameraFar = 8000;
+			sunLight.castShadow = true;
 
-			DirLight.shadowCameraLeft = -2000;
-			DirLight.shadowCameraRight = 2000;
-			DirLight.shadowCameraTop = 2000;
-			DirLight.shadowCameraBottom = -2000;
+			sunLight.shadowCameraNear = 1000;
+			sunLight.shadowCameraFar = 5000;
 
-			DirLight.shadowCameraVisible = true;
+			sunLight.shadowCameraLeft = -2000;
+			sunLight.shadowCameraRight = 2000;
+			sunLight.shadowCameraTop = 2000;
+			sunLight.shadowCameraBottom = -2000;
 
-			DirLight.shadowCameraFov = 80;
-			DirLight.shadowBias = 0.0001;
-			DirLight.shadowDarkness = 0.5;
+			sunLight.shadowCameraVisible = true;
 
-			DirLight.shadowMapWidth = SHADOW_MAP_WIDTH;
-			DirLight.shadowMapHeight = SHADOW_MAP_HEIGHT;
+			sunLight.shadowCameraFov = 80;
+			sunLight.shadowBias = 0.0001;
+			sunLight.shadowDarkness = 0.77;
 
-			var dirLightColor = {color: '#ffffff'};
-			guiDebug.addColor(dirLightColor, 'color').name('DirLight').onChange(updateLightCol);
+			sunLight.shadowMapWidth = SHADOW_MAP_WIDTH;
+			sunLight.shadowMapHeight = SHADOW_MAP_HEIGHT;
+
+			var sunLightColor = {color: '#ffffff'};
+			guiDebug.add(sunLight, 'intensity', 0.0, 2.0, 0.1);
+			guiDebug.addColor(sunLightColor, 'color').name('sunLight').onChange(updateLightCol);
 			function updateLightCol(c) {
-				DirLight.color.set(c);
+				sunLight.color.set(c);
 			}
 
 
-		scene.add(DirLight);
+		scene.add(sunLight);
 
 		// front light
 		// var frontLight = new THREE.DirectionalLight(0xffffff, 1.0);	//0x331100
@@ -112,23 +120,46 @@
 
 		// // back light
 		backLight = new THREE.DirectionalLight(0xffffff, 0.5);
-		backLight.position.set(4000, 3000, -4000);
+		backLight.position.set(1000, 1000, -1500);
 
-		var backLightHelper = new THREE.DirectionalLightHelper(backLight, 100);
-		scene.add(backLightHelper);
+			// backLight.castShadow = true;
+
+			backLight.shadowCameraNear = 1000;
+			backLight.shadowCameraFar = 4000;
+
+			backLight.shadowCameraLeft = -2000;
+			backLight.shadowCameraRight = 2000;
+			backLight.shadowCameraTop = 2000;
+			backLight.shadowCameraBottom = -2000;
+
+			backLight.shadowCameraVisible = true;
+
+			backLight.shadowCameraFov = 80;
+			backLight.shadowBias = 0.0001;
+			backLight.shadowDarkness = 0.5;
+
+			backLight.shadowMapWidth = SHADOW_MAP_WIDTH;
+			backLight.shadowMapHeight = SHADOW_MAP_HEIGHT;
+
+		// var backLightHelper = new THREE.DirectionalLightHelper(backLight, 100);
+		// scene.add(backLightHelper);
+
 		scene.add(backLight);
 
-		// // ambient
-		light = new THREE.AmbientLight(0x050506);
-		scene.add(light);
+		// // ambient light
+		ambLight = new THREE.AmbientLight(0x050506);
+		scene.add(ambLight);
 
 
 
 		function toggleHelper() {
 			axisHelper.visible = scene_settings.enableHelper;
-			DirLight.shadowCameraVisible = scene_settings.enableHelper;
-			backLightHelper.visible = scene_settings.enableHelper;
 			grid.visible = scene_settings.enableHelper;
+
+			sunLight.shadowCameraVisible = scene_settings.enableHelper;
+			backLight.shadowCameraVisible = scene_settings.enableHelper;
+			// backLightHelper.visible = scene_settings.enableHelper;
+			
 			scene_settings.enableHelper = !scene_settings.enableHelper;
 		}
 		toggleHelper();

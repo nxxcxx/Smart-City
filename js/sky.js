@@ -54,11 +54,11 @@ function initSky() {
 		sky.uniforms.sunPosition.value.copy(sunSphere.position);
 
 
-		var lightDist = 6000;
+		var lightDist = 3000;
 		theta += 0.2;
-		DirLight.position.x = lightDist * Math.cos(phi);
-		DirLight.position.y = lightDist * Math.sin(phi) * Math.sin(theta); 
-		DirLight.position.z = lightDist * Math.sin(phi) * Math.cos(theta); 
+		sunLight.position.x = lightDist * Math.cos(phi);
+		sunLight.position.y = lightDist * Math.sin(phi) * Math.sin(theta); 
+		sunLight.position.z = lightDist * Math.sin(phi) * Math.cos(theta); 
 
 	};
 

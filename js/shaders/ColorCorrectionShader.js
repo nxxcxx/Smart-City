@@ -35,8 +35,8 @@ THREE.ColorCorrectionShader = {
 
 			"vec4 color = texture2D( tDiffuse, vUv );",
 			"color.rgb = mulRGB * pow( color.rgb, powRGB );",
-			// "color.rgb = sqrt(color.rgb);",
-			"gl_FragColor.rgb = color.rgb;",
+			// "color = sqrt(color);",
+			"gl_FragColor = color;",
 
 
 		"}"

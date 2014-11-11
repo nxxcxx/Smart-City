@@ -36,8 +36,8 @@
 		}
 	}
 
-	function updateGuiDirLight() {
-		dirLightColor.color = '#' + DirLight.color.getHexString();
+	function updateGuiLight() {
+		sunLightColor.color = '#' + sunLight.color.getHexString();
 		for (var i in guiDebug.__controllers) {
 			guiDebug.__controllers[i].updateDisplay();
 		}
@@ -122,7 +122,7 @@
 			camera.updateProjectionMatrix();
 		}
 
-		function animateSky(a, b, c, d, e, f, g) {
+		function animateSky(a, b, c, d, e, f, g, speed) {
 			var sky = world.sky;
 			new TWEEN.Tween( sky.ctrl )
 				.to( {	turbidity: a,
@@ -132,7 +132,7 @@
 						liminance: e,
 						inclination: f,
 						azimuth: g
-					 }, 5000 )
+					 }, speed || 5000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() {
 					sky.updateCtrl();
@@ -141,15 +141,12 @@
 			.start();
 		}
 
-		function animateDirLightColor(r, g, b) {
-			new TWEEN.Tween( DirLight.color )
-				.to( {	r: r, 
-						g: g,
-						b: b
-					 }, 3000 )
+		function animateSunLightIntensity(x) {
+			new TWEEN.Tween( sunLight )
+				.to( { intensity: x }, 3000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() {
-					updateGuiDirLight();
+					updateGuiLight();
 				})
 			.start();
 		}
@@ -160,6 +157,10 @@
 
 		function animateSunsetSky() {
 			animateSky(20, 4, 0.1, 0.93, 0.11, 0.5, 0.65);
+		}
+
+		function animateSunsetSky2(speed) {
+			animateSky(20, 4, 0.1, 0.93, 0.35, 0.49, 0.86, speed);
 		}
 
 
@@ -180,7 +181,7 @@
 
 			animateFOV(80);
 			animateClearSky();
-			animateDirLightColor(1, 1, 1);
+			animateSunLightIntensity(1);
 
 
 			currView = 'city';
@@ -196,7 +197,23 @@
 
 			animateFOV(100);
 			animateSunsetSky();
-			animateDirLightColor(0, 0, 0);
+			animateSunLightIntensity(0, 0, 0);
+
+
+			currView = 'tollway';
+
+		}
+
+		function animateTollwayView2() {
+
+			resetView();
+
+			animateCameraTo(new THREE.Vector3(-1568.77 , -343.81 , 262.49), 
+							new THREE.Vector3(-134.94 , 246.37 , -75.15), 5000);
+
+			animateFOV(110);
+			animateSunsetSky2();
+			animateSunLightIntensity(0, 0, 0);
 
 
 			currView = 'tollway';
@@ -212,7 +229,7 @@
 
 			animateFOV(120);
 			animateClearSky();
-			animateDirLightColor(1, 1, 1);
+			animateSunLightIntensity(1);
 
 			currView = 'lowAngle';
 
@@ -227,7 +244,7 @@
 
 			animateFOV(90);
 			animateClearSky();
-			animateDirLightColor(1, 1, 1);
+			animateSunLightIntensity(1);
 
 
 			currView = 'turbines';
@@ -243,7 +260,7 @@
 
 			animateFOV(80);
 			animateClearSky();
-			animateDirLightColor(1, 1, 1);
+			animateSunLightIntensity(1);
 
 
 			currView = 'landfill';
@@ -259,7 +276,7 @@
 
 			animateFOV(80);
 			animateClearSky();
-			animateDirLightColor(1, 1, 1);
+			animateSunLightIntensity(1);
 
 			world.watersupply.animateY(700);
 			
@@ -277,7 +294,7 @@
 
 			animateFOV(5);
 			animateClearSky();
-			animateDirLightColor(1, 1, 1);
+			animateSunLightIntensity(1);
 
 
 			currView = 'lowFOV';
@@ -294,7 +311,7 @@
 			turbines: animateTurbinesView,
 			landfill: animateLandfillView,
 			waterNetwork: animateWaterNetworkView,
-			tollway: animateTollwayView,
+			tollway: animateTollwayView2,
 			lowAngle: animateLowAngleView
 		};
 

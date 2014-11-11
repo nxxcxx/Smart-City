@@ -8,17 +8,20 @@
 	if (window.devicePixelRatio !== undefined) { dpr = window.devicePixelRatio; }
 
 	var mouse = new THREE.Vector2(-1, -1);
+
+	// ---- GUI initial setup
 	var gui = new dat.GUI();
 	var guiCtrl = gui.addFolder('Controls');
 	var guiViews = guiCtrl.addFolder('Views');
 	var guiDebug = gui.addFolder('Debug');
 	gui.open();
 	guiCtrl.open();
-	guiViews.open();
+	guiViews.open(); 
+	guiDebug.open();
 
 	// ---- settings
 	var scene_settings = {
-		enableHelper: false,
+		enableHelper: true,
 		bgColor: 0x111113,
 		enableShadow: true,
 		maxAnisotropy: null
@@ -38,7 +41,7 @@
 		cameraCtrl.update();
 
 	// ---- Renderer
-		renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+		renderer = new THREE.WebGLRenderer({ antialias: true , alpha: true});
 		renderer.setClearColor(scene_settings.bgColor, 1);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		
@@ -74,36 +77,41 @@
 		var SHADOW_MAP_WIDTH = 4096, SHADOW_MAP_HEIGHT = 4096;
 
 		// sun light
-		var DirLight = new THREE.DirectionalLight(0xffffff, 1.2);	//0x331100
-		DirLight.position.set(-4000, 3000, 3000);
+		var sunLight = new THREE.DirectionalLight(0xffffff, 1.0);	//0x331100
 
-			DirLight.castShadow = true;
+		// sunlight pos now control by sky
+		// var sunLightDir = new THREE.Vector3(-4000, 3000, 3000);
+		// var sunLightDist = 1000;
+		// sunLight.position.set( sunLightDir.normalize().multiplyScalar(sunLightDist) );
 
-			DirLight.shadowCameraNear = 4000;
-			DirLight.shadowCameraFar = 8000;
+			sunLight.castShadow = true;
 
-			DirLight.shadowCameraLeft = -2000;
-			DirLight.shadowCameraRight = 2000;
-			DirLight.shadowCameraTop = 2000;
-			DirLight.shadowCameraBottom = -2000;
+			sunLight.shadowCameraNear = 1000;
+			sunLight.shadowCameraFar = 5000;
 
-			DirLight.shadowCameraVisible = true;
+			sunLight.shadowCameraLeft = -2000;
+			sunLight.shadowCameraRight = 2000;
+			sunLight.shadowCameraTop = 2000;
+			sunLight.shadowCameraBottom = -2000;
 
-			DirLight.shadowCameraFov = 80;
-			DirLight.shadowBias = 0.0001;
-			DirLight.shadowDarkness = 0.5;
+			sunLight.shadowCameraVisible = true;
 
-			DirLight.shadowMapWidth = SHADOW_MAP_WIDTH;
-			DirLight.shadowMapHeight = SHADOW_MAP_HEIGHT;
+			sunLight.shadowCameraFov = 80;
+			sunLight.shadowBias = 0.0001;
+			sunLight.shadowDarkness = 0.77;
 
-			var dirLightColor = {color: '#ffffff'};
-			guiDebug.addColor(dirLightColor, 'color').name('DirLight').onChange(updateLightCol);
+			sunLight.shadowMapWidth = SHADOW_MAP_WIDTH;
+			sunLight.shadowMapHeight = SHADOW_MAP_HEIGHT;
+
+			var sunLightColor = {color: '#ffffff'};
+			guiDebug.add(sunLight, 'intensity', 0.0, 2.0, 0.1);
+			guiDebug.addColor(sunLightColor, 'color').name('sunLight').onChange(updateLightCol);
 			function updateLightCol(c) {
-				DirLight.color.set(c);
+				sunLight.color.set(c);
 			}
 
 
-		scene.add(DirLight);
+		scene.add(sunLight);
 
 		// front light
 		// var frontLight = new THREE.DirectionalLight(0xffffff, 1.0);	//0x331100
@@ -112,23 +120,46 @@
 
 		// // back light
 		backLight = new THREE.DirectionalLight(0xffffff, 0.5);
-		backLight.position.set(4000, 3000, -4000);
+		backLight.position.set(1000, 1000, -1500);
 
-		var backLightHelper = new THREE.DirectionalLightHelper(backLight, 100);
-		scene.add(backLightHelper);
+			// backLight.castShadow = true;
+
+			backLight.shadowCameraNear = 1000;
+			backLight.shadowCameraFar = 4000;
+
+			backLight.shadowCameraLeft = -2000;
+			backLight.shadowCameraRight = 2000;
+			backLight.shadowCameraTop = 2000;
+			backLight.shadowCameraBottom = -2000;
+
+			backLight.shadowCameraVisible = true;
+
+			backLight.shadowCameraFov = 80;
+			backLight.shadowBias = 0.0001;
+			backLight.shadowDarkness = 0.5;
+
+			backLight.shadowMapWidth = SHADOW_MAP_WIDTH;
+			backLight.shadowMapHeight = SHADOW_MAP_HEIGHT;
+
+		// var backLightHelper = new THREE.DirectionalLightHelper(backLight, 100);
+		// scene.add(backLightHelper);
+
 		scene.add(backLight);
 
-		// // ambient
-		light = new THREE.AmbientLight(0x050506);
-		scene.add(light);
+		// // ambient light
+		ambLight = new THREE.AmbientLight(0x050506);
+		scene.add(ambLight);
 
 
 
 		function toggleHelper() {
 			axisHelper.visible = scene_settings.enableHelper;
-			DirLight.shadowCameraVisible = scene_settings.enableHelper;
-			backLightHelper.visible = scene_settings.enableHelper;
 			grid.visible = scene_settings.enableHelper;
+
+			sunLight.shadowCameraVisible = scene_settings.enableHelper;
+			backLight.shadowCameraVisible = scene_settings.enableHelper;
+			// backLightHelper.visible = scene_settings.enableHelper;
+			
 			scene_settings.enableHelper = !scene_settings.enableHelper;
 		}
 		toggleHelper();
@@ -160,32 +191,51 @@
 	var copyPass = new THREE.ShaderPass( THREE.CopyShader );
 	copyPass.renderToScreen = true;
 
+
+	var cvPass = new THREE.ShaderPass( THREE.ConvolutionShader );
+	cvPass.uniforms['cKernel'].value = [1/16, 2/16, 1/16, 2/16, 4/16, 2/16, 1/16, 2/16, 1/16];
+
+
+	var CCNIXpass = new THREE.ShaderPass( THREE.ColorCorrectionShaderNIX );
+
+
 	var composer = new THREE.EffectComposer( renderer );
 	composer.setSize(screenWidth * dpr, screenHeight * dpr);
 
 	composer.addPass(renderPass);
+
 	composer.addPass(SSAOpass);
 
 	composer.addPass(FXAApass);
-	composer.addPass(FXAApass);
 	
 	composer.addPass(CCpass);
+
+	// composer.addPass(cvPass);
+
+	composer.addPass(CCNIXpass);
+
 	composer.addPass(copyPass);
 
 	SSAOpass.enabled = false;
 
 	var guiPP = guiDebug.addFolder('Post-Processing');
+	guiPP.open();
+
 	guiPP.add( SSAOpass, 'enabled').name('SSAO');
 	guiPP.add( FXAApass, 'enabled').name('FXAA');
-	guiPP.add( CCpass, 'enabled').name('Color Correction');
+	
+	guiBleach = guiPP.addFolder('Bleach Bypass & E6C41');
+	guiBleach.add( CCNIXpass, 'enabled').name('Enable');
+	guiBleach.add( CCNIXpass.uniforms.uOpacity, 'value', 0.0, 2.0, 0.1).name('Bleach Bypass');
+	guiBleach.add( CCNIXpass.uniforms.uOpacity2, 'value', 0.0, 2.0, 0.1).name('E6C41');
 
-
+	
 	var ccu = CCpass.uniforms;
 
 	var ccuEffect = {
-		powR: 1.5,
-		powG: 1.2,
-		powB: 1.0,
+		powR: 1.15,
+		powG: 1.15,
+		powB: 1.1,
 		mulR: 1.0,
 		mulG: 1.0,
 		mulB: 1.0,
@@ -197,6 +247,9 @@
 	}
 
 	var guiCC = guiPP.addFolder('Color Correction');
+
+	guiCC.add( CCpass, 'enabled').name('Enable');
+
 	guiCC.add( ccuEffect, 'powR', 1.0, 3.0, 0.01).onChange(adjustCC);
 	guiCC.add( ccuEffect, 'powG', 1.0, 3.0, 0.01).onChange(adjustCC);
 	guiCC.add( ccuEffect, 'powB', 1.0, 3.0, 0.01).onChange(adjustCC);
@@ -348,7 +401,7 @@
 		.addFile('watersupplyPipeTex', 'watersupply/1024watersupplyPipe.png')
 		.addFile('watersupplyPipe', 'watersupply/watersupplyPipe.obj')
 
-		// .addFile('lensflareTex', 'lensflare2.png')
+		.addFile('lensflareTex', 'lensflare2.png')
 
 
 	;
@@ -930,23 +983,23 @@ function setupWorld() {
 
 
 
+
 	// test lens flare
 
+	// // var material = new THREE.SpriteMaterial( { 
+	// // 	blending: THREE.AdditiveBlending, 
+	// // 	map:assetManager.getTexture('lensflareTex'),
+	// // 	opacity: 0.9,
+	// // 	transparent: true,
+	// // } );
 
-	// var material = new THREE.SpriteMaterial( { 
-	// 	blending: THREE.AdditiveBlending, 
-	// 	map:assetManager.getTexture('lensflareTex'),
-	// 	opacity: 0.9,
-	// 	transparent: true,
-	// } );
+	var flareColor = new THREE.Color( 0xffffff );
+	// flareColor.setHSL( h, s, l + 0.5 );
+	var lensFlare = new THREE.LensFlare( assetManager.getTexture('lensflareTex'),
+										 700, 0.0, THREE.AdditiveBlending, flareColor );
 
-	// var flareColor = new THREE.Color( 0xffffff );
-	// // flareColor.setHSL( h, s, l + 0.5 );
-	// var lensFlare = new THREE.LensFlare( assetManager.getTexture('lensflareTex'),
-	// 									 700, 0.0, THREE.AdditiveBlending, flareColor );
-
-	// lensFlare.position.copy(DirLight.position);
-	// scene.add( lensFlare );
+	// lensFlare.position.copy(sunLight.position);
+	scene.add( lensFlare );
 
 
 
@@ -990,8 +1043,8 @@ function setupWorld() {
 		}
 	}
 
-	function updateGuiDirLight() {
-		dirLightColor.color = '#' + DirLight.color.getHexString();
+	function updateGuiLight() {
+		sunLightColor.color = '#' + sunLight.color.getHexString();
 		for (var i in guiDebug.__controllers) {
 			guiDebug.__controllers[i].updateDisplay();
 		}
@@ -1076,7 +1129,7 @@ function setupWorld() {
 			camera.updateProjectionMatrix();
 		}
 
-		function animateSky(a, b, c, d, e, f, g) {
+		function animateSky(a, b, c, d, e, f, g, speed) {
 			var sky = world.sky;
 			new TWEEN.Tween( sky.ctrl )
 				.to( {	turbidity: a,
@@ -1086,7 +1139,7 @@ function setupWorld() {
 						liminance: e,
 						inclination: f,
 						azimuth: g
-					 }, 5000 )
+					 }, speed || 5000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() {
 					sky.updateCtrl();
@@ -1095,15 +1148,12 @@ function setupWorld() {
 			.start();
 		}
 
-		function animateDirLightColor(r, g, b) {
-			new TWEEN.Tween( DirLight.color )
-				.to( {	r: r, 
-						g: g,
-						b: b
-					 }, 3000 )
+		function animateSunLightIntensity(x) {
+			new TWEEN.Tween( sunLight )
+				.to( { intensity: x }, 3000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() {
-					updateGuiDirLight();
+					updateGuiLight();
 				})
 			.start();
 		}
@@ -1114,6 +1164,10 @@ function setupWorld() {
 
 		function animateSunsetSky() {
 			animateSky(20, 4, 0.1, 0.93, 0.11, 0.5, 0.65);
+		}
+
+		function animateSunsetSky2(speed) {
+			animateSky(20, 4, 0.1, 0.93, 0.35, 0.49, 0.86, speed);
 		}
 
 
@@ -1134,7 +1188,7 @@ function setupWorld() {
 
 			animateFOV(80);
 			animateClearSky();
-			animateDirLightColor(1, 1, 1);
+			animateSunLightIntensity(1);
 
 
 			currView = 'city';
@@ -1150,7 +1204,23 @@ function setupWorld() {
 
 			animateFOV(100);
 			animateSunsetSky();
-			animateDirLightColor(0, 0, 0);
+			animateSunLightIntensity(0, 0, 0);
+
+
+			currView = 'tollway';
+
+		}
+
+		function animateTollwayView2() {
+
+			resetView();
+
+			animateCameraTo(new THREE.Vector3(-1568.77 , -343.81 , 262.49), 
+							new THREE.Vector3(-134.94 , 246.37 , -75.15), 5000);
+
+			animateFOV(110);
+			animateSunsetSky2();
+			animateSunLightIntensity(0, 0, 0);
 
 
 			currView = 'tollway';
@@ -1166,7 +1236,7 @@ function setupWorld() {
 
 			animateFOV(120);
 			animateClearSky();
-			animateDirLightColor(1, 1, 1);
+			animateSunLightIntensity(1);
 
 			currView = 'lowAngle';
 
@@ -1181,7 +1251,7 @@ function setupWorld() {
 
 			animateFOV(90);
 			animateClearSky();
-			animateDirLightColor(1, 1, 1);
+			animateSunLightIntensity(1);
 
 
 			currView = 'turbines';
@@ -1197,7 +1267,7 @@ function setupWorld() {
 
 			animateFOV(80);
 			animateClearSky();
-			animateDirLightColor(1, 1, 1);
+			animateSunLightIntensity(1);
 
 
 			currView = 'landfill';
@@ -1213,7 +1283,7 @@ function setupWorld() {
 
 			animateFOV(80);
 			animateClearSky();
-			animateDirLightColor(1, 1, 1);
+			animateSunLightIntensity(1);
 
 			world.watersupply.animateY(700);
 			
@@ -1231,7 +1301,7 @@ function setupWorld() {
 
 			animateFOV(5);
 			animateClearSky();
-			animateDirLightColor(1, 1, 1);
+			animateSunLightIntensity(1);
 
 
 			currView = 'lowFOV';
@@ -1248,7 +1318,7 @@ function setupWorld() {
 			turbines: animateTurbinesView,
 			landfill: animateLandfillView,
 			waterNetwork: animateWaterNetworkView,
-			tollway: animateTollwayView,
+			tollway: animateTollwayView2,
 			lowAngle: animateLowAngleView
 		};
 
@@ -1360,11 +1430,11 @@ function initSky() {
 		sky.uniforms.sunPosition.value.copy(sunSphere.position);
 
 
-		var lightDist = 6000;
+		var lightDist = 3000;
 		theta += 0.2;
-		DirLight.position.x = lightDist * Math.cos(phi);
-		DirLight.position.y = lightDist * Math.sin(phi) * Math.sin(theta); 
-		DirLight.position.z = lightDist * Math.sin(phi) * Math.cos(theta); 
+		sunLight.position.x = lightDist * Math.cos(phi);
+		sunLight.position.y = lightDist * Math.sin(phi) * Math.sin(theta); 
+		sunLight.position.z = lightDist * Math.sin(phi) * Math.cos(theta); 
 
 	};
 

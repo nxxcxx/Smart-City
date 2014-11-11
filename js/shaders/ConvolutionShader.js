@@ -8,13 +8,6 @@
 
 THREE.ConvolutionShader = {
 
-	defines: {
-
-		"KERNEL_SIZE_FLOAT": "25.0",
-		"KERNEL_SIZE_INT": "25",
-
-	},
-
 	uniforms: {
 
 		"tDiffuse":        { type: "t", value: null },
@@ -24,6 +17,8 @@ THREE.ConvolutionShader = {
 	},
 
 	vertexShader: [
+
+		"#define KERNEL_SIZE_FLOAT 9.0",
 
 		"uniform vec2 uImageIncrement;",
 
@@ -39,6 +34,9 @@ THREE.ConvolutionShader = {
 	].join("\n"),
 
 	fragmentShader: [
+
+		
+		"#define KERNEL_SIZE_INT 9",
 
 		"uniform float cKernel[ KERNEL_SIZE_INT ];",
 
@@ -60,6 +58,7 @@ THREE.ConvolutionShader = {
 			"}",
 
 			"gl_FragColor = sum;",
+			"gl_FragColor.a = 1.0;",
 
 		"}"
 

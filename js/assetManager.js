@@ -142,7 +142,7 @@
 		.addFile('watersupplyPipeTex', 'watersupply/1024watersupplyPipe.png')
 		.addFile('watersupplyPipe', 'watersupply/watersupplyPipe.obj')
 
-		// .addFile('lensflareTex', 'lensflare2.png')
+		.addFile('lensflareTex', 'lensflare2.png')
 
 
 	;

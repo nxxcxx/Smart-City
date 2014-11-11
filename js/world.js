@@ -386,23 +386,23 @@ function setupWorld() {
 
 
 
+
 	// test lens flare
 
+	// // var material = new THREE.SpriteMaterial( { 
+	// // 	blending: THREE.AdditiveBlending, 
+	// // 	map:assetManager.getTexture('lensflareTex'),
+	// // 	opacity: 0.9,
+	// // 	transparent: true,
+	// // } );
 
-	// var material = new THREE.SpriteMaterial( { 
-	// 	blending: THREE.AdditiveBlending, 
-	// 	map:assetManager.getTexture('lensflareTex'),
-	// 	opacity: 0.9,
-	// 	transparent: true,
-	// } );
+	var flareColor = new THREE.Color( 0xffffff );
+	// flareColor.setHSL( h, s, l + 0.5 );
+	var lensFlare = new THREE.LensFlare( assetManager.getTexture('lensflareTex'),
+										 700, 0.0, THREE.AdditiveBlending, flareColor );
 
-	// var flareColor = new THREE.Color( 0xffffff );
-	// // flareColor.setHSL( h, s, l + 0.5 );
-	// var lensFlare = new THREE.LensFlare( assetManager.getTexture('lensflareTex'),
-	// 									 700, 0.0, THREE.AdditiveBlending, flareColor );
-
-	// lensFlare.position.copy(DirLight.position);
-	// scene.add( lensFlare );
+	// lensFlare.position.copy(sunLight.position);
+	scene.add( lensFlare );
 
 
 
