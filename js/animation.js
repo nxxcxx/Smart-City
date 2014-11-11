@@ -129,7 +129,7 @@
 						reileigh: b,
 						mieCoefficient: c,
 						mieDirectionalG: d,
-						liminance: e,
+						luminance: e,
 						inclination: f,
 						azimuth: g
 					 }, speed || 2000 )
@@ -151,16 +151,20 @@
 			.start();
 		}
 
-		function animateClearSky() {
-			animateSky(2, 2.7, 0.008, 0.95, 0.7, 0.7, 0.84);
+		function animateClearSky(speed) {
+			animateSky(2, 2.7, 0.008, 0.95, 0.7, 0.7, 0.84, speed);
 		}
 
-		function animateSunsetSky() {
-			animateSky(20, 4, 0.1, 0.93, 0.11, 0.5, 0.65);
+		function animateSunsetSky(speed) {
+			animateSky(20, 4, 0.1, 0.93, 0.11, 0.5, 0.65, speed);
 		}
 
 		function animateSunsetSky2(speed) {
 			animateSky(20, 4, 0.1, 0.93, 0.35, 0.49, 0.86, speed);
+		}
+
+		function animateSilhouetteSky(speed) {
+			animateSky(20, 0.9, 0.067, 0.58, 1.17, 0.38, 0.48, speed);
 		}
 
 
@@ -216,7 +220,7 @@
 							new THREE.Vector3(-134.94 , 246.37 , -75.15), 2000);
 
 			animateFOV(110);
-			animateSunsetSky2(10000);
+			animateSunsetSky2(3000);
 			animateSunLightIntensity(0, 0, 0);
 
 
@@ -289,19 +293,19 @@
 
 		}
 
-		function animateLowFOV() {
+		function animateSilhouetteView() {
 
 			resetView();
 
-			animateCameraTo(new THREE.Vector3(-46.34 , 671.43 , -89.42), 
-							new THREE.Vector3(-15534.92 , 862.24 , 4259.24));
+			animateCameraTo(new THREE.Vector3(-95.51 , 697.74 , 17.04), 
+							new THREE.Vector3(-16988.94 , 308.43 , 1143.06),
+							100);
 
 			animateFOV(5);
-			animateClearSky();
+			animateSilhouetteSky(100);
 			animateSunLightIntensity(1);
 
-
-			currView = 'lowFOV';
+			currView = 'silhouette';
 
 		}
 
@@ -310,19 +314,22 @@
 
 		
 		var viewCtrl = {
-			lowFOV: animateLowFOV,
+			
+			silhouette: animateSilhouetteView,
 			city: animateCityView,
 			turbines: animateTurbinesView,
 			landfill: animateLandfillView,
 			waterNetwork: animateWaterNetworkView,
 			tollway: animateTollwayView2,
-			lowAngle: animateLowAngleView
+			lowAngle: animateLowAngleView,
+			
 		};
 
-		guiViews.add(viewCtrl, 'lowFOV');
+		guiViews.add(viewCtrl, 'silhouette');
 		guiViews.add(viewCtrl, 'city');
 		guiViews.add(viewCtrl, 'turbines');
 		guiViews.add(viewCtrl, 'landfill');
 		guiViews.add(viewCtrl, 'waterNetwork');
 		guiViews.add(viewCtrl, 'tollway');
 		guiViews.add(viewCtrl, 'lowAngle');
+		

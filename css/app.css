@@ -24,20 +24,19 @@ canvas {
 	left: 0;
 }
 
-#top-aspect-bar {
-	height: 50px;
+.aspect-bar {
+	height: 80px;
 	width: 100%;
 	background: #000;
 	position: absolute;
+}
+
+#top-aspect-bar {
 	top: 0px;
 	left: 0px;
 }
 
 #bot-aspect-bar {
-	height: 50px;
-	width: 100%;
-	background: #000;
-	position: absolute;
 	bottom: 0px; 
 	left: 0px;
 }

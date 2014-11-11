@@ -143,6 +143,7 @@
 		.addFile('watersupplyPipe', 'watersupply/watersupplyPipe.obj')
 
 		.addFile('lensdirtTex', 'lensdirt01.png')
+		.addFile('lensFlare01Tex', 'lensflare01.png')
 
 
 	;

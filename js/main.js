@@ -2,8 +2,9 @@
 	function startScene() {
 
 		setupWorld();
+
 		// set default view
-		animateCityView();
+		animateSilhouetteView();
 	}
 
 	function render(time) {

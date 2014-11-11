@@ -14,6 +14,8 @@
 	var guiCtrl = gui.addFolder('Controls');
 	var guiViews = guiCtrl.addFolder('Views');
 	var guiDebug = gui.addFolder('Debug');
+	var guiSky;
+
 	gui.open();
 	guiCtrl.open();
 	guiViews.open(); 
@@ -21,7 +23,7 @@
 
 	// ---- settings
 	var scene_settings = {
-		enableHelper: true,
+		enableHelper: false,
 		bgColor: 0x111113,
 		enableShadow: true,
 		maxAnisotropy: null
@@ -402,6 +404,7 @@
 		.addFile('watersupplyPipe', 'watersupply/watersupplyPipe.obj')
 
 		.addFile('lensdirtTex', 'lensdirt01.png')
+		.addFile('lensFlare01Tex', 'lensflare01.png')
 
 
 	;
@@ -507,8 +510,9 @@
 	function startScene() {
 
 		setupWorld();
+
 		// set default view
-		animateCityView();
+		animateSilhouetteView();
 	}
 
 	function render(time) {
@@ -722,9 +726,13 @@ function setupWorld() {
 	}
 
 
+
+
 	// -------- World stuff
 
 	world.sky = initSky(); // do magic by zz85
+
+	world.lensflare = initLensflare();
 
 	world.shore1 = (function () {
 
@@ -982,91 +990,6 @@ function setupWorld() {
 	}
 
 
-
-
-	// test lens flare
-
-	// // var material = new THREE.SpriteMaterial( { 
-	// // 	blending: THREE.AdditiveBlending, 
-	// // 	map:assetManager.getTexture('lensflareTex'),
-	// // 	opacity: 0.9,
-	// // 	transparent: true,
-	// // } );
-
-	var flareColor = new THREE.Color( 0xffffff ); // this = opacity in additive blending
-	window.lensFlare = new THREE.LensFlare( assetManager.getTexture('lensdirtTex'),
-										 2048, 0.0, THREE.AdditiveBlending, flareColor);
-
-	lensFlare.position.copy(sunLight.position);
-
-	lensFlare.customUpdateCallback = lensFlareUpdateCallback;
-
-
-
-
-	// lensFlare.position.copy(sunLight.position);
-	scene.add( lensFlare );
-
-
-	// flare helper
-	flareHelper = new THREE.Mesh( new THREE.SphereGeometry( 500, 8, 8 ),
-								  new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-	scene.add( flareHelper );
-
-
-
-	function lensFlareUpdateCallback( object ) {
-
-		var lfpos = sunLight.position.clone();
-		lfpos.multiplyScalar(2);
-		object.position.copy(lfpos);
-		lfpos.multiplyScalar(1.2); // offset helper to lacate behind flare
-		flareHelper.position.copy(lfpos);
-
-
-		var vecX = -object.positionScreen.x * 2;
-		var vecY = -object.positionScreen.y * 2;
-
-		var f, fl = object.lensFlares.length;
-		for( f = 0; f < fl; f++ ) {
-
-
-			flare = object.lensFlares[ f ];
-
-			// 0 = lens dirt, no need screen movement
-			if ( f > 0 ) {
-				flare.x = object.positionScreen.x + vecX * flare.distance;
-				flare.y = object.positionScreen.y + vecY * flare.distance;
-			}
-			
-			flare.rotation = 0;
-
-		}
-
-		// console.log(object.position);
-
-		// var f, fl = object.lensFlares.length;
-		// var flare;
-		// var vecX = -object.positionScreen.x * 2;
-		// var vecY = -object.positionScreen.y * 2;
-
-		// for( f = 0; f < fl; f++ ) {
-
-		// 	   flare = object.lensFlares[ f ];
-
-		// 	   flare.x = object.positionScreen.x + vecX * flare.distance;
-		// 	   flare.y = object.positionScreen.y + vecY * flare.distance;
-		// 	   flare.rotation = 0;
-
-		// }
-
-
-	}
-
-
-
-
-
 } // end setup world
 	/*jshint unused: false */
 
@@ -1199,7 +1122,7 @@ function setupWorld() {
 						reileigh: b,
 						mieCoefficient: c,
 						mieDirectionalG: d,
-						liminance: e,
+						luminance: e,
 						inclination: f,
 						azimuth: g
 					 }, speed || 2000 )
@@ -1221,16 +1144,20 @@ function setupWorld() {
 			.start();
 		}
 
-		function animateClearSky() {
-			animateSky(2, 2.7, 0.008, 0.95, 0.7, 0.7, 0.84);
+		function animateClearSky(speed) {
+			animateSky(2, 2.7, 0.008, 0.95, 0.7, 0.7, 0.84, speed);
 		}
 
-		function animateSunsetSky() {
-			animateSky(20, 4, 0.1, 0.93, 0.11, 0.5, 0.65);
+		function animateSunsetSky(speed) {
+			animateSky(20, 4, 0.1, 0.93, 0.11, 0.5, 0.65, speed);
 		}
 
 		function animateSunsetSky2(speed) {
 			animateSky(20, 4, 0.1, 0.93, 0.35, 0.49, 0.86, speed);
+		}
+
+		function animateSilhouetteSky(speed) {
+			animateSky(20, 0.9, 0.067, 0.58, 1.17, 0.38, 0.48, speed);
 		}
 
 
@@ -1286,7 +1213,7 @@ function setupWorld() {
 							new THREE.Vector3(-134.94 , 246.37 , -75.15), 2000);
 
 			animateFOV(110);
-			animateSunsetSky2(10000);
+			animateSunsetSky2(3000);
 			animateSunLightIntensity(0, 0, 0);
 
 
@@ -1359,19 +1286,19 @@ function setupWorld() {
 
 		}
 
-		function animateLowFOV() {
+		function animateSilhouetteView() {
 
 			resetView();
 
-			animateCameraTo(new THREE.Vector3(-46.34 , 671.43 , -89.42), 
-							new THREE.Vector3(-15534.92 , 862.24 , 4259.24));
+			animateCameraTo(new THREE.Vector3(-95.51 , 697.74 , 17.04), 
+							new THREE.Vector3(-16988.94 , 308.43 , 1143.06),
+							100);
 
 			animateFOV(5);
-			animateClearSky();
+			animateSilhouetteSky(100);
 			animateSunLightIntensity(1);
 
-
-			currView = 'lowFOV';
+			currView = 'silhouette';
 
 		}
 
@@ -1380,22 +1307,25 @@ function setupWorld() {
 
 		
 		var viewCtrl = {
-			lowFOV: animateLowFOV,
+			
+			silhouette: animateSilhouetteView,
 			city: animateCityView,
 			turbines: animateTurbinesView,
 			landfill: animateLandfillView,
 			waterNetwork: animateWaterNetworkView,
 			tollway: animateTollwayView2,
-			lowAngle: animateLowAngleView
+			lowAngle: animateLowAngleView,
+			
 		};
 
-		guiViews.add(viewCtrl, 'lowFOV');
+		guiViews.add(viewCtrl, 'silhouette');
 		guiViews.add(viewCtrl, 'city');
 		guiViews.add(viewCtrl, 'turbines');
 		guiViews.add(viewCtrl, 'landfill');
 		guiViews.add(viewCtrl, 'waterNetwork');
 		guiViews.add(viewCtrl, 'tollway');
 		guiViews.add(viewCtrl, 'lowAngle');
+		
 
 
 	window.addEventListener('keypress', function (event) {
@@ -1442,13 +1372,11 @@ function setupWorld() {
 	// } 
 
 
-var guiSky;
-
 // sky by zz85
 function initSky() {
 
 	// Add Sky Mesh
-	sky = new THREE.Sky();
+	var sky = new THREE.Sky();
 
 	// Add Sun Helper
 	sunSphere = new THREE.Mesh( new THREE.SphereGeometry( 20000, 30, 30 ),
@@ -1497,6 +1425,10 @@ function initSky() {
 		sky.uniforms.sunPosition.value.copy(sunSphere.position);
 
 
+		sky.mesh.sunPosition = sunSphere.position;
+
+
+
 		var lightDist = 10000;
 		theta += 0.2; // offset light position to remove shadow map artifact when light is perpendicular with surface normal
 		sunLight.position.x = lightDist * Math.cos(phi);
@@ -1520,3 +1452,58 @@ function initSky() {
 	return sky.mesh;
 
 }
+
+function initLensflare() {
+
+	
+	var lensFlare = new THREE.LensFlare( assetManager.getTexture('lensdirtTex'),
+					                     2048, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x333333 ) );
+
+
+	lensFlare.add( assetManager.getTexture('lensFlare01Tex'), 
+		           1024, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x888888 ));
+
+	lensFlare.position.copy(sunLight.position);
+	lensFlare.customUpdateCallback = lensFlareUpdateCallback;
+
+	// scene.add(lensFlare), moved this function now return flare object
+	return lensFlare;
+
+
+	function lensFlareUpdateCallback( object ) {
+
+		var flarePosition = world.sky.sunPosition.clone();
+
+		if (currView === 'tollway') {
+			flarePosition.y += 50000;
+		}
+
+		object.position.copy( flarePosition );
+
+
+		// object.position.copy(sunLight.position);
+
+		var vecX = -object.positionScreen.x * 2;
+		var vecY = -object.positionScreen.y * 2;
+
+		var f, fl = object.lensFlares.length;
+		for( f = 0; f < fl; f++ ) {
+
+
+			flare = object.lensFlares[f];
+			flare.rotation = 0;
+
+			if ( f > 0 ) {	// no need screen movement for lens dirt
+				flare.x = object.positionScreen.x + vecX * flare.distance;
+				flare.y = object.positionScreen.y + vecY * flare.distance;
+			}
+			
+			
+
+		}
+
+
+	}
+
+
+} // end initLensFlare

@@ -14,6 +14,8 @@
 	var guiCtrl = gui.addFolder('Controls');
 	var guiViews = guiCtrl.addFolder('Views');
 	var guiDebug = gui.addFolder('Debug');
+	var guiSky;
+
 	gui.open();
 	guiCtrl.open();
 	guiViews.open(); 
@@ -21,7 +23,7 @@
 
 	// ---- settings
 	var scene_settings = {
-		enableHelper: true,
+		enableHelper: false,
 		bgColor: 0x111113,
 		enableShadow: true,
 		maxAnisotropy: null

@@ -1,11 +1,9 @@
 
-var guiSky;
-
 // sky by zz85
 function initSky() {
 
 	// Add Sky Mesh
-	sky = new THREE.Sky();
+	var sky = new THREE.Sky();
 
 	// Add Sun Helper
 	sunSphere = new THREE.Mesh( new THREE.SphereGeometry( 20000, 30, 30 ),
@@ -52,6 +50,10 @@ function initSky() {
 		sunSphere.position.z = distance * Math.sin(phi) * Math.cos(theta); 
 		sunSphere.visible = sky.mesh.ctrl.sun;
 		sky.uniforms.sunPosition.value.copy(sunSphere.position);
+
+
+		sky.mesh.sunPosition = sunSphere.position;
+
 
 
 		var lightDist = 10000;
