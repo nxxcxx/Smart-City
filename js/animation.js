@@ -132,7 +132,7 @@
 						liminance: e,
 						inclination: f,
 						azimuth: g
-					 }, speed || 5000 )
+					 }, speed || 2000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() {
 					sky.updateCtrl();
@@ -152,7 +152,7 @@
 		}
 
 		function animateClearSky() {
-			animateSky(18.9, 4, 0.063, 0.94, 0.35, 0.86, 0.9);
+			animateSky(2, 2.7, 0.008, 0.95, 0.7, 0.7, 0.84);
 		}
 
 		function animateSunsetSky() {
@@ -167,6 +167,10 @@
 	// --------- City Views Animation
 
 		function resetView() {
+
+			// clear all active animation
+			TWEEN.removeAll();
+
 			if (currView === 'waterNetwork') {
 				world.watersupply.animateResetPos();
 			}
@@ -209,10 +213,10 @@
 			resetView();
 
 			animateCameraTo(new THREE.Vector3(-1568.77 , -343.81 , 262.49), 
-							new THREE.Vector3(-134.94 , 246.37 , -75.15), 5000);
+							new THREE.Vector3(-134.94 , 246.37 , -75.15), 2000);
 
 			animateFOV(110);
-			animateSunsetSky2();
+			animateSunsetSky2(10000);
 			animateSunLightIntensity(0, 0, 0);
 
 

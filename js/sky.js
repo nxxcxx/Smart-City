@@ -54,8 +54,8 @@ function initSky() {
 		sky.uniforms.sunPosition.value.copy(sunSphere.position);
 
 
-		var lightDist = 3000;
-		theta += 0.2;
+		var lightDist = 10000;
+		theta += 0.2; // offset light position to remove shadow map artifact when light is perpendicular with surface normal
 		sunLight.position.x = lightDist * Math.cos(phi);
 		sunLight.position.y = lightDist * Math.sin(phi) * Math.sin(theta); 
 		sunLight.position.z = lightDist * Math.sin(phi) * Math.cos(theta); 

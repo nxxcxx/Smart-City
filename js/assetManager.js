@@ -16,12 +16,12 @@
 		function addFile(key, filename) {
 
 			var ast;
-			if (filename.indexOf(texFormat) !== -1) {	// if png file
+			if ( filename.indexOf(texFormat) !== -1 ) {	// if png file
 				ast = assets.textures[key] = {};
 				ast.texUrl = texPath + filename;
 				ast.texture = null;
 			}
-			if (filename.indexOf(modelFormat) !== -1) {	// if obj file
+			if ( filename.indexOf(modelFormat) !== -1 ) {	// if obj file
 				ast = assets.models[key] = {};
 				ast.modelUrl = modelPath + filename;
 				ast.model = null;
@@ -142,7 +142,7 @@
 		.addFile('watersupplyPipeTex', 'watersupply/1024watersupplyPipe.png')
 		.addFile('watersupplyPipe', 'watersupply/watersupplyPipe.obj')
 
-		.addFile('lensflareTex', 'lensflare2.png')
+		.addFile('lensdirtTex', 'lensdirt01.png')
 
 
 	;

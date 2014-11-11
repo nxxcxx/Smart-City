@@ -86,8 +86,8 @@
 
 			sunLight.castShadow = true;
 
-			sunLight.shadowCameraNear = 1000;
-			sunLight.shadowCameraFar = 5000;
+			sunLight.shadowCameraNear = 8000;
+			sunLight.shadowCameraFar = 12000;
 
 			sunLight.shadowCameraLeft = -2000;
 			sunLight.shadowCameraRight = 2000;

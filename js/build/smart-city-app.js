@@ -86,8 +86,8 @@
 
 			sunLight.castShadow = true;
 
-			sunLight.shadowCameraNear = 1000;
-			sunLight.shadowCameraFar = 5000;
+			sunLight.shadowCameraNear = 8000;
+			sunLight.shadowCameraFar = 12000;
 
 			sunLight.shadowCameraLeft = -2000;
 			sunLight.shadowCameraRight = 2000;
@@ -275,12 +275,12 @@
 		function addFile(key, filename) {
 
 			var ast;
-			if (filename.indexOf(texFormat) !== -1) {	// if png file
+			if ( filename.indexOf(texFormat) !== -1 ) {	// if png file
 				ast = assets.textures[key] = {};
 				ast.texUrl = texPath + filename;
 				ast.texture = null;
 			}
-			if (filename.indexOf(modelFormat) !== -1) {	// if obj file
+			if ( filename.indexOf(modelFormat) !== -1 ) {	// if obj file
 				ast = assets.models[key] = {};
 				ast.modelUrl = modelPath + filename;
 				ast.model = null;
@@ -401,7 +401,7 @@
 		.addFile('watersupplyPipeTex', 'watersupply/1024watersupplyPipe.png')
 		.addFile('watersupplyPipe', 'watersupply/watersupplyPipe.obj')
 
-		.addFile('lensflareTex', 'lensflare2.png')
+		.addFile('lensdirtTex', 'lensdirt01.png')
 
 
 	;
@@ -993,13 +993,76 @@ function setupWorld() {
 	// // 	transparent: true,
 	// // } );
 
-	var flareColor = new THREE.Color( 0xffffff );
-	// flareColor.setHSL( h, s, l + 0.5 );
-	var lensFlare = new THREE.LensFlare( assetManager.getTexture('lensflareTex'),
-										 700, 0.0, THREE.AdditiveBlending, flareColor );
+	var flareColor = new THREE.Color( 0xffffff ); // this = opacity in additive blending
+	window.lensFlare = new THREE.LensFlare( assetManager.getTexture('lensdirtTex'),
+										 2048, 0.0, THREE.AdditiveBlending, flareColor);
+
+	lensFlare.position.copy(sunLight.position);
+
+	lensFlare.customUpdateCallback = lensFlareUpdateCallback;
+
+
+
 
 	// lensFlare.position.copy(sunLight.position);
 	scene.add( lensFlare );
+
+
+	// flare helper
+	flareHelper = new THREE.Mesh( new THREE.SphereGeometry( 500, 8, 8 ),
+								  new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+	scene.add( flareHelper );
+
+
+
+	function lensFlareUpdateCallback( object ) {
+
+		var lfpos = sunLight.position.clone();
+		lfpos.multiplyScalar(2);
+		object.position.copy(lfpos);
+		lfpos.multiplyScalar(1.2); // offset helper to lacate behind flare
+		flareHelper.position.copy(lfpos);
+
+
+		var vecX = -object.positionScreen.x * 2;
+		var vecY = -object.positionScreen.y * 2;
+
+		var f, fl = object.lensFlares.length;
+		for( f = 0; f < fl; f++ ) {
+
+
+			flare = object.lensFlares[ f ];
+
+			// 0 = lens dirt, no need screen movement
+			if ( f > 0 ) {
+				flare.x = object.positionScreen.x + vecX * flare.distance;
+				flare.y = object.positionScreen.y + vecY * flare.distance;
+			}
+			
+			flare.rotation = 0;
+
+		}
+
+		// console.log(object.position);
+
+		// var f, fl = object.lensFlares.length;
+		// var flare;
+		// var vecX = -object.positionScreen.x * 2;
+		// var vecY = -object.positionScreen.y * 2;
+
+		// for( f = 0; f < fl; f++ ) {
+
+		// 	   flare = object.lensFlares[ f ];
+
+		// 	   flare.x = object.positionScreen.x + vecX * flare.distance;
+		// 	   flare.y = object.positionScreen.y + vecY * flare.distance;
+		// 	   flare.rotation = 0;
+
+		// }
+
+
+	}
+
 
 
 
@@ -1139,7 +1202,7 @@ function setupWorld() {
 						liminance: e,
 						inclination: f,
 						azimuth: g
-					 }, speed || 5000 )
+					 }, speed || 2000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() {
 					sky.updateCtrl();
@@ -1159,7 +1222,7 @@ function setupWorld() {
 		}
 
 		function animateClearSky() {
-			animateSky(18.9, 4, 0.063, 0.94, 0.35, 0.86, 0.9);
+			animateSky(2, 2.7, 0.008, 0.95, 0.7, 0.7, 0.84);
 		}
 
 		function animateSunsetSky() {
@@ -1174,6 +1237,10 @@ function setupWorld() {
 	// --------- City Views Animation
 
 		function resetView() {
+
+			// clear all active animation
+			TWEEN.removeAll();
+
 			if (currView === 'waterNetwork') {
 				world.watersupply.animateResetPos();
 			}
@@ -1216,10 +1283,10 @@ function setupWorld() {
 			resetView();
 
 			animateCameraTo(new THREE.Vector3(-1568.77 , -343.81 , 262.49), 
-							new THREE.Vector3(-134.94 , 246.37 , -75.15), 5000);
+							new THREE.Vector3(-134.94 , 246.37 , -75.15), 2000);
 
 			animateFOV(110);
-			animateSunsetSky2();
+			animateSunsetSky2(10000);
 			animateSunLightIntensity(0, 0, 0);
 
 
@@ -1430,8 +1497,8 @@ function initSky() {
 		sky.uniforms.sunPosition.value.copy(sunSphere.position);
 
 
-		var lightDist = 3000;
-		theta += 0.2;
+		var lightDist = 10000;
+		theta += 0.2; // offset light position to remove shadow map artifact when light is perpendicular with surface normal
 		sunLight.position.x = lightDist * Math.cos(phi);
 		sunLight.position.y = lightDist * Math.sin(phi) * Math.sin(theta); 
 		sunLight.position.z = lightDist * Math.sin(phi) * Math.cos(theta); 
