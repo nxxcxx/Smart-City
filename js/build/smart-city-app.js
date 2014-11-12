@@ -172,16 +172,26 @@
 
 // ---- Post-Processing
 
-	var depthTarget = new THREE.WebGLRenderTarget( 512, 512, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat } );
-			
+	// SSAO
+
+	var depthShader = THREE.ShaderLib["depthRGBA"];
+	var depthUniforms = THREE.UniformsUtils.clone( depthShader.uniforms );
+	var depthMaterial = new THREE.ShaderMaterial( { fragmentShader: depthShader.fragmentShader, vertexShader: depthShader.vertexShader, uniforms: depthUniforms } );
+	depthMaterial.blending = THREE.NoBlending;
+
+	var depthTarget = new THREE.WebGLRenderTarget( 1024, 1024, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat } );
+
 	var SSAOpass = new THREE.ShaderPass( THREE.SSAOShader );
 	SSAOpass.uniforms[ 'tDepth' ].value = depthTarget;
-	SSAOpass.uniforms[ 'size' ].value.set( 512, 512 );
+	SSAOpass.uniforms[ 'size' ].value.set( 1024, 1024 );
 	SSAOpass.uniforms[ 'cameraNear' ].value = camera.near;
-	SSAOpass.uniforms[ 'cameraFar' ].value = camera.far;
+	SSAOpass.uniforms[ 'cameraFar' ].value = 10000;
+	// SSAOpass.uniforms[ 'aoClamp' ].value = 0.5;
+	// SSAOpass.uniforms[ 'lumInfluence' ].value = 0.5;
 	SSAOpass.uniforms[ 'onlyAO' ].value = 0;	// debug
-	SSAOpass.uniforms[ 'lumInfluence' ].value = 0.5;
+	
 
+	// FXAA
 
 	var FXAApass = new THREE.ShaderPass( THREE.FXAAShader );
 	FXAApass.uniforms['resolution'].value.set(1 / (screenWidth * dpr), 1 / (screenHeight * dpr));
@@ -205,20 +215,15 @@
 	composer.setSize(screenWidth * dpr, screenHeight * dpr);
 
 	composer.addPass(renderPass);
-
 	composer.addPass(SSAOpass);
-
 	composer.addPass(FXAApass);
-	
 	composer.addPass(CCpass);
-
-	// composer.addPass(cvPass);
-
 	composer.addPass(CCNIXpass);
 
-	composer.addPass(copyPass);
+	// test convolution gaussian blur
+	// composer.addPass(cvPass);
 
-	SSAOpass.enabled = false;
+	composer.addPass(copyPass);
 
 	var guiPP = guiDebug.addFolder('Post-Processing');
 	guiPP.open();
@@ -513,7 +518,8 @@
 		setupWorld();
 
 		// set default view
-		animateSilhouetteView();
+		animateCityView();
+		// animateSilhouetteView();
 	}
 
 
@@ -549,11 +555,21 @@
 
 		
 		// intersectMouse(world);
-
 		updateDebugInfo();
 
 
-		// renderer.render(scene, camera);
+		// render depth to target
+			scene.overrideMaterial = depthMaterial;
+			world.lensflare.visible = false; // temporaily disable lens flare, it destroys my depth pass
+			world.sky.visible = false;
+
+			renderer.render( scene, camera, depthTarget );
+
+			scene.overrideMaterial = null;
+			world.lensflare.visible = true;
+			world.sky.visible = true;
+
+		// render composited passes
 		composer.render();
 
 	}

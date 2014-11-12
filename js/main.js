@@ -4,7 +4,8 @@
 		setupWorld();
 
 		// set default view
-		animateSilhouetteView();
+		animateCityView();
+		// animateSilhouetteView();
 	}
 
 
@@ -40,11 +41,21 @@
 
 		
 		// intersectMouse(world);
-
 		updateDebugInfo();
 
 
-		// renderer.render(scene, camera);
+		// render depth to target
+			scene.overrideMaterial = depthMaterial;
+			world.lensflare.visible = false; // temporaily disable lens flare, it destroys my depth pass
+			world.sky.visible = false;
+
+			renderer.render( scene, camera, depthTarget );
+
+			scene.overrideMaterial = null;
+			world.lensflare.visible = true;
+			world.sky.visible = true;
+
+		// render composited passes
 		composer.render();
 
 	}

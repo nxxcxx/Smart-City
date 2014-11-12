@@ -50,7 +50,7 @@ canvas {
 	width: 700px;
 	height: 80px;
 	color: #fff;
-	font: 11px/150% Arial, Helvetica, sans-serif;
+	font: 10px/150% Arial, Helvetica, sans-serif;
 	/*background: yellow;*/
 }
 
@@ -72,7 +72,6 @@ canvas {
 		/*background: green;*/
 		width: 400px;
 		height: 100px;
-		font-size: 10px;
 	}
 
 
