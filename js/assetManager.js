@@ -79,7 +79,7 @@
 
 		// shore
 		// .addFile('shorePlatformTex', 'shore/1024shorePlatform.png')
-		.addFile('shorePlatform', 'shore/shorePlatform.obj')
+		.addFile('shorePlatform', 'shore/shoreSlope.obj')
 
 		.addFile('shoreWaterSurfaceTex', 'shore/1024shoreWaterSurface.png')
 		.addFile('shoreWaterSurface', 'shore/shoreWaterSurface.obj')
@@ -145,6 +145,7 @@
 		.addFile('lensdirtTex', 'lensdirt01.png')
 		.addFile('lensFlare01Tex', 'lensflare01.png')
 
+		.addFile('oceanSurface', 'oceanSurfaceSubdivided.obj')
 
 	;
 

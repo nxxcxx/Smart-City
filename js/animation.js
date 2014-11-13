@@ -8,6 +8,8 @@
 
 		world.shore1.spinTurbines();
 
+		world.ocean.updateOcean();
+
 		// if (currView === 'waterNetwork') {
 		// 	world.watersupply.rotation.y += 0.01;
 		// 	if (world.watersupply.rotation.y > Math.PI*2.0) {
