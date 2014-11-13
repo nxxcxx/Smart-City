@@ -54,6 +54,8 @@
 
 	composer.addPass(copyPass);
 
+	SSAOpass.enabled = false;
+
 	var guiPP = guiDebug.addFolder('Post-Processing');
 	guiPP.open();
 
@@ -72,9 +74,9 @@
 		powR: 1.15,
 		powG: 1.15,
 		powB: 1.1,
-		mulR: 1.0,
-		mulG: 1.0,
-		mulB: 1.0,
+		mulR: 1.3,
+		mulG: 1.3,
+		mulB: 1.3,
 	};
 
 	function adjustCC() {

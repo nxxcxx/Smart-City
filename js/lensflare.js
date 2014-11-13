@@ -3,7 +3,7 @@ function initLensflare() {
 
 	
 	var lensFlare = new THREE.LensFlare( assetManager.getTexture('lensdirtTex'),
-					                     2048, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x333333 ) );
+					                     2048, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x444444 ) );
 
 
 	lensFlare.add( assetManager.getTexture('lensFlare01Tex'), 
@@ -25,8 +25,6 @@ function initLensflare() {
 		}
 
 		object.position.copy( flarePosition );
-
-
 		// object.position.copy(sunLight.position);
 
 		var vecX = -object.positionScreen.x * 2;

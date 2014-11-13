@@ -106,8 +106,9 @@
 			sunLight.shadowMapHeight = SHADOW_MAP_HEIGHT;
 
 			var sunLightColor = {color: '#ffffff'};
-			guiDebug.add(sunLight, 'intensity', 0.0, 2.0, 0.1);
-			guiDebug.addColor(sunLightColor, 'color').name('sunLight').onChange(updateLightCol);
+			var guiSunlight = guiDebug.addFolder('Sunlight');
+			guiSunlight.add(sunLight, 'intensity', 0.0, 2.0, 0.1);
+			guiSunlight.addColor(sunLightColor, 'color').name('color').onChange(updateLightCol);
 			function updateLightCol(c) {
 				sunLight.color.set(c);
 			}

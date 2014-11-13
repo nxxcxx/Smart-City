@@ -201,7 +201,7 @@ function setupWorld() {
 	world.hub = (function () {
 
 		var hub = new THREE.Object3D();
-		var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.9});
+		var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.8});
 		var hubPlatform = constructModel('hubPlatform', {color: 0xddddee});
 		var hubStreetLine = constructModel('hubStreetLine', {emissive: 0x0066ff});
 		hubStreetLine.castShadow = false;

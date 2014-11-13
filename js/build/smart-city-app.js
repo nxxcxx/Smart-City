@@ -106,8 +106,9 @@
 			sunLight.shadowMapHeight = SHADOW_MAP_HEIGHT;
 
 			var sunLightColor = {color: '#ffffff'};
-			guiDebug.add(sunLight, 'intensity', 0.0, 2.0, 0.1);
-			guiDebug.addColor(sunLightColor, 'color').name('sunLight').onChange(updateLightCol);
+			var guiSunlight = guiDebug.addFolder('Sunlight');
+			guiSunlight.add(sunLight, 'intensity', 0.0, 2.0, 0.1);
+			guiSunlight.addColor(sunLightColor, 'color').name('color').onChange(updateLightCol);
 			function updateLightCol(c) {
 				sunLight.color.set(c);
 			}
@@ -225,6 +226,8 @@
 
 	composer.addPass(copyPass);
 
+	SSAOpass.enabled = false;
+
 	var guiPP = guiDebug.addFolder('Post-Processing');
 	guiPP.open();
 
@@ -243,9 +246,9 @@
 		powR: 1.15,
 		powG: 1.15,
 		powB: 1.1,
-		mulR: 1.0,
-		mulG: 1.0,
-		mulB: 1.0,
+		mulR: 1.3,
+		mulG: 1.3,
+		mulB: 1.3,
 	};
 
 	function adjustCC() {
@@ -848,7 +851,7 @@ function setupWorld() {
 	world.hub = (function () {
 
 		var hub = new THREE.Object3D();
-		var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.9});
+		var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.8});
 		var hubPlatform = constructModel('hubPlatform', {color: 0xddddee});
 		var hubStreetLine = constructModel('hubStreetLine', {emissive: 0x0066ff});
 		hubStreetLine.castShadow = false;
@@ -1491,7 +1494,7 @@ function initLensflare() {
 
 	
 	var lensFlare = new THREE.LensFlare( assetManager.getTexture('lensdirtTex'),
-					                     2048, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x333333 ) );
+					                     2048, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x444444 ) );
 
 
 	lensFlare.add( assetManager.getTexture('lensFlare01Tex'), 
@@ -1513,8 +1516,6 @@ function initLensflare() {
 		}
 
 		object.position.copy( flarePosition );
-
-
 		// object.position.copy(sunLight.position);
 
 		var vecX = -object.positionScreen.x * 2;
