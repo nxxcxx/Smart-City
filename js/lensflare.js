@@ -9,7 +9,7 @@ function initLensflare() {
 	lensFlare.add( assetManager.getTexture('lensFlare01Tex'), 
 		           1024, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x888888 ));
 
-	lensFlare.position.copy(sunLight.position);
+	lensFlare.position.copy(sunlight.position);
 	lensFlare.customUpdateCallback = lensFlareUpdateCallback;
 
 	// scene.add(lensFlare), moved this function now return flare object
@@ -25,7 +25,7 @@ function initLensflare() {
 		}
 
 		object.position.copy( flarePosition );
-		// object.position.copy(sunLight.position);
+		// object.position.copy(sunlight.position);
 
 		var vecX = -object.positionScreen.x * 2;
 		var vecY = -object.positionScreen.y * 2;
@@ -34,7 +34,7 @@ function initLensflare() {
 		for( f = 0; f < fl; f++ ) {
 
 
-			flare = object.lensFlares[f];
+			var flare = object.lensFlares[f];
 			flare.rotation = 0;
 
 			if ( f > 0 ) {	// no need screen movement for lens dirt

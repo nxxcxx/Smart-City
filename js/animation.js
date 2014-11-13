@@ -1,32 +1,10 @@
-	/*jshint unused: false */
 
 	var currView = 'city';
 
 	function animate(time) {
 
-		// seaShaderUniforms.time.value = time*0.0005;
-
 		world.shore1.spinTurbines();
-
 		world.ocean.updateOcean();
-
-		// if (currView === 'waterNetwork') {
-		// 	world.watersupply.rotation.y += 0.01;
-		// 	if (world.watersupply.rotation.y > Math.PI*2.0) {
-		// 		world.watersupply.rotation.y = 0;
-		// 	}
-		// }
-
-
-		// if (guiSky && guiCC) {
-		// 	for (var i in guiSky.__controllers) {
-		// 		guiSky.__controllers[i].updateDisplay();
-		// 	}
-		// 	for (var i in guiCC.__controllers) {
-		// 		guiCC.__controllers[i].updateDisplay();
-		// 	}
-		// }
-		
 		
 	}
 
@@ -39,52 +17,11 @@
 	}
 
 	function updateGuiLight() {
-		sunLightColor.color = '#' + sunLight.color.getHexString();
+		sunlightColor.color = '#' + sunlight.color.getHexString();
 		for (var i in guiDebug.__controllers) {
 			guiDebug.__controllers[i].updateDisplay();
 		}
 	}
-
-
-	// --------- Extend animation methods to Object3D
-
-		THREE.Object3D.prototype.animateResetPos = function () {
-			// reset position
-			new TWEEN.Tween( this.position ).to( {
-				x: this.oripos.x,
-				y: this.oripos.y,
-				z: this.oripos.z }, 
-				1000 )
-			.easing( TWEEN.Easing.Quadratic.Out)
-			.start();
-			// reset rotation
-			new TWEEN.Tween( this.rotation ).to( {
-				x: this.orirot.x,
-				y: this.orirot.y,
-				z: this.orirot.z }, 
-				1000 )
-			.easing( TWEEN.Easing.Quadratic.Out)
-			.start();
-		};
-
-
-		THREE.Object3D.prototype.animatePos = function (x, y, z) {
-			new TWEEN.Tween( this.position ).to( {
-				x: x,
-				y: y,
-				z: z }, 
-				1000 )
-			.easing( TWEEN.Easing.Quadratic.Out)
-			.start();
-		};
-
-		THREE.Object3D.prototype.animateY = function (y) {
-			new TWEEN.Tween( this.position ).to( {
-				y: y}, 
-				1000 )
-			.easing( TWEEN.Easing.Quadratic.Out)
-			.start();
-		};
 
 	// -------- Main animation
 
@@ -96,7 +33,10 @@
 						z: target.z
 					 }, speed || 1000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
-				.onUpdate(function() {cameraCtrl.update();})
+				.onUpdate(function() {
+					cameraCtrl.update();
+					debugCamNeedUpdate = true;
+				})
 			.start();
 
 			new TWEEN.Tween( cameraCtrl.object.position )
@@ -105,7 +45,10 @@
 						z: position.z
 					 }, speed || 1000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
-				.onUpdate(function() {cameraCtrl.update();})
+				.onUpdate(function() {
+					cameraCtrl.update();
+					debugCamNeedUpdate = true;
+				})
 			.start();
 
 		}
@@ -115,13 +58,11 @@
 				.to( {	fov: fov
 					 }, 1000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
-				.onUpdate(function() { camera.updateProjectionMatrix(); })
+				.onUpdate(function() { 
+					camera.updateProjectionMatrix();
+					debugCamNeedUpdate = true;
+				})
 			.start();
-		}
-
-		function setFov(fov) {
-			camera.fov = fov;
-			camera.updateProjectionMatrix();
 		}
 
 		function animateSky(a, b, c, d, e, f, g, speed) {
@@ -144,7 +85,7 @@
 		}
 
 		function animateSunLightIntensity(x) {
-			new TWEEN.Tween( sunLight )
+			new TWEEN.Tween( sunlight )
 				.to( { intensity: x }, 3000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() {
@@ -236,8 +177,8 @@
 
 			resetView();
 
-			animateCameraTo(new THREE.Vector3(-1005.12 , 91.27 , 865.27), 
-							new THREE.Vector3(-1859.96 , 453.77 , 1066.81));
+			animateCameraTo(new THREE.Vector3(-971.34, 161.60, 971.36), 
+							new THREE.Vector3(-1906.23, 325.49, 927.34));
 
 			animateFOV(90);
 			animateClearSky();

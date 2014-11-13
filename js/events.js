@@ -2,14 +2,8 @@
 	window.addEventListener('keypress', function (event) {
 		if (event.keyCode === 32) {	// if spacebar is pressed
 			event.preventDefault();
-			gui.closed =! gui.closed; // toggle gui
+			gui.closed = !gui.closed; // toggle gui
 
-		}
-		if (event.keyCode === 99) {	// if 'C' is pressed
-			event.preventDefault();
-			console.log('CTGT:', cameraCtrl.target.x.toFixed(2), ',', cameraCtrl.target.y.toFixed(2), ',', cameraCtrl.target.z.toFixed(2));
-			console.log('CPOS:', cameraCtrl.object.position.x.toFixed(2), ',', cameraCtrl.object.position.y.toFixed(2), ',', cameraCtrl.object.position.z.toFixed(2));
-			console.log('FOV:', camera.fov);
 		}
 		if (event.keyCode === 102) {	// if 'F' is pressed
 			event.preventDefault();
@@ -25,16 +19,16 @@
 		camera.updateProjectionMatrix();
 		renderer.setSize(screenWidth, screenHeight);
 
-		FXAApass.uniforms['resolution'].value.set(1 / (window.innerWidth * dpr), 1 / (window.innerHeight * dpr));
-  		composer.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
+		FXAApass.uniforms['resolution'].value.set(1 / (screenWidth * dpr), 1 / (screenHeight * dpr));
+  		composer.setSize(screenWidth * dpr, screenHeight * dpr);
 
 	}
 
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	function onDocumentMouseMove( event ) {
 		event.preventDefault();
-		mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-		mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+		mouse.x = ( event.clientX / screenWidth ) * 2 - 1;
+		mouse.y = - ( event.clientY / screenHeight ) * 2 + 1;
 	}
 
 	// document.addEventListener( 'click', onClick, false);

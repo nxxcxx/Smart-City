@@ -32,12 +32,7 @@
 
 		function get() { return assets; }
 
-		function getModel(key) { 
-			if (assets.models[key]) 
-				return assets.models[key].model; 
-			else 
-				return null;
-		}
+		function getModel(key) { return assets.models[key].model; }
 
 		function getTexture(key) {return assets.textures[key].texture; }
 
@@ -70,15 +65,12 @@
 	assetManager
 
 		// empty hexagon platform 
-		// .addFile('emptyPlatformTex', '1024emptyPlatform.png')
-		.addFile('emptyPlatform', 'emptyPlatform.obj')
+		.addFile('emptyPlatform', 'platform/emptyPlatform.obj')
 
 		// hexagon platform  shell
-		// .addFile('shellTex', '1024platformShell.png')
-		.addFile('shell', 'platformShell.obj')
+		.addFile('shell', 'platform/platformShell.obj')
 
 		// shore
-		// .addFile('shorePlatformTex', 'shore/1024shorePlatform.png')
 		.addFile('shorePlatform', 'shore/shoreSlope.obj')
 
 		.addFile('shoreWaterSurfaceTex', 'shore/1024shoreWaterSurface.png')
@@ -142,10 +134,12 @@
 		.addFile('watersupplyPipeTex', 'watersupply/1024watersupplyPipe.png')
 		.addFile('watersupplyPipe', 'watersupply/watersupplyPipe.obj')
 
-		.addFile('lensdirtTex', 'lensdirt01.png')
-		.addFile('lensFlare01Tex', 'lensflare01.png')
+		// lens flare
+		.addFile('lensdirtTex', 'lensflare/lensdirt01.png')
+		.addFile('lensFlare01Tex', 'lensflare/lensflare01.png')
 
-		.addFile('oceanSurface', 'oceanSurfaceSubdivided.obj')
+		// ocean
+		.addFile('oceanSurface', 'ocean/oceanSurfaceSubdivided.obj')
 
 	;
 

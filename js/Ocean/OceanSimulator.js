@@ -207,26 +207,7 @@
 
 THREE.Ocean.prototype.generateMesh = function() {
 
-	// this.OceanGeometry = new THREE.PlaneBufferGeometry( this.geometrySize, this.geometrySize, this.geometryResolution, this.geometryResolution );
-
-	// this.OceanGeometry = new THREE.SphereGeometry( 250, 32, 32 );
-
-	// this.OceanGeometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
-
 	this.oceanMesh = new THREE.Mesh( this.OceanGeometry, this.materialOcean );
-
-	this.oceanMesh.setPosition = function(x, y, z) {
-
-		this.geometry.applyMatrix( new THREE.Matrix4().makeTranslation( x, y, z ) );
-
-	};
-
-	this.oceanMesh.setRotationY = function( rad ) {
-
-		this.geometry.applyMatrix( new THREE.Matrix4().makeRotationY( rad ) );
-
-	};
-
 
 };
 
@@ -235,6 +216,13 @@ THREE.Ocean.prototype.setPosition = function(x, y, z) {
 	this.OceanGeometry.applyMatrix( new THREE.Matrix4().makeTranslation( x, y, z ) );
 
 };
+
+THREE.Ocean.prototype.setRotationY = function( rad ) {
+
+	this.OceanGeometry.applyMatrix( new THREE.Matrix4().makeRotationY( rad ) );
+
+};
+
 
 THREE.Ocean.prototype.render = function () {
 	this.scene.overrideMaterial = null;

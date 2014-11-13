@@ -6,7 +6,7 @@ function initSky() {
 	var sky = new THREE.Sky();
 
 	// Add Sun Helper
-	sunSphere = new THREE.Mesh( new THREE.SphereGeometry( 20000, 30, 30 ),
+	var sunSphere = new THREE.Mesh( new THREE.SphereGeometry( 20000, 30, 30 ),
 		new THREE.MeshBasicMaterial({color: 0xffffff, wireframe: false }));
 	sunSphere.position.y = -700000;
 	scene.add( sunSphere );
@@ -58,9 +58,9 @@ function initSky() {
 
 		var lightDist = 10000;
 		theta += 0.2; // offset light position to remove shadow map artifact when light is perpendicular with surface normal
-		sunLight.position.x = lightDist * Math.cos(phi);
-		sunLight.position.y = lightDist * Math.sin(phi) * Math.sin(theta); 
-		sunLight.position.z = lightDist * Math.sin(phi) * Math.cos(theta); 
+		sunlight.position.x = lightDist * Math.cos(phi);
+		sunlight.position.y = lightDist * Math.sin(phi) * Math.sin(theta); 
+		sunlight.position.z = lightDist * Math.sin(phi) * Math.cos(theta); 
 
 	};
 

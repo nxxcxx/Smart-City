@@ -10,12 +10,17 @@ module.exports = function(grunt) {/*jshint strict: false*/
 			options: {
 				// banner: '/* <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n',
 				// banner: '(function main() { "use strict";\n\n',
+				banner: '"use strict";',
 				// footer: '\n\n})();'
 			},
 			build: {
-				src: ['js/scene.js', 'js/postprocessing.js', 'js/assetManager.js', 'js/loadingManager.js', 'js/main.js', 
-					  'js/world.js', 'js/animation.js', 'js/events.js', 'js/sky.js', 'js/lensflare.js'],
-				dest: 'js/build/smart-city-app.js'
+				src: [
+						'js/extends.js', 'js/init.js', 'js/light.js','js/postprocessing.js',
+						'js/assetManager.js', 'js/loadingManager.js', 'js/render.js', 
+						'js/world.js', 'js/animation.js', 'js/sky.js', 'js/ocean.js', 'js/lensflare.js', 'js/events.js'
+				],
+
+				dest: 'build/smart-city-app.js'
 			}
 		},
 
@@ -24,8 +29,8 @@ module.exports = function(grunt) {/*jshint strict: false*/
 				sourceMap: true
 			},
 			build: {
-				src: ['js/build/smart-city-app.js'],
-				dest: 'js/build/smart-city-app.min.js'
+				src: ['build/smart-city-app.js'],
+				dest: 'build/smart-city-app.min.js'
 			}
 		},
 
@@ -35,7 +40,7 @@ module.exports = function(grunt) {/*jshint strict: false*/
 				livereload: true
 			},
 			js: {
-				files: ['js/*.js', 'js/vendor/*.js', 'js/shaders/*.js', 'js/postprocessing/*.js'],
+				files: ['js/*.js', 'js/vendor/*.js', 'js/shaders/*.js', 'js/postprocessing/*.js', 'js/ocean/*.js'],
 				tasks: ['concat']
 			},
 			html: {
@@ -54,6 +59,7 @@ module.exports = function(grunt) {/*jshint strict: false*/
 	grunt.loadNpmTasks('grunt-contrib-watch');
 
 	// tasks
-	grunt.registerTask('default', ['concat']);
+	grunt.registerTask('default', ['watch']);
+	grunt.registerTask('build', ['concat', 'uglify']);
 
 };
