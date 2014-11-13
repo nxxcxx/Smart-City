@@ -9,18 +9,6 @@
 
 	var mouse = new THREE.Vector2(-1, -1);
 
-	// ---- GUI initial setup
-	var gui = new dat.GUI();
-	var guiCtrl = gui.addFolder('Controls');
-	var guiViews = guiCtrl.addFolder('Views');
-	var guiDebug = gui.addFolder('Debug');
-	var guiSky;
-
-	gui.open();
-	guiCtrl.open();
-	guiViews.open(); 
-	guiDebug.open();
-
 	// ---- settings
 	var scene_settings = {
 		enableHelper: false,
@@ -60,6 +48,36 @@
 		container.appendChild( stats.domElement );
 		// disable graph
 		// document.getElementById('fpsGraph').style.display = 'none';
+
+
+	// ---- GUI initial setup
+
+	var gui = new dat.GUI();
+	var guiCtrl = gui.addFolder('Controls');
+	var guiViews = guiCtrl.addFolder('Views');
+	var guiDebug = gui.addFolder('Debug');
+	var guiSky;
+
+	gui.open();
+	guiCtrl.open();
+	guiViews.open(); 
+	guiDebug.open();
+
+	var debugInfo = $('.debug-info');
+	var statsDOM = $('#stats');
+
+	var toggleDebugInfo = {value: true};
+
+	guiDebug.add(toggleDebugInfo, 'value').name('System Info').onChange( function(bool) {
+		if (bool) {
+			debugInfo.css('visibility', 'visible');
+			statsDOM.css('visibility', 'visible');
+		} else {
+			debugInfo.css('visibility', 'hidden');
+			statsDOM.css('visibility', 'hidden');
+		}
+	});
+
 
 	// ---- grid & axis helper
 		var grid = new THREE.GridHelper(4000, 500);

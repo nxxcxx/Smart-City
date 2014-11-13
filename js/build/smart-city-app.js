@@ -9,18 +9,6 @@
 
 	var mouse = new THREE.Vector2(-1, -1);
 
-	// ---- GUI initial setup
-	var gui = new dat.GUI();
-	var guiCtrl = gui.addFolder('Controls');
-	var guiViews = guiCtrl.addFolder('Views');
-	var guiDebug = gui.addFolder('Debug');
-	var guiSky;
-
-	gui.open();
-	guiCtrl.open();
-	guiViews.open(); 
-	guiDebug.open();
-
 	// ---- settings
 	var scene_settings = {
 		enableHelper: false,
@@ -60,6 +48,36 @@
 		container.appendChild( stats.domElement );
 		// disable graph
 		// document.getElementById('fpsGraph').style.display = 'none';
+
+
+	// ---- GUI initial setup
+
+	var gui = new dat.GUI();
+	var guiCtrl = gui.addFolder('Controls');
+	var guiViews = guiCtrl.addFolder('Views');
+	var guiDebug = gui.addFolder('Debug');
+	var guiSky;
+
+	gui.open();
+	guiCtrl.open();
+	guiViews.open(); 
+	guiDebug.open();
+
+	var debugInfo = $('.debug-info');
+	var statsDOM = $('#stats');
+
+	var toggleDebugInfo = {value: true};
+
+	guiDebug.add(toggleDebugInfo, 'value').name('System Info').onChange( function(bool) {
+		if (bool) {
+			debugInfo.css('visibility', 'visible');
+			statsDOM.css('visibility', 'visible');
+		} else {
+			debugInfo.css('visibility', 'hidden');
+			statsDOM.css('visibility', 'hidden');
+		}
+	});
+
 
 	// ---- grid & axis helper
 		var grid = new THREE.GridHelper(4000, 500);
@@ -654,127 +672,107 @@
 
 function setupWorld() {
 
-	// Experimental stuff
-		// // test sea shader 
-
-			// var seaShaderUniforms = {
-			// 	time: { type: "f", value: 1.0 },
-			// 	resolution: { type: "v2", value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
-			// };
-
-			// var seaShaderMat = new THREE.ShaderMaterial( {
-
-			// 	uniforms: seaShaderUniforms,
-			// 	vertexShader: document.getElementById( 'vertexShader' ).textContent,
-			// 	fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
-
-			// } );
-
-			// var shaderMesh = new THREE.Mesh( new THREE.BoxGeometry(2000, 10, 2000), seaShaderMat );
-			// shaderMesh.position.y = 2000;
-			// scene.add( shaderMesh );
-
 	// ------- Model helper
 
-	THREE.Object3D.prototype.setDefaultPos = function(x, y, z, rx, ry, rz) {
-		this.position.set(x, y, z);
-		this.oripos = this.position.clone();
-		this.orirot = this.rotation.clone();
-		if (rx && ry && rz) {
-			this.rotation.set(rx, ry, rz);
+		THREE.Object3D.prototype.setDefaultPos = function(x, y, z, rx, ry, rz) {
+			this.position.set(x, y, z);
+			this.oripos = this.position.clone();
 			this.orirot = this.rotation.clone();
-		}
-	};
+			if (rx && ry && rz) {
+				this.rotation.set(rx, ry, rz);
+				this.orirot = this.rotation.clone();
+			}
+		};
 
-	// override default clone to also clone material
-	THREE.Object3D.prototype.clone = function(object, recursive) { 
+		// override default clone to also clone material
+		THREE.Object3D.prototype.clone = function(object, recursive) { 
 
-		if ( object === undefined ) object = new THREE.Object3D();
-		if ( recursive === undefined ) recursive = true;
+			if ( object === undefined ) object = new THREE.Object3D();
+			if ( recursive === undefined ) recursive = true;
 
-		object.name = this.name;
+			object.name = this.name;
 
-		object.up.copy( this.up );
+			object.up.copy( this.up );
 
-		object.position.copy( this.position );
-		object.quaternion.copy( this.quaternion );
-		object.scale.copy( this.scale );
+			object.position.copy( this.position );
+			object.quaternion.copy( this.quaternion );
+			object.scale.copy( this.scale );
 
-		object.renderDepth = this.renderDepth;
+			object.renderDepth = this.renderDepth;
 
-		object.rotationAutoUpdate = this.rotationAutoUpdate;
+			object.rotationAutoUpdate = this.rotationAutoUpdate;
 
-		object.matrix.copy( this.matrix );
-		object.matrixWorld.copy( this.matrixWorld );
+			object.matrix.copy( this.matrix );
+			object.matrixWorld.copy( this.matrixWorld );
 
-		object.matrixAutoUpdate = this.matrixAutoUpdate;
-		object.matrixWorldNeedsUpdate = this.matrixWorldNeedsUpdate;
+			object.matrixAutoUpdate = this.matrixAutoUpdate;
+			object.matrixWorldNeedsUpdate = this.matrixWorldNeedsUpdate;
 
-		if (object.material && this.material) {
-			object.material = this.material.clone();
-		}
+			if (object.material && this.material) {
+				object.material = this.material.clone();
+			}
 
-		object.visible = this.visible;
+			object.visible = this.visible;
 
-		object.castShadow = this.castShadow;
-		object.receiveShadow = this.receiveShadow;
+			object.castShadow = this.castShadow;
+			object.receiveShadow = this.receiveShadow;
 
-		object.frustumCulled = this.frustumCulled;
+			object.frustumCulled = this.frustumCulled;
 
-		object.userData = JSON.parse( JSON.stringify( this.userData ) );
+			object.userData = JSON.parse( JSON.stringify( this.userData ) );
 
-		if ( recursive === true ) {
+			if ( recursive === true ) {
 
-			for ( var i = 0; i < this.children.length; i ++ ) {
+				for ( var i = 0; i < this.children.length; i ++ ) {
 
-				var child = this.children[ i ];
-				object.add( child.clone() );
+					var child = this.children[ i ];
+					object.add( child.clone() );
+
+				}
 
 			}
 
+			return object;
+		};
+
+		function constructModel(modelKey, settings) {
+
+			var model = assetManager.getModel(modelKey);
+
+			var material = new THREE.MeshLambertMaterial({
+				shading: THREE.FlatShading
+			});
+
+			_.each(settings, function(value, key, list) {
+
+				if (key === 'map' || key === 'envMap') {
+					value = assetManager.getTexture(value);
+				} else if (key === 'color' || key === 'emissive') {
+					value = new THREE.Color(value);
+				}
+				material[key] = value;
+
+			});
+
+			assetManager.addMaterial(modelKey, material);	// use modelName as materialName
+			model.material = material;
+
+			return model;
 		}
 
-		return object;
-	};
+		constructModel('emptyPlatform', {color: 0xddddee});
+		var shell = constructModel('shell', {color: 0xddddee});
+		shell.castShadow = false;
+		shell.receiveShadow = false;
 
-	function constructModel(modelKey, settings) {
-
-		var model = assetManager.getModel(modelKey);
-
-		var material = new THREE.MeshLambertMaterial({
-			shading: THREE.FlatShading
-		});
-
-		_.each(settings, function(value, key, list) {
-
-			if (key === 'map' || key === 'envMap') {
-				value = assetManager.getTexture(value);
-			} else if (key === 'color' || key === 'emissive') {
-				value = new THREE.Color(value);
-			}
-			material[key] = value;
-
-		});
-
-		assetManager.addMaterial(modelKey, material);	// use modelName as materialName
-		model.material = material;
-
-		return model;
-	}
-
-	constructModel('emptyPlatform', {color: 0xddddee});
-	var shell = constructModel('shell', {color: 0xddddee});
-	shell.castShadow = false;
-	shell.receiveShadow = false;
-
-	function getNewShell() {
-		return assetManager.getModel('shell').clone(); 
-	}
+		function getNewShell() {
+			return assetManager.getModel('shell').clone(); 
+		}
 
 
-	function getNewPlatform() {
-		return assetManager.getModel('emptyPlatform').clone();;
-	}
+		function getNewPlatform() {
+			return assetManager.getModel('emptyPlatform').clone();;
+		}
 
 
 
@@ -784,8 +782,6 @@ function setupWorld() {
 	world.sky = initSky(); // do magic by zz85
 
 	world.lensflare = initLensflare();
-
-
 
 
 	// *****************	test ocean
@@ -798,22 +794,12 @@ function setupWorld() {
 
 
 
-
-
 	world.shore1 = (function () {
 
 		var shore = new THREE.Object3D();
 		var shorePlatform = constructModel('shorePlatform', {color: 0xddddee});
-		var shoreWaterSurface = constructModel('shoreWaterSurface', {map:'shoreWaterSurfaceTex' , envMap: 'reflectionCube', opacity: 0.7, transparent: true});
+		// var shoreWaterSurface = constructModel('shoreWaterSurface', {map:'shoreWaterSurfaceTex' , envMap: 'reflectionCube', opacity: 0.7, transparent: true});
 		shorePlatform.castShadow = false;
-
-		// overridw w/ shader
-		// shoreWaterSurface.material = seaShaderMat;
-
-		console.log(shoreWaterSurface.geometry);
-		console.log(new THREE.PlaneBufferGeometry());
-
-
 
 		// shore.add(shorePlatform, shoreWaterSurface);
 
@@ -823,12 +809,6 @@ function setupWorld() {
 		return shore;
 
 	})();
-
-
-
-	
-
-
 
 	world.shore2 = (function () {
 
@@ -1069,15 +1049,7 @@ function setupWorld() {
 	}
 
 
-
-
-
 } // end setup world
-
-
-
-
-
 
 
 
@@ -1181,10 +1153,6 @@ function initOcean(oceanGeom) {
 		this.object.exposure = v;
 		this.object.changed = true;
 	});
-
-
-
-
 
 
 	return ocean.oceanMesh;	
@@ -1405,7 +1373,6 @@ function initOcean(oceanGeom) {
 			animateFOV(110);
 			animateSunsetSky(3000);
 			animateSunLightIntensity(0, 0, 0);
-
 
 			currView = 'tollway';
 

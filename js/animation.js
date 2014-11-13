@@ -213,7 +213,6 @@
 			animateSunsetSky(3000);
 			animateSunLightIntensity(0, 0, 0);
 
-
 			currView = 'tollway';
 
 		}
