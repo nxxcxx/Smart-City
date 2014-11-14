@@ -26,13 +26,11 @@
 
 	}
 
-	var debugCamNeedUpdate = false;
 	function updateDebugCamera() {
-		if (!debugCamNeedUpdate) return;
+		if (!toggleDebugInfo.value) return;
 		debugCTGT.html( 'CTGT: ' + cameraCtrl.target.x.toFixed(2) + ', '+ cameraCtrl.target.y.toFixed(2) + ', ' + cameraCtrl.target.z.toFixed(2) );
 		debugCPOS.html( 'CPOS: ' + cameraCtrl.object.position.x.toFixed(2) + ', ' + cameraCtrl.object.position.y.toFixed(2) + ', ' + cameraCtrl.object.position.z.toFixed(2) );
 		debugFOV.html( 'CFOV: ' + camera.fov.toFixed(2) );
-		debugCamNeedUpdate = false;
 	}
 
 	function render(time) {

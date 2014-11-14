@@ -173,7 +173,7 @@ THREE.Object3D.prototype.animateY = function (y) {
 		var guiCtrl = gui.addFolder('Controls');
 		var guiViews = guiCtrl.addFolder('Views');
 		var guiDebug = gui.addFolder('Debug');
-		var guiSky;
+		var guiSky, guiOcean;
 
 		gui.open();
 		guiCtrl.open();
@@ -246,6 +246,15 @@ THREE.Object3D.prototype.animateY = function (y) {
 	var backLightHelper = new THREE.DirectionalLightHelper(backLight, 100);
 	scene.add(backLightHelper);
 	scene.add(backLight);
+
+	// front light
+	var frontLight = new THREE.DirectionalLight(0xffffff, 2.0);
+	frontLight.position.set(-3500, 500, 2500);
+	scene.add(frontLight);
+
+	// var frontLightHelper = new THREE.DirectionalLightHelper(frontLight, 100);
+	// scene.add(frontLightHelper);
+
 
 
 	// // ambient light
@@ -645,13 +654,11 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 	}
 
-	var debugCamNeedUpdate = false;
 	function updateDebugCamera() {
-		if (!debugCamNeedUpdate) return;
+		if (!toggleDebugInfo.value) return;
 		debugCTGT.html( 'CTGT: ' + cameraCtrl.target.x.toFixed(2) + ', '+ cameraCtrl.target.y.toFixed(2) + ', ' + cameraCtrl.target.z.toFixed(2) );
 		debugCPOS.html( 'CPOS: ' + cameraCtrl.object.position.x.toFixed(2) + ', ' + cameraCtrl.object.position.y.toFixed(2) + ', ' + cameraCtrl.object.position.z.toFixed(2) );
 		debugFOV.html( 'CFOV: ' + camera.fov.toFixed(2) );
-		debugCamNeedUpdate = false;
 	}
 
 	function render(time) {
@@ -1086,7 +1093,7 @@ function setupWorld() {
 
 		world.shore1.spinTurbines();
 		world.ocean.updateOcean();
-		
+
 	}
 
 	// Gui auto update
@@ -1099,8 +1106,14 @@ function setupWorld() {
 
 	function updateGuiLight() {
 		sunlightColor.color = '#' + sunlight.color.getHexString();
-		for (var i in guiDebug.__controllers) {
-			guiDebug.__controllers[i].updateDisplay();
+		for (var i in guiSunlight.__controllers) {
+			guiSunlight.__controllers[i].updateDisplay();
+		}
+	}
+
+	function updateGuiOcean() {
+		for (var i in guiOcean.__controllers) {
+			guiOcean.__controllers[i].updateDisplay();
 		}
 	}
 
@@ -1116,7 +1129,6 @@ function setupWorld() {
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() {
 					cameraCtrl.update();
-					debugCamNeedUpdate = true;
 				})
 			.start();
 
@@ -1128,7 +1140,6 @@ function setupWorld() {
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() {
 					cameraCtrl.update();
-					debugCamNeedUpdate = true;
 				})
 			.start();
 
@@ -1141,7 +1152,6 @@ function setupWorld() {
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() { 
 					camera.updateProjectionMatrix();
-					debugCamNeedUpdate = true;
 				})
 			.start();
 		}
@@ -1175,6 +1185,16 @@ function setupWorld() {
 			.start();
 		}
 
+		function animateFrontLightIntensity(x) {
+			new TWEEN.Tween( frontLight )
+				.to( { intensity: x }, 3000 )
+				.easing( TWEEN.Easing.Quadratic.Out)
+				.onUpdate(function() {
+					
+				})
+			.start();
+		}
+
 		function animateClearSky(speed) {
 			animateSky(2, 2.7, 0.008, 0.95, 0.7, 0.7, 0.84, speed);
 		}
@@ -1195,6 +1215,20 @@ function setupWorld() {
 			animateSky(4, 2, 0.057, 0.49, 0.22, 0.73, 0.94, speed);
 		}
 
+		function animateTurbineViewSky(speed) {
+			animateSky(2, 1.9, 0.002, 0.82, 1.03, 0.37, 0.4, speed);
+		}
+
+		function animateOceanExposure(e) {
+			new TWEEN.Tween( world.ocean )
+				.to( { exposure: e}, 1000 )
+				.easing( TWEEN.Easing.Quadratic.Out)
+					.onUpdate(function() {
+						world.ocean.changed = true;
+						updateGuiOcean();
+					})
+			.start();
+		}
 
 	// --------- City Views Animation
 
@@ -1202,6 +1236,9 @@ function setupWorld() {
 
 			// clear all active animation
 			TWEEN.removeAll();
+
+			animateOceanExposure(0.2);
+			animateFrontLightIntensity(0.0);
 
 			if (currView === 'waterNetwork') {
 				world.watersupply.animateResetPos();
@@ -1218,8 +1255,7 @@ function setupWorld() {
 			animateFOV(80);
 			animateCityViewSky();
 			animateSunLightIntensity(1);
-
-
+			
 			currView = 'city';
 
 		}
@@ -1234,6 +1270,7 @@ function setupWorld() {
 			animateFOV(110);
 			animateSunsetSky(3000);
 			animateSunLightIntensity(0, 0, 0);
+			animateOceanExposure(0.01);
 
 			currView = 'tollway';
 
@@ -1258,13 +1295,14 @@ function setupWorld() {
 
 			resetView();
 
-			animateCameraTo(new THREE.Vector3(-971.34, 161.60, 971.36), 
-							new THREE.Vector3(-1906.23, 325.49, 927.34));
+			animateCameraTo(new THREE.Vector3( -968.43, 183.88, 967.55 ), 
+							new THREE.Vector3( -1897.55, 366.77, 1045.72 ));
 
 			animateFOV(90);
-			animateClearSky();
+			animateTurbineViewSky(500);
 			animateSunLightIntensity(1);
-
+			animateFrontLightIntensity(3.5);
+			animateOceanExposure(0.1);
 
 			currView = 'turbines';
 
@@ -1315,6 +1353,7 @@ function setupWorld() {
 			animateFOV(5);
 			animateSilhouetteSky(100);
 			animateSunLightIntensity(1);
+			animateOceanExposure(0.01);
 
 			currView = 'silhouette';
 
@@ -1482,7 +1521,7 @@ function initOcean(oceanGeom) {
 	};
 
 
-	var guiOcean = guiDebug.addFolder('Ocean');
+	guiOcean = guiDebug.addFolder('Ocean');
 	var c1 = guiOcean.add(ocean, "size", 100, 5000);
 	c1.onChange(function(v) {
 		this.object.size = v;

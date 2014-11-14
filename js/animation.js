@@ -5,7 +5,7 @@
 
 		world.shore1.spinTurbines();
 		world.ocean.updateOcean();
-		
+
 	}
 
 	// Gui auto update
@@ -18,8 +18,14 @@
 
 	function updateGuiLight() {
 		sunlightColor.color = '#' + sunlight.color.getHexString();
-		for (var i in guiDebug.__controllers) {
-			guiDebug.__controllers[i].updateDisplay();
+		for (var i in guiSunlight.__controllers) {
+			guiSunlight.__controllers[i].updateDisplay();
+		}
+	}
+
+	function updateGuiOcean() {
+		for (var i in guiOcean.__controllers) {
+			guiOcean.__controllers[i].updateDisplay();
 		}
 	}
 
@@ -35,7 +41,6 @@
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() {
 					cameraCtrl.update();
-					debugCamNeedUpdate = true;
 				})
 			.start();
 
@@ -47,7 +52,6 @@
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() {
 					cameraCtrl.update();
-					debugCamNeedUpdate = true;
 				})
 			.start();
 
@@ -60,7 +64,6 @@
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() { 
 					camera.updateProjectionMatrix();
-					debugCamNeedUpdate = true;
 				})
 			.start();
 		}
@@ -94,6 +97,16 @@
 			.start();
 		}
 
+		function animateFrontLightIntensity(x) {
+			new TWEEN.Tween( frontLight )
+				.to( { intensity: x }, 3000 )
+				.easing( TWEEN.Easing.Quadratic.Out)
+				.onUpdate(function() {
+					
+				})
+			.start();
+		}
+
 		function animateClearSky(speed) {
 			animateSky(2, 2.7, 0.008, 0.95, 0.7, 0.7, 0.84, speed);
 		}
@@ -114,6 +127,20 @@
 			animateSky(4, 2, 0.057, 0.49, 0.22, 0.73, 0.94, speed);
 		}
 
+		function animateTurbineViewSky(speed) {
+			animateSky(2, 1.9, 0.002, 0.82, 1.03, 0.37, 0.4, speed);
+		}
+
+		function animateOceanExposure(e) {
+			new TWEEN.Tween( world.ocean )
+				.to( { exposure: e}, 1000 )
+				.easing( TWEEN.Easing.Quadratic.Out)
+					.onUpdate(function() {
+						world.ocean.changed = true;
+						updateGuiOcean();
+					})
+			.start();
+		}
 
 	// --------- City Views Animation
 
@@ -121,6 +148,9 @@
 
 			// clear all active animation
 			TWEEN.removeAll();
+
+			animateOceanExposure(0.2);
+			animateFrontLightIntensity(0.0);
 
 			if (currView === 'waterNetwork') {
 				world.watersupply.animateResetPos();
@@ -137,8 +167,7 @@
 			animateFOV(80);
 			animateCityViewSky();
 			animateSunLightIntensity(1);
-
-
+			
 			currView = 'city';
 
 		}
@@ -153,6 +182,7 @@
 			animateFOV(110);
 			animateSunsetSky(3000);
 			animateSunLightIntensity(0, 0, 0);
+			animateOceanExposure(0.01);
 
 			currView = 'tollway';
 
@@ -177,13 +207,14 @@
 
 			resetView();
 
-			animateCameraTo(new THREE.Vector3(-971.34, 161.60, 971.36), 
-							new THREE.Vector3(-1906.23, 325.49, 927.34));
+			animateCameraTo(new THREE.Vector3( -968.43, 183.88, 967.55 ), 
+							new THREE.Vector3( -1897.55, 366.77, 1045.72 ));
 
 			animateFOV(90);
-			animateClearSky();
+			animateTurbineViewSky(500);
 			animateSunLightIntensity(1);
-
+			animateFrontLightIntensity(3.5);
+			animateOceanExposure(0.1);
 
 			currView = 'turbines';
 
@@ -234,6 +265,7 @@
 			animateFOV(5);
 			animateSilhouetteSky(100);
 			animateSunLightIntensity(1);
+			animateOceanExposure(0.01);
 
 			currView = 'silhouette';
 

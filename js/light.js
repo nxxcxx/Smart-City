@@ -49,6 +49,15 @@
 	scene.add(backLightHelper);
 	scene.add(backLight);
 
+	// front light
+	var frontLight = new THREE.DirectionalLight(0xffffff, 2.0);
+	frontLight.position.set(-3500, 500, 2500);
+	scene.add(frontLight);
+
+	// var frontLightHelper = new THREE.DirectionalLightHelper(frontLight, 100);
+	// scene.add(frontLightHelper);
+
+
 
 	// // ambient light
 	var ambLight = new THREE.AmbientLight(0x050506);

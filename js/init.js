@@ -73,7 +73,7 @@
 		var guiCtrl = gui.addFolder('Controls');
 		var guiViews = guiCtrl.addFolder('Views');
 		var guiDebug = gui.addFolder('Debug');
-		var guiSky;
+		var guiSky, guiOcean;
 
 		gui.open();
 		guiCtrl.open();

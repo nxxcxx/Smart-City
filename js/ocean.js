@@ -54,7 +54,7 @@ function initOcean(oceanGeom) {
 	};
 
 
-	var guiOcean = guiDebug.addFolder('Ocean');
+	guiOcean = guiDebug.addFolder('Ocean');
 	var c1 = guiOcean.add(ocean, "size", 100, 5000);
 	c1.onChange(function(v) {
 		this.object.size = v;
