@@ -523,6 +523,8 @@ THREE.Object3D.prototype.animateY = function (y) {
 		// lens flare
 		.addFile('lensdirtTex', 'lensflare/lensdirt01.png')
 		.addFile('lensFlare01Tex', 'lensflare/lensflare01.png')
+		.addFile('lensFlareHoopTex', 'lensflare/lensflareHoop.png')
+
 
 		// ocean
 		.addFile('oceanSurface', 'ocean/oceanSurfaceSubdivided.obj')
@@ -1570,13 +1572,18 @@ function initOcean(oceanGeom) {
 
 function initLensflare() {
 
-	
+	// dirt
 	var lensFlare = new THREE.LensFlare( assetManager.getTexture('lensdirtTex'),
-					                     2048, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x444444 ) );
+										 2048, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x444444 ) );
 
-
+	// sun
 	lensFlare.add( assetManager.getTexture('lensFlare01Tex'), 
-		           1024, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x888888 ));
+				   1024, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x888888 ));
+
+	// hoop
+	lensFlare.add( assetManager.getTexture('lensFlareHoopTex'), 
+				   512, 1.0, THREE.AdditiveBlending, new THREE.Color( 0xffffff ));
+
 
 	lensFlare.position.copy(sunlight.position);
 	lensFlare.customUpdateCallback = lensFlareUpdateCallback;
@@ -1614,6 +1621,9 @@ function initLensflare() {
 			
 
 		}
+
+		// auto rotate lens hoop when sun is at left or right of screen coords
+		object.lensFlares[2].rotation = -object.positionScreen.x * Math.PI/2.0;
 
 
 	}

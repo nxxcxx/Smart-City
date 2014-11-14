@@ -137,6 +137,8 @@
 		// lens flare
 		.addFile('lensdirtTex', 'lensflare/lensdirt01.png')
 		.addFile('lensFlare01Tex', 'lensflare/lensflare01.png')
+		.addFile('lensFlareHoopTex', 'lensflare/lensflareHoop.png')
+
 
 		// ocean
 		.addFile('oceanSurface', 'ocean/oceanSurfaceSubdivided.obj')
