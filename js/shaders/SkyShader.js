@@ -241,10 +241,13 @@ THREE.Sky = function () {
 	var skyUniforms = THREE.UniformsUtils.clone( skyShader.uniforms );
 
 	var skyMat = new THREE.ShaderMaterial( { 
+
 		fragmentShader: skyShader.fragmentShader, 
 		vertexShader: skyShader.vertexShader, 
 		uniforms: skyUniforms,
-		side: THREE.BackSide
+		side: THREE.BackSide,
+		depthWrite: false,
+
 	} );
 
 	var skyGeo = new THREE.SphereGeometry( 450000, 32, 15 );

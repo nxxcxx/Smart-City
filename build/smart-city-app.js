@@ -117,6 +117,7 @@ THREE.Object3D.prototype.animateY = function (y) {
 			enableShadow: true,
 			shadowMapType: THREE.PCFSoftShadowMap,
 			shadowMapSize: 4096,
+			shadowDarkness: 0.6,
 			maxAnisotropy: null
 
 		};
@@ -125,6 +126,9 @@ THREE.Object3D.prototype.animateY = function (y) {
 	// ---- Scene
 		container = document.getElementById('canvas-container');
 		scene = new THREE.Scene();
+
+		scene.fog = new THREE.Fog( 0x333344, 10, 100000 );
+
 
 	// ---- Camera
 		// z-near too low will cause artifact when viewing from far distance
@@ -137,7 +141,9 @@ THREE.Object3D.prototype.animateY = function (y) {
 	// ---- Renderer
 		renderer = new THREE.WebGLRenderer({ antialias: true , alpha: true});
 		renderer.setClearColor(scene_settings.bgColor, 1);
-		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setSize(screenWidth, screenHeight);
+
+			renderer.autoClear = false;
 		
 		renderer.shadowMapEnabled = scene_settings.enableShadow;
 		renderer.shadowMapType = scene_settings.shadoyMapType;
@@ -222,14 +228,14 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 		sunlight.shadowCameraFov = 80;
 		sunlight.shadowBias = 0.0001;
-		sunlight.shadowDarkness = 0.77;
+		sunlight.shadowDarkness = scene_settings.shadowDarkness;
 
 		sunlight.shadowMapWidth = SHADOW_MAP_WIDTH;
 		sunlight.shadowMapHeight = SHADOW_MAP_HEIGHT;
 
 		var sunlightColor = {color: '#ffffff'};
 		var guiSunlight = guiDebug.addFolder('Sunlight');
-		guiSunlight.add(sunlight, 'intensity', 0.0, 2.0, 0.1);
+		guiSunlight.add(sunlight, 'intensity', 0.0, 3.0, 0.1);
 		guiSunlight.addColor(sunlightColor, 'color').name('color').onChange(updateLightCol);
 		function updateLightCol(c) {
 			sunlight.color.set(c);
@@ -247,7 +253,7 @@ THREE.Object3D.prototype.animateY = function (y) {
 	scene.add(backLightHelper);
 	scene.add(backLight);
 
-	// front light
+	// front light (for turbine views light compensation)
 	var frontLight = new THREE.DirectionalLight(0xffffff, 2.0);
 	frontLight.position.set(-3500, 500, 2500);
 	scene.add(frontLight);
@@ -287,8 +293,8 @@ THREE.Object3D.prototype.animateY = function (y) {
 		SSAOpass.uniforms[ 'size' ].value.set( 1024, 1024 );
 		SSAOpass.uniforms[ 'cameraNear' ].value = camera.near;
 		SSAOpass.uniforms[ 'cameraFar' ].value = 10000;
-		SSAOpass.uniforms[ 'aoClamp' ].value = 0.45;
-		SSAOpass.uniforms[ 'lumInfluence' ].value = 0.7;
+		SSAOpass.uniforms[ 'aoClamp' ].value = 0.59;
+		SSAOpass.uniforms[ 'lumInfluence' ].value = 1.06;
 		SSAOpass.uniforms[ 'onlyAO' ].value = 0;	// debug
 	
 		// SSAOpass.enabled = false;
@@ -317,6 +323,7 @@ THREE.Object3D.prototype.animateY = function (y) {
 		composer.setSize(screenWidth * dpr, screenHeight * dpr);
 
 		composer.addPass(renderPass);
+		
 		composer.addPass(SSAOpass);
 		composer.addPass(FXAApass);
 		composer.addPass(CCpass);
@@ -360,12 +367,13 @@ THREE.Object3D.prototype.animateY = function (y) {
 		var ccu = CCpass.uniforms;
 
 		var ccuEffect = {
-			powR: 1.15,
-			powG: 1.15,
-			powB: 1.1,
-			mulR: 1.3,
-			mulG: 1.3,
-			mulB: 1.3,
+			exposure: 1.0,
+			powR: 1.0,
+			powG: 1.0,
+			powB: 1.0,
+			mulR: 1.0,
+			mulG: 1.0,
+			mulB: 1.0,
 		};
 
 		function adjustCC() {
@@ -377,6 +385,7 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 		guiCC.add( CCpass, 'enabled').name('Enable');
 
+		guiCC.add( ccu.exposure, 'value', 0.0, 5.0, 0.01).name('Exposure');
 		guiCC.add( ccuEffect, 'powR', 1.0, 3.0, 0.01).onChange(adjustCC);
 		guiCC.add( ccuEffect, 'powG', 1.0, 3.0, 0.01).onChange(adjustCC);
 		guiCC.add( ccuEffect, 'powB', 1.0, 3.0, 0.01).onChange(adjustCC);
@@ -388,7 +397,7 @@ THREE.Object3D.prototype.animateY = function (y) {
 	var assetManager = (function assetManager() {
 
 		var texPath = 'assets/';
-		var texFormat = '.png';
+		var imgFormat = ['.jpg', '.png'];
 
 		var modelPath = 'assets/';
 		var modelFormat = '.obj';
@@ -399,20 +408,49 @@ THREE.Object3D.prototype.animateY = function (y) {
 			materials: {}
 		};
 
+		function containsFormat(file, format) {
+
+			if (format instanceof Array) {
+				for (var i=0; i<format.length; i++) {
+					 if ( file.indexOf(format[i]) !== -1 ) {
+					 	return true;
+					 }
+				}
+			} else {
+				if ( file.indexOf(format) !== -1 ) {
+					return true;
+				}
+			}
+
+			return false;
+
+		}
+
 		function addFile(key, filename) {
 
 			var ast;
-			if ( filename.indexOf(texFormat) !== -1 ) {	// if png file
+			if ( containsFormat(filename, imgFormat) ) {	// if png file
 				ast = assets.textures[key] = {};
 				ast.texUrl = texPath + filename;
 				ast.texture = null;
-			}
-			if ( filename.indexOf(modelFormat) !== -1 ) {	// if obj file
+				ast.type = null;
+			} 
+			else if ( containsFormat(filename, modelFormat) ) {	// if obj file
 				ast = assets.models[key] = {};
 				ast.modelUrl = modelPath + filename;
 				ast.model = null;
 			}
 			
+			return this;
+		}
+
+		function addSkybox(key, urlArr) {
+
+			var ast = assets.textures[key] = {};
+			ast.texUrl = urlArr;
+			ast.texture = null;
+			ast.type = 'cube';
+
 			return this;
 		}
 
@@ -442,13 +480,27 @@ THREE.Object3D.prototype.animateY = function (y) {
 			getTexture: getTexture,
 			getMaterial: getMaterial,
 			addMaterial: addMaterial,
-			addTexture: addTexture
+			addTexture: addTexture,
+			addSkybox: addSkybox
 		};
 
 	})();
 
 
+	// Skybox texture
+	var skyboxPath = "assets/skybox/";
+	var skyboxFormat = '.png';
+	var skyboxUrls = [
+		skyboxPath + 'px' + skyboxFormat, skyboxPath + 'nx' + skyboxFormat,
+		skyboxPath + 'py' + skyboxFormat, skyboxPath + 'ny' + skyboxFormat,
+		skyboxPath + 'pz' + skyboxFormat, skyboxPath + 'nz' + skyboxFormat
+	];
+
+
 	assetManager
+
+		// Skybox
+		.addSkybox('reflectionCube', skyboxUrls)
 
 		// empty hexagon platform 
 		.addFile('emptyPlatform', 'platform/emptyPlatform.obj')
@@ -463,14 +515,14 @@ THREE.Object3D.prototype.animateY = function (y) {
 		.addFile('shoreWaterSurface', 'shore/shoreWaterSurface.obj')
 
 		// wind turbine
-		// .addFile('turbineBaseTex', 'turbine/1024turbineBase.png')
+		// .addFile('turbineBaseTex', 'turbine/xxxxxxxxxx.png')
 		.addFile('turbineBase', 'turbine/turbineBase.obj')
 
-		// .addFile('propellerTex', 'turbine/1024propeller.png')
+		// .addFile('propellerTex', 'turbine/xxxxxxxxxx.png')
 		.addFile('propeller', 'turbine/propeller.obj')
 
 		// hub
-		// .addFile('hubPlatformTex', 'hub/1024hubplatform.png')
+		// .addFile('hubPlatformTex', 'hub/xxxxxxxxxx.png')
 		.addFile('hubPlatform', 'hub/hubplatform.obj')
 
 		.addFile('hubWindowTex', 'hub/1024hubwindow.png')
@@ -478,35 +530,37 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 		.addFile('hubStreetLine', 'hub/hubstreetline.obj')
 
-		// city 01
-		// .addFile('city01Tex', 'city01/1024city01.png')
-		.addFile('city01', 'city01/city01.obj')
-
-		// tollway
-		// .addFile('tollwayTex', 'tollway/1024tollway.png')
+		// tollwayi
+		// .addFile('tollwayTex', 'tollway/xxxxxxxxxx.png')
 		.addFile('tollway', 'tollway/tollway.obj')
-
 		.addFile('tollwayLine', 'tollway/tollwayline.obj')
 
+		// city 01
+		// .addFile('city01Tex', 'city01/xxxxxxxxxx.png')
+		.addFile('city01', 'city01/city01.obj')
+
 		// city 02 
-		// .addFile('city02Tex', 'city02/1024city02.png')
+		// .addFile('city02Tex', 'city02/xxxxxxxxxx.png')
 		.addFile('city02', 'city02/city02.obj')
 
 		// city 03 
-		// .addFile('city03Tex', 'city03/1024city03.png')
+		// .addFile('city03Tex', 'city03/xxxxxxxxxx.png')
 		.addFile('city03', 'city03/city03.obj')
 
 		// resident 01
-		// .addFile('resident01Tex', 'resident01/1024resident01.png')
+		// .addFile('resident01Tex', 'resident01/xxxxxxxxxx.png')
 		.addFile('resident01', 'resident01/resident01.obj')
 
 		// resident 02
-		// .addFile('resident02Tex', 'resident02/1024resident02.png')
+		// .addFile('resident02Tex', 'resident02/xxxxxxxxxx.png')
 		.addFile('resident02', 'resident02/resident02.obj')
 
 		// landfill
-		.addFile('landfillTex', 'landfill/1024landfill.png')
-		.addFile('landfill', 'landfill/landfill.obj')
+		.addFile('landfillBuildingTex', 'landfill/building1k.png')
+		.addFile('landfillBuilding', 'landfill/landfillBuilding.obj')
+
+		.addFile('landfillDirtTex', 'landfill/dirt1k.png')
+		.addFile('landfillDirt', 'landfill/landfillDirt.obj')
 
 		.addFile('landfillPipeTex', 'landfill/1024landfillPipe.png')
 		.addFile('landfillPipe', 'landfill/landfillPipe.obj')
@@ -525,9 +579,9 @@ THREE.Object3D.prototype.animateY = function (y) {
 		.addFile('lensFlare01Tex', 'lensflare/lensflare01.png')
 		.addFile('lensFlareHoopTex', 'lensflare/lensflareHoop.png')
 
-
 		// ocean
 		.addFile('oceanSurface', 'ocean/oceanSurfaceSubdivided.obj')
+
 
 	;
 
@@ -566,11 +620,21 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 
 // iterate through each asset, then load and store it
-	_.each(assetManager.get().textures, function(asset) {
-		textureLoader.load( asset.texUrl, function (image) {
-			asset.texture = new THREE.Texture(image);
-			asset.texture.needsUpdate = true;
-		});
+	_.each(assetManager.get().textures, function(textureAsset) {
+
+		if (textureAsset.type === 'cube') {
+
+			textureAsset.texture = loadTextureCube(textureAsset.texUrl);
+
+		} else {
+
+			textureLoader.load( textureAsset.texUrl, function (image) {
+				textureAsset.texture = new THREE.Texture(image);
+				textureAsset.texture.needsUpdate = true;
+			});
+
+		}
+
 	});
 
 	_.each(assetManager.get().models, function(asset) {
@@ -586,18 +650,7 @@ THREE.Object3D.prototype.animateY = function (y) {
 	});
 
 
-	// Skybox texture
-	var path = "assets/skybox/";
-	var format = '.bmp';
-	var urls = [
-		path + 'px' + format, path + 'nx' + format,
-		path + 'py' + format, path + 'ny' + format,
-		path + 'pz' + format, path + 'nz' + format
-	];
-
-	var reflectionCube = loadTextureCube(urls);
-	assetManager.addTexture('reflectionCube', reflectionCube);
-
+// loader helper
 
 	function loadTextureCube(arrayURL, mapping, onLoad) {
 
@@ -666,7 +719,6 @@ THREE.Object3D.prototype.animateY = function (y) {
 	function render(time) {
 
 		requestAnimationFrame(render);
-		stats.update();
 		TWEEN.update(time);
 		animate(time);
 
@@ -674,19 +726,25 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 		updateDebugCamera();
 
+
 		// render depth to target [ override > render > restore]
 			scene.overrideMaterial = depthMaterial;
 			world.lensflare.visible = false; // temporaily disable lens flare, it destroys my depth pass
+			world.ocean.oceanMesh.visible = false; // no depthWrite for ocean
 			world.sky.visible = false;
 
-			renderer.render( scene, camera, depthTarget );
+			renderer.render( scene, camera, depthTarget, true); // force clear
 
 			scene.overrideMaterial = null;
 			world.lensflare.visible = true;
 			world.sky.visible = true;
+			world.ocean.oceanMesh.visible = true;
 
 		// render composited passes
 		composer.render();
+
+
+		stats.update();
 
 	}
 
@@ -765,10 +823,12 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 function setupWorld() {
 
+	var defaultColor = 0xddddee;
+
 	// ------- Model helper
 
-		constructModel('emptyPlatform', {color: 0xddddee});
-		var shell = constructModel('shell', {color: 0xddddee});
+		constructModel('emptyPlatform', {color: defaultColor});
+		var shell = constructModel('shell', {color: defaultColor});
 		shell.castShadow = false;
 		shell.receiveShadow = false;
 
@@ -811,7 +871,40 @@ function setupWorld() {
 
 		world.sky = initSky(); // do magic by zz85
 
+
 		world.lensflare = initLensflare();
+
+
+			// test skybox
+				var shader = THREE.ShaderLib[ "cube" ];
+				shader.uniforms[ "tCube" ].value = assetManager.getTexture('reflectionCube');
+
+				var material = new THREE.ShaderMaterial( {
+
+					fragmentShader: shader.fragmentShader,
+					vertexShader: shader.vertexShader,
+					uniforms: shader.uniforms,
+					side: THREE.BackSide,
+					depthWrite: false,
+					blending: THREE.MultiplyBlending,
+					transparent: true,
+					opacity: 1.0,
+
+				} );
+
+				world.skybox = new THREE.Mesh( new THREE.BoxGeometry( 1000000, 1000000, 1000000 ), material );
+
+
+			// test floor
+				var mat = new THREE.MeshLambertMaterial({
+					color: defaultColor	
+				});
+				var geom = new THREE.PlaneBufferGeometry(1000000, 1000000, 1, 1);
+
+				geom.applyMatrix( new THREE.Matrix4().makeRotationX(-Math.PI/2) );
+
+				world.floor = new THREE.Mesh(geom, mat);
+				world.floor.position.y = 0;
 
 
 		// *****************	test ocean
@@ -823,12 +916,10 @@ function setupWorld() {
 		scene.add(world.ocean.oceanMesh);
 
 
-
-
 		world.shore1 = (function () {
 
 			var shore = new THREE.Object3D();
-			var shorePlatform = constructModel('shorePlatform', {color: 0xddddee});
+			var shorePlatform = constructModel('shorePlatform', {color: defaultColor});
 			// var shoreWaterSurface = constructModel('shoreWaterSurface', {map:'shoreWaterSurfaceTex' , envMap: 'reflectionCube', opacity: 0.7, transparent: true});
 			shorePlatform.castShadow = false;
 
@@ -860,9 +951,9 @@ function setupWorld() {
 		// add turbines to shore1
 			var allTurbines = new THREE.Object3D();
 			var windTurbine = new THREE.Object3D();
-			var turBase = constructModel('turbineBase', {color: 0xddddee});
-			var turPro = constructModel('propeller', {color: 0xddddee});
-			turPro.position.set(0, 268, -10);
+			var turBase = constructModel('turbineBase', {color: defaultColor});
+			var turPro = constructModel('propeller', {color: defaultColor});
+			turPro.position.set(0, 370.5, -10);
 
 			windTurbine.add(turBase);
 			windTurbine.add(turPro);
@@ -871,9 +962,9 @@ function setupWorld() {
 			var windTurbine3 = windTurbine.clone();
 
 			// relative postiton
-			windTurbine.position.set(-223, 90, -75);
-			windTurbine2.position.set(-22, 90, 40);
-			windTurbine3.position.set(175, 90, 153);
+			windTurbine.position.set(-223, 40, -75);
+			windTurbine2.position.set(-22, 40, 40);
+			windTurbine3.position.set(175, 40, 153);
 
 			windTurbine.rotation.y = 
 			windTurbine2.rotation.y = 
@@ -892,8 +983,8 @@ function setupWorld() {
 		world.hub = (function () {
 
 			var hub = new THREE.Object3D();
-			var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.8});
-			var hubPlatform = constructModel('hubPlatform', {color: 0xddddee});
+			var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.5});
+			var hubPlatform = constructModel('hubPlatform', {color: defaultColor});
 			var hubStreetLine = constructModel('hubStreetLine', {emissive: 0x0066ff});
 			hubStreetLine.castShadow = false;
 			hubStreetLine.receiveShadow = false;
@@ -907,7 +998,7 @@ function setupWorld() {
 		world.city01 = (function () {
 
 			var city01 = new THREE.Object3D();
-			var city01Buildings = constructModel('city01', {color: 0xddddee});
+			var city01Buildings = constructModel('city01', {color: defaultColor});
 			var city01Shell = getNewShell();
 			city01.setDefaultPos(0, 0, -808);
 			city01.add(city01Buildings, city01Shell);
@@ -918,7 +1009,7 @@ function setupWorld() {
 		world.city02 = (function () {
 
 			var city02 = new THREE.Object3D();
-			var city02Buildings = constructModel('city02', {color: 0xddddee});
+			var city02Buildings = constructModel('city02', {color: defaultColor});
 			var city02Shell = getNewShell();
 			city02.setDefaultPos(700, 0, -405);
 			city02.add(city02Buildings, city02Shell);
@@ -929,7 +1020,7 @@ function setupWorld() {
 		world.city03 = (function () {
 
 			var city03 = new THREE.Object3D();
-			var city03Buildings = constructModel('city03', {color: 0xddddee});
+			var city03Buildings = constructModel('city03', {color: defaultColor});
 			var city03Shell = getNewShell();
 			city03.setDefaultPos(0, 0, 810);
 			city03.add(city03Buildings, city03Shell);
@@ -940,7 +1031,7 @@ function setupWorld() {
 		world.tollway = (function () {
 
 			var tollway = new THREE.Object3D();
-			var tollwayStreet = constructModel('tollway', {color: 0xddddee});
+			var tollwayStreet = constructModel('tollway', {color: defaultColor});
 			var tollwayLine = constructModel('tollwayLine', {emissive: 0x0066ff});
 			tollwayLine.castShadow = false;
 			tollwayLine.receiveShadow = false;
@@ -954,13 +1045,14 @@ function setupWorld() {
 		world.landfill = (function () {
 
 			var landfill = new THREE.Object3D();
-			var lfbuilding = constructModel('landfill', {map: 'landfillTex'});
+			var lfbuilding = constructModel('landfillBuilding', {map: 'landfillBuildingTex'});
+			var lfdirt = constructModel('landfillDirt', {map: 'landfillDirtTex'});
 			var lfpipe = constructModel('landfillWindow', {map: 'landfillWindowTex', envMap: 'reflectionCube'});
 			var lfwindow = constructModel('landfillPipe', {map: 'landfillPipeTex', envMap: 'reflectionCube', reflectivity: 0.4});
 			lfbuilding.position.x = lfpipe.position.x = lfwindow.position.x = -30;
 			var ep = getNewPlatform(); 
 			var lfshell = getNewShell();
-			landfill.add(lfbuilding, lfpipe, lfwindow, ep, lfshell);
+			landfill.add(lfbuilding, lfdirt, lfpipe, lfwindow, ep, lfshell);
 			landfill.setDefaultPos(1400, 0, -805);
 			return landfill;
 
@@ -969,7 +1061,7 @@ function setupWorld() {
 		world.watersupply = (function () {
 
 			var watersupply = new THREE.Object3D();
-			var ws = constructModel('watersupply', {color: 0xddddee});
+			var ws = constructModel('watersupply', {color: defaultColor});
 			var wp = constructModel('watersupplyPipe', {map: 'watersupplyPipeTex', envMap: 'reflectionCube', reflectivity: 0.6});
 			var shell = getNewShell();
 			watersupply.add(ws, wp, shell);
@@ -981,7 +1073,7 @@ function setupWorld() {
 		world.resident1 = (function () {
 
 			var resident01 = new THREE.Object3D();
-			var resident01Buildings = constructModel('resident01', {color: 0xddddee});
+			var resident01Buildings = constructModel('resident01', {color: defaultColor});
 			var resident01Shell = getNewShell();
 			resident01.setDefaultPos(-700, 0, -1213);
 			resident01.rotation.y = THREE.Math.degToRad(120);
@@ -993,7 +1085,7 @@ function setupWorld() {
 		world.resident2 = (function () {
 
 			var resident02 = new THREE.Object3D();
-			var resident02Buildings = constructModel('resident02', {color: 0xddddee});
+			var resident02Buildings = constructModel('resident02', {color: defaultColor});
 			var resident02Shell = getNewShell();
 			resident02.setDefaultPos(-1400, 0, -809);
 			resident02.add(resident02Buildings, resident02Shell);
@@ -1210,7 +1302,13 @@ function setupWorld() {
 		}
 
 		function animateCityViewSky(speed) {
-			animateSky(15, 2.7, 0.02, 0.75, 0.79, 0.7, 0.84, speed);
+
+			// animateSky(15, 2.7, 0.02, 0.75, 0.79, 0.7, 0.84, speed);
+
+			// bright sky
+			animateSky(20, 0.1, 0.1, 0, 0.02, 0.72, 0.83, speed);
+
+
 		}
 
 		function animateWaterNetworkViewSky(speed) {
@@ -1218,7 +1316,11 @@ function setupWorld() {
 		}
 
 		function animateTurbineViewSky(speed) {
-			animateSky(2, 1.9, 0.002, 0.82, 1.03, 0.37, 0.4, speed);
+			animateSky(3, 1.4, 0.003, 0.64, 0.41, 0.71, 0.57, speed);
+		}
+
+		function animateLandfillViewSky(speed) {
+			animateSky(18, 1.9, 0.009, 0.74, 0.7, 1, 0.91, speed);
 		}
 
 		function animateOceanExposure(e) {
@@ -1242,9 +1344,8 @@ function setupWorld() {
 			animateOceanExposure(0.2);
 			animateFrontLightIntensity(0.0);
 
-			if (currView === 'waterNetwork') {
-				world.watersupply.animateResetPos();
-			}
+			world.watersupply.animateResetPos();
+
 		}
 
 		function animateCityView() {
@@ -1297,8 +1398,8 @@ function setupWorld() {
 
 			resetView();
 
-			animateCameraTo(new THREE.Vector3( -968.43, 183.88, 967.55 ), 
-							new THREE.Vector3( -1897.55, 366.77, 1045.72 ));
+			animateCameraTo(new THREE.Vector3( -954.99, 251.94, 957.54 ), 
+							new THREE.Vector3( -1894.62, 378.96, 1018.93 ));
 
 			animateFOV(90);
 			animateTurbineViewSky(500);
@@ -1314,12 +1415,13 @@ function setupWorld() {
 
 			resetView();
 
-			animateCameraTo(new THREE.Vector3(1538.19 , -314.89 , 245.60), 
-							new THREE.Vector3(989.74 , 481.44 , -1133.21));
+			animateCameraTo(new THREE.Vector3(1426.91, -334.68, 267.19), 
+							new THREE.Vector3(1035.25, 410.91, -1191.15));
 
 			animateFOV(80);
 			animateClearSky();
-			animateSunLightIntensity(1);
+			animateLandfillViewSky();
+			animateSunLightIntensity(1.6);
 
 
 			currView = 'landfill';
@@ -1335,7 +1437,7 @@ function setupWorld() {
 
 			animateFOV(80);
 			animateWaterNetworkViewSky();
-			animateSunLightIntensity(1);
+			animateSunLightIntensity(2.0);
 
 			world.watersupply.animateY(700);
 			
@@ -1470,9 +1572,7 @@ function initSky() {
 
 function initOcean(oceanGeom) {
 
-	var gsize = 512*4; 
 	var res = 1024; 
-	var gres = res / 2;
 	var origx = 0;
 	var origz = 0;
 	var ocean = new THREE.Ocean(oceanGeom, renderer, camera, scene, {
@@ -1485,8 +1585,6 @@ function initOcean(oceanGeom) {
 		OCEAN_COLOR: new THREE.Vector3(0.004, 0.016, 0.047),
 		SKY_COLOR: new THREE.Vector3(3.2, 9.6, 12.8),
 		EXPOSURE : 0.1,
-		GEOMETRY_RESOLUTION: gres,
-		GEOMETRY_SIZE : gsize,
 		RESOLUTION : res,
 	});
 	ocean.materialOcean.uniforms.u_projectionMatrix = { type: "m4", value: camera.projectionMatrix };
@@ -1574,7 +1672,7 @@ function initLensflare() {
 
 	// dirt
 	var lensFlare = new THREE.LensFlare( assetManager.getTexture('lensdirtTex'),
-										 2048, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x444444 ) );
+										 2048, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x555555 ) );
 
 	// sun
 	lensFlare.add( assetManager.getTexture('lensFlare01Tex'), 
@@ -1582,7 +1680,7 @@ function initLensflare() {
 
 	// hoop
 	lensFlare.add( assetManager.getTexture('lensFlareHoopTex'), 
-				   512, 1.0, THREE.AdditiveBlending, new THREE.Color( 0xffffff ));
+				   512, 1.0, THREE.AdditiveBlending, new THREE.Color( 0xdddddd ));
 
 
 	lensFlare.position.copy(sunlight.position);
@@ -1622,9 +1720,31 @@ function initLensflare() {
 
 		}
 
-		// auto rotate lens hoop when sun is at left or right of screen coords
-		object.lensFlares[2].rotation = -object.positionScreen.x * Math.PI/2.0;
 
+		// use dot product to find angle to auto rotate flare
+			var sunDirection = new THREE.Vector2(object.positionScreen.x, object.positionScreen.y);
+			var distToScreenCen = Math.min( sunDirection.length(), 1.0 );
+
+			sunDirection.normalize();
+			var upVector = new THREE.Vector2(0, 1);
+			var angleToSun = sunDirection.dot(upVector);
+			angleToSun = Math.acos( THREE.Math.clamp( angleToSun, - 1, 1 ) );
+
+			if (object.positionScreen.x > 0) {
+				angleToSun *= -1;
+			}
+
+			object.lensFlares[2].rotation = angleToSun;
+
+
+		// scale flare according to dist from center 
+		// (use ease out cubic beacuse its too small near center), distance must range between [0, 1]
+			
+			object.lensFlares[2].size = outCubic(distToScreenCen) * 512;
+
+			function outCubic(t) {
+				return (--t)*t*t+1;
+			}
 
 	}
 

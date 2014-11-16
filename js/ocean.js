@@ -1,9 +1,7 @@
 
 function initOcean(oceanGeom) {
 
-	var gsize = 512*4; 
 	var res = 1024; 
-	var gres = res / 2;
 	var origx = 0;
 	var origz = 0;
 	var ocean = new THREE.Ocean(oceanGeom, renderer, camera, scene, {
@@ -16,8 +14,6 @@ function initOcean(oceanGeom) {
 		OCEAN_COLOR: new THREE.Vector3(0.004, 0.016, 0.047),
 		SKY_COLOR: new THREE.Vector3(3.2, 9.6, 12.8),
 		EXPOSURE : 0.1,
-		GEOMETRY_RESOLUTION: gres,
-		GEOMETRY_SIZE : gsize,
 		RESOLUTION : res,
 	});
 	ocean.materialOcean.uniforms.u_projectionMatrix = { type: "m4", value: camera.projectionMatrix };

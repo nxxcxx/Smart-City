@@ -2,7 +2,7 @@
 	var assetManager = (function assetManager() {
 
 		var texPath = 'assets/';
-		var texFormat = '.png';
+		var imgFormat = ['.jpg', '.png'];
 
 		var modelPath = 'assets/';
 		var modelFormat = '.obj';
@@ -13,20 +13,49 @@
 			materials: {}
 		};
 
+		function containsFormat(file, format) {
+
+			if (format instanceof Array) {
+				for (var i=0; i<format.length; i++) {
+					 if ( file.indexOf(format[i]) !== -1 ) {
+					 	return true;
+					 }
+				}
+			} else {
+				if ( file.indexOf(format) !== -1 ) {
+					return true;
+				}
+			}
+
+			return false;
+
+		}
+
 		function addFile(key, filename) {
 
 			var ast;
-			if ( filename.indexOf(texFormat) !== -1 ) {	// if png file
+			if ( containsFormat(filename, imgFormat) ) {	// if png file
 				ast = assets.textures[key] = {};
 				ast.texUrl = texPath + filename;
 				ast.texture = null;
-			}
-			if ( filename.indexOf(modelFormat) !== -1 ) {	// if obj file
+				ast.type = null;
+			} 
+			else if ( containsFormat(filename, modelFormat) ) {	// if obj file
 				ast = assets.models[key] = {};
 				ast.modelUrl = modelPath + filename;
 				ast.model = null;
 			}
 			
+			return this;
+		}
+
+		function addSkybox(key, urlArr) {
+
+			var ast = assets.textures[key] = {};
+			ast.texUrl = urlArr;
+			ast.texture = null;
+			ast.type = 'cube';
+
 			return this;
 		}
 
@@ -56,13 +85,27 @@
 			getTexture: getTexture,
 			getMaterial: getMaterial,
 			addMaterial: addMaterial,
-			addTexture: addTexture
+			addTexture: addTexture,
+			addSkybox: addSkybox
 		};
 
 	})();
 
 
+	// Skybox texture
+	var skyboxPath = "assets/skybox/";
+	var skyboxFormat = '.png';
+	var skyboxUrls = [
+		skyboxPath + 'px' + skyboxFormat, skyboxPath + 'nx' + skyboxFormat,
+		skyboxPath + 'py' + skyboxFormat, skyboxPath + 'ny' + skyboxFormat,
+		skyboxPath + 'pz' + skyboxFormat, skyboxPath + 'nz' + skyboxFormat
+	];
+
+
 	assetManager
+
+		// Skybox
+		.addSkybox('reflectionCube', skyboxUrls)
 
 		// empty hexagon platform 
 		.addFile('emptyPlatform', 'platform/emptyPlatform.obj')
@@ -77,14 +120,14 @@
 		.addFile('shoreWaterSurface', 'shore/shoreWaterSurface.obj')
 
 		// wind turbine
-		// .addFile('turbineBaseTex', 'turbine/1024turbineBase.png')
+		// .addFile('turbineBaseTex', 'turbine/xxxxxxxxxx.png')
 		.addFile('turbineBase', 'turbine/turbineBase.obj')
 
-		// .addFile('propellerTex', 'turbine/1024propeller.png')
+		// .addFile('propellerTex', 'turbine/xxxxxxxxxx.png')
 		.addFile('propeller', 'turbine/propeller.obj')
 
 		// hub
-		// .addFile('hubPlatformTex', 'hub/1024hubplatform.png')
+		// .addFile('hubPlatformTex', 'hub/xxxxxxxxxx.png')
 		.addFile('hubPlatform', 'hub/hubplatform.obj')
 
 		.addFile('hubWindowTex', 'hub/1024hubwindow.png')
@@ -92,35 +135,37 @@
 
 		.addFile('hubStreetLine', 'hub/hubstreetline.obj')
 
-		// city 01
-		// .addFile('city01Tex', 'city01/1024city01.png')
-		.addFile('city01', 'city01/city01.obj')
-
-		// tollway
-		// .addFile('tollwayTex', 'tollway/1024tollway.png')
+		// tollwayi
+		// .addFile('tollwayTex', 'tollway/xxxxxxxxxx.png')
 		.addFile('tollway', 'tollway/tollway.obj')
-
 		.addFile('tollwayLine', 'tollway/tollwayline.obj')
 
+		// city 01
+		// .addFile('city01Tex', 'city01/xxxxxxxxxx.png')
+		.addFile('city01', 'city01/city01.obj')
+
 		// city 02 
-		// .addFile('city02Tex', 'city02/1024city02.png')
+		// .addFile('city02Tex', 'city02/xxxxxxxxxx.png')
 		.addFile('city02', 'city02/city02.obj')
 
 		// city 03 
-		// .addFile('city03Tex', 'city03/1024city03.png')
+		// .addFile('city03Tex', 'city03/xxxxxxxxxx.png')
 		.addFile('city03', 'city03/city03.obj')
 
 		// resident 01
-		// .addFile('resident01Tex', 'resident01/1024resident01.png')
+		// .addFile('resident01Tex', 'resident01/xxxxxxxxxx.png')
 		.addFile('resident01', 'resident01/resident01.obj')
 
 		// resident 02
-		// .addFile('resident02Tex', 'resident02/1024resident02.png')
+		// .addFile('resident02Tex', 'resident02/xxxxxxxxxx.png')
 		.addFile('resident02', 'resident02/resident02.obj')
 
 		// landfill
-		.addFile('landfillTex', 'landfill/1024landfill.png')
-		.addFile('landfill', 'landfill/landfill.obj')
+		.addFile('landfillBuildingTex', 'landfill/building1k.png')
+		.addFile('landfillBuilding', 'landfill/landfillBuilding.obj')
+
+		.addFile('landfillDirtTex', 'landfill/dirt1k.png')
+		.addFile('landfillDirt', 'landfill/landfillDirt.obj')
 
 		.addFile('landfillPipeTex', 'landfill/1024landfillPipe.png')
 		.addFile('landfillPipe', 'landfill/landfillPipe.obj')
@@ -139,9 +184,9 @@
 		.addFile('lensFlare01Tex', 'lensflare/lensflare01.png')
 		.addFile('lensFlareHoopTex', 'lensflare/lensflareHoop.png')
 
-
 		// ocean
 		.addFile('oceanSurface', 'ocean/oceanSurfaceSubdivided.obj')
+
 
 	;
 

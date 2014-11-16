@@ -31,11 +31,21 @@
 
 
 // iterate through each asset, then load and store it
-	_.each(assetManager.get().textures, function(asset) {
-		textureLoader.load( asset.texUrl, function (image) {
-			asset.texture = new THREE.Texture(image);
-			asset.texture.needsUpdate = true;
-		});
+	_.each(assetManager.get().textures, function(textureAsset) {
+
+		if (textureAsset.type === 'cube') {
+
+			textureAsset.texture = loadTextureCube(textureAsset.texUrl);
+
+		} else {
+
+			textureLoader.load( textureAsset.texUrl, function (image) {
+				textureAsset.texture = new THREE.Texture(image);
+				textureAsset.texture.needsUpdate = true;
+			});
+
+		}
+
 	});
 
 	_.each(assetManager.get().models, function(asset) {
@@ -51,18 +61,7 @@
 	});
 
 
-	// Skybox texture
-	var path = "assets/skybox/";
-	var format = '.bmp';
-	var urls = [
-		path + 'px' + format, path + 'nx' + format,
-		path + 'py' + format, path + 'ny' + format,
-		path + 'pz' + format, path + 'nz' + format
-	];
-
-	var reflectionCube = loadTextureCube(urls);
-	assetManager.addTexture('reflectionCube', reflectionCube);
-
+// loader helper
 
 	function loadTextureCube(arrayURL, mapping, onLoad) {
 

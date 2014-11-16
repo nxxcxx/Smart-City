@@ -1,10 +1,12 @@
 
 function setupWorld() {
 
+	var defaultColor = 0xddddee;
+
 	// ------- Model helper
 
-		constructModel('emptyPlatform', {color: 0xddddee});
-		var shell = constructModel('shell', {color: 0xddddee});
+		constructModel('emptyPlatform', {color: defaultColor});
+		var shell = constructModel('shell', {color: defaultColor});
 		shell.castShadow = false;
 		shell.receiveShadow = false;
 
@@ -47,7 +49,40 @@ function setupWorld() {
 
 		world.sky = initSky(); // do magic by zz85
 
+
 		world.lensflare = initLensflare();
+
+
+			// test skybox
+				var shader = THREE.ShaderLib[ "cube" ];
+				shader.uniforms[ "tCube" ].value = assetManager.getTexture('reflectionCube');
+
+				var material = new THREE.ShaderMaterial( {
+
+					fragmentShader: shader.fragmentShader,
+					vertexShader: shader.vertexShader,
+					uniforms: shader.uniforms,
+					side: THREE.BackSide,
+					depthWrite: false,
+					blending: THREE.MultiplyBlending,
+					transparent: true,
+					opacity: 1.0,
+
+				} );
+
+				world.skybox = new THREE.Mesh( new THREE.BoxGeometry( 1000000, 1000000, 1000000 ), material );
+
+
+			// test floor
+				var mat = new THREE.MeshLambertMaterial({
+					color: defaultColor	
+				});
+				var geom = new THREE.PlaneBufferGeometry(1000000, 1000000, 1, 1);
+
+				geom.applyMatrix( new THREE.Matrix4().makeRotationX(-Math.PI/2) );
+
+				world.floor = new THREE.Mesh(geom, mat);
+				world.floor.position.y = 0;
 
 
 		// *****************	test ocean
@@ -59,12 +94,10 @@ function setupWorld() {
 		scene.add(world.ocean.oceanMesh);
 
 
-
-
 		world.shore1 = (function () {
 
 			var shore = new THREE.Object3D();
-			var shorePlatform = constructModel('shorePlatform', {color: 0xddddee});
+			var shorePlatform = constructModel('shorePlatform', {color: defaultColor});
 			// var shoreWaterSurface = constructModel('shoreWaterSurface', {map:'shoreWaterSurfaceTex' , envMap: 'reflectionCube', opacity: 0.7, transparent: true});
 			shorePlatform.castShadow = false;
 
@@ -96,9 +129,9 @@ function setupWorld() {
 		// add turbines to shore1
 			var allTurbines = new THREE.Object3D();
 			var windTurbine = new THREE.Object3D();
-			var turBase = constructModel('turbineBase', {color: 0xddddee});
-			var turPro = constructModel('propeller', {color: 0xddddee});
-			turPro.position.set(0, 268, -10);
+			var turBase = constructModel('turbineBase', {color: defaultColor});
+			var turPro = constructModel('propeller', {color: defaultColor});
+			turPro.position.set(0, 370.5, -10);
 
 			windTurbine.add(turBase);
 			windTurbine.add(turPro);
@@ -107,9 +140,9 @@ function setupWorld() {
 			var windTurbine3 = windTurbine.clone();
 
 			// relative postiton
-			windTurbine.position.set(-223, 90, -75);
-			windTurbine2.position.set(-22, 90, 40);
-			windTurbine3.position.set(175, 90, 153);
+			windTurbine.position.set(-223, 40, -75);
+			windTurbine2.position.set(-22, 40, 40);
+			windTurbine3.position.set(175, 40, 153);
 
 			windTurbine.rotation.y = 
 			windTurbine2.rotation.y = 
@@ -128,8 +161,8 @@ function setupWorld() {
 		world.hub = (function () {
 
 			var hub = new THREE.Object3D();
-			var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.8});
-			var hubPlatform = constructModel('hubPlatform', {color: 0xddddee});
+			var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.5});
+			var hubPlatform = constructModel('hubPlatform', {color: defaultColor});
 			var hubStreetLine = constructModel('hubStreetLine', {emissive: 0x0066ff});
 			hubStreetLine.castShadow = false;
 			hubStreetLine.receiveShadow = false;
@@ -143,7 +176,7 @@ function setupWorld() {
 		world.city01 = (function () {
 
 			var city01 = new THREE.Object3D();
-			var city01Buildings = constructModel('city01', {color: 0xddddee});
+			var city01Buildings = constructModel('city01', {color: defaultColor});
 			var city01Shell = getNewShell();
 			city01.setDefaultPos(0, 0, -808);
 			city01.add(city01Buildings, city01Shell);
@@ -154,7 +187,7 @@ function setupWorld() {
 		world.city02 = (function () {
 
 			var city02 = new THREE.Object3D();
-			var city02Buildings = constructModel('city02', {color: 0xddddee});
+			var city02Buildings = constructModel('city02', {color: defaultColor});
 			var city02Shell = getNewShell();
 			city02.setDefaultPos(700, 0, -405);
 			city02.add(city02Buildings, city02Shell);
@@ -165,7 +198,7 @@ function setupWorld() {
 		world.city03 = (function () {
 
 			var city03 = new THREE.Object3D();
-			var city03Buildings = constructModel('city03', {color: 0xddddee});
+			var city03Buildings = constructModel('city03', {color: defaultColor});
 			var city03Shell = getNewShell();
 			city03.setDefaultPos(0, 0, 810);
 			city03.add(city03Buildings, city03Shell);
@@ -176,7 +209,7 @@ function setupWorld() {
 		world.tollway = (function () {
 
 			var tollway = new THREE.Object3D();
-			var tollwayStreet = constructModel('tollway', {color: 0xddddee});
+			var tollwayStreet = constructModel('tollway', {color: defaultColor});
 			var tollwayLine = constructModel('tollwayLine', {emissive: 0x0066ff});
 			tollwayLine.castShadow = false;
 			tollwayLine.receiveShadow = false;
@@ -190,13 +223,14 @@ function setupWorld() {
 		world.landfill = (function () {
 
 			var landfill = new THREE.Object3D();
-			var lfbuilding = constructModel('landfill', {map: 'landfillTex'});
+			var lfbuilding = constructModel('landfillBuilding', {map: 'landfillBuildingTex'});
+			var lfdirt = constructModel('landfillDirt', {map: 'landfillDirtTex'});
 			var lfpipe = constructModel('landfillWindow', {map: 'landfillWindowTex', envMap: 'reflectionCube'});
 			var lfwindow = constructModel('landfillPipe', {map: 'landfillPipeTex', envMap: 'reflectionCube', reflectivity: 0.4});
 			lfbuilding.position.x = lfpipe.position.x = lfwindow.position.x = -30;
 			var ep = getNewPlatform(); 
 			var lfshell = getNewShell();
-			landfill.add(lfbuilding, lfpipe, lfwindow, ep, lfshell);
+			landfill.add(lfbuilding, lfdirt, lfpipe, lfwindow, ep, lfshell);
 			landfill.setDefaultPos(1400, 0, -805);
 			return landfill;
 
@@ -205,7 +239,7 @@ function setupWorld() {
 		world.watersupply = (function () {
 
 			var watersupply = new THREE.Object3D();
-			var ws = constructModel('watersupply', {color: 0xddddee});
+			var ws = constructModel('watersupply', {color: defaultColor});
 			var wp = constructModel('watersupplyPipe', {map: 'watersupplyPipeTex', envMap: 'reflectionCube', reflectivity: 0.6});
 			var shell = getNewShell();
 			watersupply.add(ws, wp, shell);
@@ -217,7 +251,7 @@ function setupWorld() {
 		world.resident1 = (function () {
 
 			var resident01 = new THREE.Object3D();
-			var resident01Buildings = constructModel('resident01', {color: 0xddddee});
+			var resident01Buildings = constructModel('resident01', {color: defaultColor});
 			var resident01Shell = getNewShell();
 			resident01.setDefaultPos(-700, 0, -1213);
 			resident01.rotation.y = THREE.Math.degToRad(120);
@@ -229,7 +263,7 @@ function setupWorld() {
 		world.resident2 = (function () {
 
 			var resident02 = new THREE.Object3D();
-			var resident02Buildings = constructModel('resident02', {color: 0xddddee});
+			var resident02Buildings = constructModel('resident02', {color: defaultColor});
 			var resident02Shell = getNewShell();
 			resident02.setDefaultPos(-1400, 0, -809);
 			resident02.add(resident02Buildings, resident02Shell);

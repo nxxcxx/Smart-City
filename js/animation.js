@@ -120,7 +120,13 @@
 		}
 
 		function animateCityViewSky(speed) {
-			animateSky(15, 2.7, 0.02, 0.75, 0.79, 0.7, 0.84, speed);
+
+			// animateSky(15, 2.7, 0.02, 0.75, 0.79, 0.7, 0.84, speed);
+
+			// bright sky
+			animateSky(20, 0.1, 0.1, 0, 0.02, 0.72, 0.83, speed);
+
+
 		}
 
 		function animateWaterNetworkViewSky(speed) {
@@ -128,7 +134,11 @@
 		}
 
 		function animateTurbineViewSky(speed) {
-			animateSky(2, 1.9, 0.002, 0.82, 1.03, 0.37, 0.4, speed);
+			animateSky(3, 1.4, 0.003, 0.64, 0.41, 0.71, 0.57, speed);
+		}
+
+		function animateLandfillViewSky(speed) {
+			animateSky(18, 1.9, 0.009, 0.74, 0.7, 1, 0.91, speed);
 		}
 
 		function animateOceanExposure(e) {
@@ -152,9 +162,8 @@
 			animateOceanExposure(0.2);
 			animateFrontLightIntensity(0.0);
 
-			if (currView === 'waterNetwork') {
-				world.watersupply.animateResetPos();
-			}
+			world.watersupply.animateResetPos();
+
 		}
 
 		function animateCityView() {
@@ -207,8 +216,8 @@
 
 			resetView();
 
-			animateCameraTo(new THREE.Vector3( -968.43, 183.88, 967.55 ), 
-							new THREE.Vector3( -1897.55, 366.77, 1045.72 ));
+			animateCameraTo(new THREE.Vector3( -954.99, 251.94, 957.54 ), 
+							new THREE.Vector3( -1894.62, 378.96, 1018.93 ));
 
 			animateFOV(90);
 			animateTurbineViewSky(500);
@@ -224,12 +233,13 @@
 
 			resetView();
 
-			animateCameraTo(new THREE.Vector3(1538.19 , -314.89 , 245.60), 
-							new THREE.Vector3(989.74 , 481.44 , -1133.21));
+			animateCameraTo(new THREE.Vector3(1426.91, -334.68, 267.19), 
+							new THREE.Vector3(1035.25, 410.91, -1191.15));
 
 			animateFOV(80);
 			animateClearSky();
-			animateSunLightIntensity(1);
+			animateLandfillViewSky();
+			animateSunLightIntensity(1.6);
 
 
 			currView = 'landfill';
@@ -245,7 +255,7 @@
 
 			animateFOV(80);
 			animateWaterNetworkViewSky();
-			animateSunLightIntensity(1);
+			animateSunLightIntensity(2.0);
 
 			world.watersupply.animateY(700);
 			

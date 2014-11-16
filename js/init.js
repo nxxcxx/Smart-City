@@ -17,6 +17,7 @@
 			enableShadow: true,
 			shadowMapType: THREE.PCFSoftShadowMap,
 			shadowMapSize: 4096,
+			shadowDarkness: 0.6,
 			maxAnisotropy: null
 
 		};
@@ -25,6 +26,9 @@
 	// ---- Scene
 		container = document.getElementById('canvas-container');
 		scene = new THREE.Scene();
+
+		scene.fog = new THREE.Fog( 0x333344, 10, 100000 );
+
 
 	// ---- Camera
 		// z-near too low will cause artifact when viewing from far distance
@@ -37,7 +41,9 @@
 	// ---- Renderer
 		renderer = new THREE.WebGLRenderer({ antialias: true , alpha: true});
 		renderer.setClearColor(scene_settings.bgColor, 1);
-		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setSize(screenWidth, screenHeight);
+
+			renderer.autoClear = false;
 		
 		renderer.shadowMapEnabled = scene_settings.enableShadow;
 		renderer.shadowMapType = scene_settings.shadoyMapType;

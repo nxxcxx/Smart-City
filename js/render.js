@@ -36,7 +36,6 @@
 	function render(time) {
 
 		requestAnimationFrame(render);
-		stats.update();
 		TWEEN.update(time);
 		animate(time);
 
@@ -44,19 +43,25 @@
 
 		updateDebugCamera();
 
+
 		// render depth to target [ override > render > restore]
 			scene.overrideMaterial = depthMaterial;
 			world.lensflare.visible = false; // temporaily disable lens flare, it destroys my depth pass
+			world.ocean.oceanMesh.visible = false; // no depthWrite for ocean
 			world.sky.visible = false;
 
-			renderer.render( scene, camera, depthTarget );
+			renderer.render( scene, camera, depthTarget, true); // force clear
 
 			scene.overrideMaterial = null;
 			world.lensflare.visible = true;
 			world.sky.visible = true;
+			world.ocean.oceanMesh.visible = true;
 
 		// render composited passes
 		composer.render();
+
+
+		stats.update();
 
 	}
 

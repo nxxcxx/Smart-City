@@ -3,7 +3,7 @@ function initLensflare() {
 
 	// dirt
 	var lensFlare = new THREE.LensFlare( assetManager.getTexture('lensdirtTex'),
-										 2048, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x444444 ) );
+										 2048, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x555555 ) );
 
 	// sun
 	lensFlare.add( assetManager.getTexture('lensFlare01Tex'), 
@@ -11,7 +11,7 @@ function initLensflare() {
 
 	// hoop
 	lensFlare.add( assetManager.getTexture('lensFlareHoopTex'), 
-				   512, 1.0, THREE.AdditiveBlending, new THREE.Color( 0xffffff ));
+				   512, 1.0, THREE.AdditiveBlending, new THREE.Color( 0xdddddd ));
 
 
 	lensFlare.position.copy(sunlight.position);
@@ -51,9 +51,31 @@ function initLensflare() {
 
 		}
 
-		// auto rotate lens hoop when sun is at left or right of screen coords
-		object.lensFlares[2].rotation = -object.positionScreen.x * Math.PI/2.0;
 
+		// use dot product to find angle to auto rotate flare
+			var sunDirection = new THREE.Vector2(object.positionScreen.x, object.positionScreen.y);
+			var distToScreenCen = Math.min( sunDirection.length(), 1.0 );
+
+			sunDirection.normalize();
+			var upVector = new THREE.Vector2(0, 1);
+			var angleToSun = sunDirection.dot(upVector);
+			angleToSun = Math.acos( THREE.Math.clamp( angleToSun, - 1, 1 ) );
+
+			if (object.positionScreen.x > 0) {
+				angleToSun *= -1;
+			}
+
+			object.lensFlares[2].rotation = angleToSun;
+
+
+		// scale flare according to dist from center 
+		// (use ease out cubic beacuse its too small near center), distance must range between [0, 1]
+			
+			object.lensFlares[2].size = outCubic(distToScreenCen) * 512;
+
+			function outCubic(t) {
+				return (--t)*t*t+1;
+			}
 
 	}
 

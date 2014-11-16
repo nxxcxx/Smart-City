@@ -4,8 +4,8 @@ THREE.ColorCorrectionShaderNIX = {
 	uniforms: {
 
 		"tDiffuse": { type: "t", value: null },
-		"uOpacity": {type: "f", value: 0.3},
-		"uOpacity2": {type: "f", value: 0.4}
+		"uOpacity": {type: "f", value: 0.1},
+		"uOpacity2": {type: "f", value: 0.3}
 
 	},
 

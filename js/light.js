@@ -24,14 +24,14 @@
 
 		sunlight.shadowCameraFov = 80;
 		sunlight.shadowBias = 0.0001;
-		sunlight.shadowDarkness = 0.77;
+		sunlight.shadowDarkness = scene_settings.shadowDarkness;
 
 		sunlight.shadowMapWidth = SHADOW_MAP_WIDTH;
 		sunlight.shadowMapHeight = SHADOW_MAP_HEIGHT;
 
 		var sunlightColor = {color: '#ffffff'};
 		var guiSunlight = guiDebug.addFolder('Sunlight');
-		guiSunlight.add(sunlight, 'intensity', 0.0, 2.0, 0.1);
+		guiSunlight.add(sunlight, 'intensity', 0.0, 3.0, 0.1);
 		guiSunlight.addColor(sunlightColor, 'color').name('color').onChange(updateLightCol);
 		function updateLightCol(c) {
 			sunlight.color.set(c);
@@ -49,7 +49,7 @@
 	scene.add(backLightHelper);
 	scene.add(backLight);
 
-	// front light
+	// front light (for turbine views light compensation)
 	var frontLight = new THREE.DirectionalLight(0xffffff, 2.0);
 	frontLight.position.set(-3500, 500, 2500);
 	scene.add(frontLight);

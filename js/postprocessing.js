@@ -17,8 +17,8 @@
 		SSAOpass.uniforms[ 'size' ].value.set( 1024, 1024 );
 		SSAOpass.uniforms[ 'cameraNear' ].value = camera.near;
 		SSAOpass.uniforms[ 'cameraFar' ].value = 10000;
-		SSAOpass.uniforms[ 'aoClamp' ].value = 0.45;
-		SSAOpass.uniforms[ 'lumInfluence' ].value = 0.7;
+		SSAOpass.uniforms[ 'aoClamp' ].value = 0.59;
+		SSAOpass.uniforms[ 'lumInfluence' ].value = 1.06;
 		SSAOpass.uniforms[ 'onlyAO' ].value = 0;	// debug
 	
 		// SSAOpass.enabled = false;
@@ -47,6 +47,7 @@
 		composer.setSize(screenWidth * dpr, screenHeight * dpr);
 
 		composer.addPass(renderPass);
+		
 		composer.addPass(SSAOpass);
 		composer.addPass(FXAApass);
 		composer.addPass(CCpass);
@@ -90,12 +91,13 @@
 		var ccu = CCpass.uniforms;
 
 		var ccuEffect = {
-			powR: 1.15,
-			powG: 1.15,
-			powB: 1.1,
-			mulR: 1.3,
-			mulG: 1.3,
-			mulB: 1.3,
+			exposure: 1.0,
+			powR: 1.0,
+			powG: 1.0,
+			powB: 1.0,
+			mulR: 1.0,
+			mulG: 1.0,
+			mulB: 1.0,
 		};
 
 		function adjustCC() {
@@ -107,6 +109,7 @@
 
 		guiCC.add( CCpass, 'enabled').name('Enable');
 
+		guiCC.add( ccu.exposure, 'value', 0.0, 5.0, 0.01).name('Exposure');
 		guiCC.add( ccuEffect, 'powR', 1.0, 3.0, 0.01).onChange(adjustCC);
 		guiCC.add( ccuEffect, 'powG', 1.0, 3.0, 0.01).onChange(adjustCC);
 		guiCC.add( ccuEffect, 'powB', 1.0, 3.0, 0.01).onChange(adjustCC);
