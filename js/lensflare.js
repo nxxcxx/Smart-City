@@ -7,11 +7,11 @@ function initLensflare() {
 
 	// sun
 	lensFlare.add( assetManager.getTexture('lensFlare01Tex'), 
-				   1024, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x888888 ));
+				   1024, 0.0, THREE.AdditiveBlending, new THREE.Color( 0xffffff ));
 
 	// hoop
 	lensFlare.add( assetManager.getTexture('lensFlareHoopTex'), 
-				   512, 1.0, THREE.AdditiveBlending, new THREE.Color( 0xdddddd ));
+				   512, 1.1, THREE.AdditiveBlending, new THREE.Color( 0xdddddd ));
 
 
 	lensFlare.position.copy(sunlight.position);

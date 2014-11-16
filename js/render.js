@@ -33,6 +33,10 @@
 		debugFOV.html( 'CFOV: ' + camera.fov.toFixed(2) );
 	}
 
+	function mapToRange(x, a, b, c, d) {
+		return (x-a)/(b-a)*(d-c) + c;
+	}
+
 	function render(time) {
 
 		requestAnimationFrame(render);
@@ -43,6 +47,15 @@
 
 		updateDebugCamera();
 
+		// world to screenPos
+			// var sp = world.city01.position.clone();
+			// sp.project(camera);
+			// // console.log(sp.x, sp.y, sp.z);
+			// $('#screen-coords').css({ 
+			// 	top:  mapToRange(-sp.y, -1, 1, 0, screenHeight),
+			// 	left: mapToRange(sp.x, -1, 1, 0, screenWidth)
+			// });
+
 
 		// render depth to target [ override > render > restore]
 			scene.overrideMaterial = depthMaterial;
@@ -50,7 +63,9 @@
 			world.ocean.oceanMesh.visible = false; // no depthWrite for ocean
 			world.sky.visible = false;
 
-			renderer.render( scene, camera, depthTarget, true); // force clear
+			renderer.render(scene, camera, depthTarget, true); // force clear
+
+			// renderer.render(scene, camera);	// show depth pass
 
 			scene.overrideMaterial = null;
 			world.lensflare.visible = true;

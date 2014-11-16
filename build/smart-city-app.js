@@ -179,27 +179,31 @@ THREE.Object3D.prototype.animateY = function (y) {
 		var guiCtrl = gui.addFolder('Controls');
 		var guiViews = guiCtrl.addFolder('Views');
 		var guiDebug = gui.addFolder('Debug');
+		var guiGeneral = guiDebug.addFolder('General');
+		var guiPP = guiDebug.addFolder('Post-Processing');
 		var guiSky, guiOcean;
 
-		gui.open();
+		gui.close();
+
 		guiCtrl.open();
 		guiViews.open(); 
 		guiDebug.open();
 
 		var debugInfo = $('.debug-info');
 		var statsDOM = $('#stats');
-		var toggleDebugInfo = {value: true};
-		guiDebug.add(toggleDebugInfo, 'value').name('System Info').onChange( function(bool) {
-			if (bool) {
-				debugInfo.css('visibility', 'visible');
-				statsDOM.css('visibility', 'visible');
-			} else {
-				debugInfo.css('visibility', 'hidden');
-				statsDOM.css('visibility', 'hidden');
-			}
+		var toggleDebugInfo = {value: false}; debugInfo.css('visibility', 'hidden');
+		var toggleStats = {value: true};
+		guiGeneral.add(toggleStats, 'value').name('FPS').onChange( function(bool) {
+			if (bool) { statsDOM.css('visibility', 'visible');} 
+			else { statsDOM.css('visibility', 'hidden');}
+		});
+		guiGeneral.add(toggleDebugInfo, 'value').name('System Info').onChange( function(bool) {
+			if (bool) {debugInfo.css('visibility', 'visible');} 
+			else {debugInfo.css('visibility', 'hidden');}
 		});
 
-		guiDebug.add(scene_settings, 'enableHelper').name('Visual Helper').onChange( toggleHelper );
+
+		guiGeneral.add(scene_settings, 'enableHelper').name('Visual Helper').onChange( toggleHelper );
 
 
 // ---- Lights
@@ -297,8 +301,6 @@ THREE.Object3D.prototype.animateY = function (y) {
 		SSAOpass.uniforms[ 'lumInfluence' ].value = 1.06;
 		SSAOpass.uniforms[ 'onlyAO' ].value = 0;	// debug
 	
-		// SSAOpass.enabled = false;
-
 	// FXAA
 		var FXAApass = new THREE.ShaderPass( THREE.FXAAShader );
 		FXAApass.uniforms['resolution'].value.set(1 / (screenWidth * dpr), 1 / (screenHeight * dpr));
@@ -337,7 +339,6 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 	// Post-Processing GUI
 
-		var guiPP = guiDebug.addFolder('Post-Processing');
 		guiPP.open();
 
 
@@ -523,7 +524,7 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 		// hub
 		// .addFile('hubPlatformTex', 'hub/xxxxxxxxxx.png')
-		.addFile('hubPlatform', 'hub/hubplatform.obj')
+		.addFile('hubPlatform', 'hub/hubplatform_no_base.obj')
 
 		.addFile('hubWindowTex', 'hub/1024hubwindow.png')
 		.addFile('hubWindow', 'hub/hubwindow.obj')
@@ -532,28 +533,28 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 		// tollwayi
 		// .addFile('tollwayTex', 'tollway/xxxxxxxxxx.png')
-		.addFile('tollway', 'tollway/tollway.obj')
+		.addFile('tollway', 'tollway/tollway_no_base.obj')
 		.addFile('tollwayLine', 'tollway/tollwayline.obj')
 
 		// city 01
 		// .addFile('city01Tex', 'city01/xxxxxxxxxx.png')
-		.addFile('city01', 'city01/city01.obj')
+		.addFile('city01', 'city01/city01_no_base.obj')
 
 		// city 02 
 		// .addFile('city02Tex', 'city02/xxxxxxxxxx.png')
-		.addFile('city02', 'city02/city02.obj')
+		.addFile('city02', 'city02/city02_no_base.obj')
 
 		// city 03 
 		// .addFile('city03Tex', 'city03/xxxxxxxxxx.png')
-		.addFile('city03', 'city03/city03.obj')
+		.addFile('city03', 'city03/city03_no_base.obj')
 
 		// resident 01
 		// .addFile('resident01Tex', 'resident01/xxxxxxxxxx.png')
-		.addFile('resident01', 'resident01/resident01.obj')
+		.addFile('resident01', 'resident01/resident01_no_base.obj')
 
 		// resident 02
 		// .addFile('resident02Tex', 'resident02/xxxxxxxxxx.png')
-		.addFile('resident02', 'resident02/resident02.obj')
+		.addFile('resident02', 'resident02/resident02_no_base.obj')
 
 		// landfill
 		.addFile('landfillBuildingTex', 'landfill/building1k.png')
@@ -569,7 +570,7 @@ THREE.Object3D.prototype.animateY = function (y) {
 		.addFile('landfillWindow', 'landfill/landfillWindow.obj')
 
 		// water supply
-		.addFile('watersupply', 'watersupply/watersupply.obj')
+		.addFile('watersupply', 'watersupply/watersupply_no_base.obj')
 
 		.addFile('watersupplyPipeTex', 'watersupply/1024watersupplyPipe.png')
 		.addFile('watersupplyPipe', 'watersupply/watersupplyPipe.obj')
@@ -716,6 +717,10 @@ THREE.Object3D.prototype.animateY = function (y) {
 		debugFOV.html( 'CFOV: ' + camera.fov.toFixed(2) );
 	}
 
+	function mapToRange(x, a, b, c, d) {
+		return (x-a)/(b-a)*(d-c) + c;
+	}
+
 	function render(time) {
 
 		requestAnimationFrame(render);
@@ -726,6 +731,15 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 		updateDebugCamera();
 
+		// world to screenPos
+			// var sp = world.city01.position.clone();
+			// sp.project(camera);
+			// // console.log(sp.x, sp.y, sp.z);
+			// $('#screen-coords').css({ 
+			// 	top:  mapToRange(-sp.y, -1, 1, 0, screenHeight),
+			// 	left: mapToRange(sp.x, -1, 1, 0, screenWidth)
+			// });
+
 
 		// render depth to target [ override > render > restore]
 			scene.overrideMaterial = depthMaterial;
@@ -733,7 +747,9 @@ THREE.Object3D.prototype.animateY = function (y) {
 			world.ocean.oceanMesh.visible = false; // no depthWrite for ocean
 			world.sky.visible = false;
 
-			renderer.render( scene, camera, depthTarget, true); // force clear
+			renderer.render(scene, camera, depthTarget, true); // force clear
+
+			// renderer.render(scene, camera);	// show depth pass
 
 			scene.overrideMaterial = null;
 			world.lensflare.visible = true;
@@ -827,8 +843,9 @@ function setupWorld() {
 
 	// ------- Model helper
 
-		constructModel('emptyPlatform', {color: defaultColor});
-		var shell = constructModel('shell', {color: defaultColor});
+		constructModel('emptyPlatform', { color: defaultColor });
+
+		var shell = constructModel('shell', { color: defaultColor });
 		shell.castShadow = false;
 		shell.receiveShadow = false;
 
@@ -896,15 +913,15 @@ function setupWorld() {
 
 
 			// test floor
-				var mat = new THREE.MeshLambertMaterial({
-					color: defaultColor	
-				});
-				var geom = new THREE.PlaneBufferGeometry(1000000, 1000000, 1, 1);
+				// var mat = new THREE.MeshLambertMaterial({
+				// 	color: defaultColor	
+				// });
+				// var geom = new THREE.PlaneBufferGeometry(1000000, 1000000, 1, 1);
 
-				geom.applyMatrix( new THREE.Matrix4().makeRotationX(-Math.PI/2) );
+				// geom.applyMatrix( new THREE.Matrix4().makeRotationX(-Math.PI/2) );
 
-				world.floor = new THREE.Mesh(geom, mat);
-				world.floor.position.y = 0;
+				// world.floor = new THREE.Mesh(geom, mat);
+				// world.floor.position.y = 0;
 
 
 		// *****************	test ocean
@@ -926,7 +943,7 @@ function setupWorld() {
 			// shore.add(shorePlatform, shoreWaterSurface);
 
 			shore.add(shorePlatform);
-			shore.setDefaultPos(-1400, 0, 805);
+			shore.setDefaultPos(-1400, 0, 808);
 
 			return shore;
 
@@ -935,7 +952,7 @@ function setupWorld() {
 		world.shore2 = (function () {
 
 			var shore = world.shore1.clone();
-			shore.setDefaultPos(-700, 0, 1215);
+			shore.setDefaultPos(-700, 0, 1214);
 			return shore;
 
 		})();
@@ -943,7 +960,7 @@ function setupWorld() {
 		world.shore3 = (function () {
 
 			var shore = world.shore1.clone();
-			shore.setDefaultPos(0, 0, 1623);
+			shore.setDefaultPos(0, 0, 1618);
 			return shore;
 
 		})();
@@ -983,13 +1000,14 @@ function setupWorld() {
 		world.hub = (function () {
 
 			var hub = new THREE.Object3D();
-			var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.5});
+			var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.8});
 			var hubPlatform = constructModel('hubPlatform', {color: defaultColor});
-			var hubStreetLine = constructModel('hubStreetLine', {emissive: 0x0066ff});
-			hubStreetLine.castShadow = false;
-			hubStreetLine.receiveShadow = false;
+			var hubStreetLine = constructModel('hubStreetLine', {emissive: 0x00aaff});
+				hubStreetLine.castShadow = false;
+				hubStreetLine.receiveShadow = false;
+			var ep = getNewPlatform();
 			var hubShell = getNewShell();
-			hub.add(hubShell, hubPlatform, hubWindow, hubStreetLine);
+			hub.add(hubShell, hubPlatform, hubWindow, hubStreetLine, ep);
 			hub.setDefaultPos(0, 0, 0);
 			return hub;
 
@@ -1000,8 +1018,9 @@ function setupWorld() {
 			var city01 = new THREE.Object3D();
 			var city01Buildings = constructModel('city01', {color: defaultColor});
 			var city01Shell = getNewShell();
+			var ep = getNewPlatform();
 			city01.setDefaultPos(0, 0, -808);
-			city01.add(city01Buildings, city01Shell);
+			city01.add(city01Buildings, city01Shell, ep);
 			return city01;
 
 		})();
@@ -1011,8 +1030,9 @@ function setupWorld() {
 			var city02 = new THREE.Object3D();
 			var city02Buildings = constructModel('city02', {color: defaultColor});
 			var city02Shell = getNewShell();
+			var ep = getNewPlatform();
 			city02.setDefaultPos(700, 0, -405);
-			city02.add(city02Buildings, city02Shell);
+			city02.add(city02Buildings, city02Shell, ep);
 			return city02;
 
 		})();
@@ -1022,8 +1042,9 @@ function setupWorld() {
 			var city03 = new THREE.Object3D();
 			var city03Buildings = constructModel('city03', {color: defaultColor});
 			var city03Shell = getNewShell();
+			var ep = getNewPlatform();
 			city03.setDefaultPos(0, 0, 810);
-			city03.add(city03Buildings, city03Shell);
+			city03.add(city03Buildings, city03Shell, ep);
 			return city03;
 
 		})();
@@ -1032,12 +1053,13 @@ function setupWorld() {
 
 			var tollway = new THREE.Object3D();
 			var tollwayStreet = constructModel('tollway', {color: defaultColor});
-			var tollwayLine = constructModel('tollwayLine', {emissive: 0x0066ff});
-			tollwayLine.castShadow = false;
-			tollwayLine.receiveShadow = false;
+			var tollwayLine = constructModel('tollwayLine', {emissive: 0x00aaff});
+				tollwayLine.castShadow = false;
+				tollwayLine.receiveShadow = false;
+			var ep = getNewPlatform();
 			var tollwayShell = getNewShell();
 			tollway.setDefaultPos(-702, 0, -403);
-			tollway.add(tollwayStreet, tollwayLine, tollwayShell);
+			tollway.add(tollwayStreet, tollwayLine, tollwayShell, ep);
 			return tollway;
 
 		})();
@@ -1064,7 +1086,8 @@ function setupWorld() {
 			var ws = constructModel('watersupply', {color: defaultColor});
 			var wp = constructModel('watersupplyPipe', {map: 'watersupplyPipeTex', envMap: 'reflectionCube', reflectivity: 0.6});
 			var shell = getNewShell();
-			watersupply.add(ws, wp, shell);
+			var ep = getNewPlatform(); 
+			watersupply.add(ws, wp, shell, ep);
 			watersupply.setDefaultPos(700, 0, 405);
 			return watersupply;
 
@@ -1074,10 +1097,11 @@ function setupWorld() {
 
 			var resident01 = new THREE.Object3D();
 			var resident01Buildings = constructModel('resident01', {color: defaultColor});
+			var ep = getNewPlatform();
 			var resident01Shell = getNewShell();
 			resident01.setDefaultPos(-700, 0, -1213);
 			resident01.rotation.y = THREE.Math.degToRad(120);
-			resident01.add(resident01Buildings, resident01Shell);
+			resident01.add(resident01Buildings, resident01Shell, ep);
 			return resident01;
 
 		})();
@@ -1087,8 +1111,9 @@ function setupWorld() {
 			var resident02 = new THREE.Object3D();
 			var resident02Buildings = constructModel('resident02', {color: defaultColor});
 			var resident02Shell = getNewShell();
+			var ep = getNewPlatform(); 
 			resident02.setDefaultPos(-1400, 0, -809);
-			resident02.add(resident02Buildings, resident02Shell);
+			resident02.add(resident02Buildings, resident02Shell, ep);
 			return resident02;
 
 		})();
@@ -1213,7 +1238,12 @@ function setupWorld() {
 
 	// -------- Main animation
 
-		function animateCameraTo(target, position, speed) {
+		function setCamera(target, position) {
+			cameraCtrl.target.copy(target);
+			cameraCtrl.object.position.copy(position);
+		}
+
+		function animateCameraTo(target, position, speed, callback) {
 
 			new TWEEN.Tween( cameraCtrl.target )
 				.to( {	x: target.x,
@@ -1235,7 +1265,10 @@ function setupWorld() {
 				.onUpdate(function() {
 					cameraCtrl.update();
 				})
-			.start();
+			.start()
+			.onComplete(function() {
+				if (callback) callback();
+			});
 
 		}
 
@@ -1289,6 +1322,16 @@ function setupWorld() {
 			.start();
 		}
 
+		function animateBackLightIntensity(x) {
+			new TWEEN.Tween( backLight )
+				.to( { intensity: x }, 3000 )
+				.easing( TWEEN.Easing.Quadratic.Out)
+				.onUpdate(function() {
+					
+				})
+			.start();
+		}
+
 		function animateClearSky(speed) {
 			animateSky(2, 2.7, 0.008, 0.95, 0.7, 0.7, 0.84, speed);
 		}
@@ -1316,7 +1359,7 @@ function setupWorld() {
 		}
 
 		function animateTurbineViewSky(speed) {
-			animateSky(3, 1.4, 0.003, 0.64, 0.41, 0.71, 0.57, speed);
+			animateSky(40, 1.4, 0.1, 0.64, 0.25, 0.68, 0.58, speed);
 		}
 
 		function animateLandfillViewSky(speed) {
@@ -1334,6 +1377,7 @@ function setupWorld() {
 			.start();
 		}
 
+
 	// --------- City Views Animation
 
 		function resetView() {
@@ -1341,8 +1385,11 @@ function setupWorld() {
 			// clear all active animation
 			TWEEN.removeAll();
 
+			animateContentOut();
+
 			animateOceanExposure(0.2);
 			animateFrontLightIntensity(0.0);
+			animateBackLightIntensity(0.5);
 
 			world.watersupply.animateResetPos();
 
@@ -1373,15 +1420,18 @@ function setupWorld() {
 			animateFOV(110);
 			animateSunsetSky(3000);
 			animateSunLightIntensity(0, 0, 0);
+			animateBackLightIntensity(0.1);
 			animateOceanExposure(0.01);
 
 			currView = 'tollway';
 
 		}
 
-		function animateLowAngleView() {
+		function animateHubView() {
 
 			resetView();
+
+			animateContentIn('#bipv');
 
 			animateCameraTo(new THREE.Vector3(-31.30, 581.13, 372.64), 
 							new THREE.Vector3(-462.15, 171.85, -245.54));
@@ -1404,7 +1454,7 @@ function setupWorld() {
 			animateFOV(90);
 			animateTurbineViewSky(500);
 			animateSunLightIntensity(1);
-			animateFrontLightIntensity(3.5);
+			animateFrontLightIntensity(2.0);
 			animateOceanExposure(0.1);
 
 			currView = 'turbines';
@@ -1475,7 +1525,7 @@ function setupWorld() {
 			landfill: animateLandfillView,
 			waterNetwork: animateWaterNetworkView,
 			tollway: animateTollwayView,
-			lowAngle: animateLowAngleView,
+			hub: animateHubView,
 			
 		};
 
@@ -1485,9 +1535,69 @@ function setupWorld() {
 		guiViews.add(viewCtrl, 'landfill');
 		guiViews.add(viewCtrl, 'waterNetwork');
 		guiViews.add(viewCtrl, 'tollway');
-		guiViews.add(viewCtrl, 'lowAngle');
+		guiViews.add(viewCtrl, 'hub');
 		
 
+
+
+// content bar
+
+
+	var contentBar = $('.content-container');
+	function animateContentOut() {
+		contentBar.children().stop().fadeOut({
+			queue: false,
+			duration: 500
+		});
+	}
+
+	function animateContentIn(elem) {
+		$(elem).stop().fadeIn({
+			queue: false,
+			duration: 500
+		});
+	}
+
+
+
+// photo SlideShow @param elem w/ img tag inside
+	function SlideShow(elem) {
+
+		this._imgArr = $(elem).children();
+		this._currIdx = 1;
+		this._timeout = null;
+
+		this.duration = 1000;
+		this.delay = 1500;
+		this.auto = true;
+
+		this.start();
+
+	}
+
+	SlideShow.prototype.start = function() {
+		
+		var self = this;
+
+		if (this._timeout) {clearTimeout(this._timeout);}
+		this._timeout = setTimeout(doFadeStuff, this.delay);
+
+		function doFadeStuff() {
+			
+			self.fadeOutAll();
+			if ( !self._imgArr[self._currIdx] ) { self._currIdx = 0; }
+			$(self._imgArr[self._currIdx]).stop().fadeIn({
+				duration: self.duration,
+				complete: self.auto ? $.proxy(self.start, self) : null
+			});
+			self._currIdx += 1;
+		}
+
+	};
+
+	SlideShow.prototype.fadeOutAll = function() {
+		this._imgArr.stop().fadeOut(this.duration);
+	};
 
 // sky by zz85
 function initSky() {
@@ -1555,7 +1665,7 @@ function initSky() {
 	};
 
 	guiSky = guiDebug.addFolder('Sky');
-	guiSky.add( sky.mesh.ctrl, "turbidity", 1.0, 20.0, 0.1 ).onChange( sky.mesh.updateCtrl );
+	guiSky.add( sky.mesh.ctrl, "turbidity", 1.0, 40.0, 0.1 ).onChange( sky.mesh.updateCtrl );
 	guiSky.add( sky.mesh.ctrl, "reileigh", 0.0, 4, 0.001 ).onChange( sky.mesh.updateCtrl );
 	guiSky.add( sky.mesh.ctrl, "mieCoefficient", 0.0, 0.1, 0.001 ).onChange( sky.mesh.updateCtrl );
 	guiSky.add( sky.mesh.ctrl, "mieDirectionalG", 0.0, 1, 0.001 ).onChange( sky.mesh.updateCtrl );
@@ -1676,11 +1786,11 @@ function initLensflare() {
 
 	// sun
 	lensFlare.add( assetManager.getTexture('lensFlare01Tex'), 
-				   1024, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x888888 ));
+				   1024, 0.0, THREE.AdditiveBlending, new THREE.Color( 0xffffff ));
 
 	// hoop
 	lensFlare.add( assetManager.getTexture('lensFlareHoopTex'), 
-				   512, 1.0, THREE.AdditiveBlending, new THREE.Color( 0xdddddd ));
+				   512, 1.1, THREE.AdditiveBlending, new THREE.Color( 0xdddddd ));
 
 
 	lensFlare.position.copy(sunlight.position);

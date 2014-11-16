@@ -79,25 +79,29 @@
 		var guiCtrl = gui.addFolder('Controls');
 		var guiViews = guiCtrl.addFolder('Views');
 		var guiDebug = gui.addFolder('Debug');
+		var guiGeneral = guiDebug.addFolder('General');
+		var guiPP = guiDebug.addFolder('Post-Processing');
 		var guiSky, guiOcean;
 
-		gui.open();
+		gui.close();
+
 		guiCtrl.open();
 		guiViews.open(); 
 		guiDebug.open();
 
 		var debugInfo = $('.debug-info');
 		var statsDOM = $('#stats');
-		var toggleDebugInfo = {value: true};
-		guiDebug.add(toggleDebugInfo, 'value').name('System Info').onChange( function(bool) {
-			if (bool) {
-				debugInfo.css('visibility', 'visible');
-				statsDOM.css('visibility', 'visible');
-			} else {
-				debugInfo.css('visibility', 'hidden');
-				statsDOM.css('visibility', 'hidden');
-			}
+		var toggleDebugInfo = {value: false}; debugInfo.css('visibility', 'hidden');
+		var toggleStats = {value: true};
+		guiGeneral.add(toggleStats, 'value').name('FPS').onChange( function(bool) {
+			if (bool) { statsDOM.css('visibility', 'visible');} 
+			else { statsDOM.css('visibility', 'hidden');}
+		});
+		guiGeneral.add(toggleDebugInfo, 'value').name('System Info').onChange( function(bool) {
+			if (bool) {debugInfo.css('visibility', 'visible');} 
+			else {debugInfo.css('visibility', 'hidden');}
 		});
 
-		guiDebug.add(scene_settings, 'enableHelper').name('Visual Helper').onChange( toggleHelper );
+
+		guiGeneral.add(scene_settings, 'enableHelper').name('Visual Helper').onChange( toggleHelper );
 

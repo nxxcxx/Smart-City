@@ -128,7 +128,7 @@
 
 		// hub
 		// .addFile('hubPlatformTex', 'hub/xxxxxxxxxx.png')
-		.addFile('hubPlatform', 'hub/hubplatform.obj')
+		.addFile('hubPlatform', 'hub/hubplatform_no_base.obj')
 
 		.addFile('hubWindowTex', 'hub/1024hubwindow.png')
 		.addFile('hubWindow', 'hub/hubwindow.obj')
@@ -137,28 +137,28 @@
 
 		// tollwayi
 		// .addFile('tollwayTex', 'tollway/xxxxxxxxxx.png')
-		.addFile('tollway', 'tollway/tollway.obj')
+		.addFile('tollway', 'tollway/tollway_no_base.obj')
 		.addFile('tollwayLine', 'tollway/tollwayline.obj')
 
 		// city 01
 		// .addFile('city01Tex', 'city01/xxxxxxxxxx.png')
-		.addFile('city01', 'city01/city01.obj')
+		.addFile('city01', 'city01/city01_no_base.obj')
 
 		// city 02 
 		// .addFile('city02Tex', 'city02/xxxxxxxxxx.png')
-		.addFile('city02', 'city02/city02.obj')
+		.addFile('city02', 'city02/city02_no_base.obj')
 
 		// city 03 
 		// .addFile('city03Tex', 'city03/xxxxxxxxxx.png')
-		.addFile('city03', 'city03/city03.obj')
+		.addFile('city03', 'city03/city03_no_base.obj')
 
 		// resident 01
 		// .addFile('resident01Tex', 'resident01/xxxxxxxxxx.png')
-		.addFile('resident01', 'resident01/resident01.obj')
+		.addFile('resident01', 'resident01/resident01_no_base.obj')
 
 		// resident 02
 		// .addFile('resident02Tex', 'resident02/xxxxxxxxxx.png')
-		.addFile('resident02', 'resident02/resident02.obj')
+		.addFile('resident02', 'resident02/resident02_no_base.obj')
 
 		// landfill
 		.addFile('landfillBuildingTex', 'landfill/building1k.png')
@@ -174,7 +174,7 @@
 		.addFile('landfillWindow', 'landfill/landfillWindow.obj')
 
 		// water supply
-		.addFile('watersupply', 'watersupply/watersupply.obj')
+		.addFile('watersupply', 'watersupply/watersupply_no_base.obj')
 
 		.addFile('watersupplyPipeTex', 'watersupply/1024watersupplyPipe.png')
 		.addFile('watersupplyPipe', 'watersupply/watersupplyPipe.obj')

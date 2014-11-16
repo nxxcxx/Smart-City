@@ -5,8 +5,9 @@ function setupWorld() {
 
 	// ------- Model helper
 
-		constructModel('emptyPlatform', {color: defaultColor});
-		var shell = constructModel('shell', {color: defaultColor});
+		constructModel('emptyPlatform', { color: defaultColor });
+
+		var shell = constructModel('shell', { color: defaultColor });
 		shell.castShadow = false;
 		shell.receiveShadow = false;
 
@@ -74,15 +75,15 @@ function setupWorld() {
 
 
 			// test floor
-				var mat = new THREE.MeshLambertMaterial({
-					color: defaultColor	
-				});
-				var geom = new THREE.PlaneBufferGeometry(1000000, 1000000, 1, 1);
+				// var mat = new THREE.MeshLambertMaterial({
+				// 	color: defaultColor	
+				// });
+				// var geom = new THREE.PlaneBufferGeometry(1000000, 1000000, 1, 1);
 
-				geom.applyMatrix( new THREE.Matrix4().makeRotationX(-Math.PI/2) );
+				// geom.applyMatrix( new THREE.Matrix4().makeRotationX(-Math.PI/2) );
 
-				world.floor = new THREE.Mesh(geom, mat);
-				world.floor.position.y = 0;
+				// world.floor = new THREE.Mesh(geom, mat);
+				// world.floor.position.y = 0;
 
 
 		// *****************	test ocean
@@ -104,7 +105,7 @@ function setupWorld() {
 			// shore.add(shorePlatform, shoreWaterSurface);
 
 			shore.add(shorePlatform);
-			shore.setDefaultPos(-1400, 0, 805);
+			shore.setDefaultPos(-1400, 0, 808);
 
 			return shore;
 
@@ -113,7 +114,7 @@ function setupWorld() {
 		world.shore2 = (function () {
 
 			var shore = world.shore1.clone();
-			shore.setDefaultPos(-700, 0, 1215);
+			shore.setDefaultPos(-700, 0, 1214);
 			return shore;
 
 		})();
@@ -121,7 +122,7 @@ function setupWorld() {
 		world.shore3 = (function () {
 
 			var shore = world.shore1.clone();
-			shore.setDefaultPos(0, 0, 1623);
+			shore.setDefaultPos(0, 0, 1618);
 			return shore;
 
 		})();
@@ -161,13 +162,14 @@ function setupWorld() {
 		world.hub = (function () {
 
 			var hub = new THREE.Object3D();
-			var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.5});
+			var hubWindow = constructModel('hubWindow', {map: 'hubWindowTex', envMap: 'reflectionCube', reflectivity: 0.8});
 			var hubPlatform = constructModel('hubPlatform', {color: defaultColor});
-			var hubStreetLine = constructModel('hubStreetLine', {emissive: 0x0066ff});
-			hubStreetLine.castShadow = false;
-			hubStreetLine.receiveShadow = false;
+			var hubStreetLine = constructModel('hubStreetLine', {emissive: 0x00aaff});
+				hubStreetLine.castShadow = false;
+				hubStreetLine.receiveShadow = false;
+			var ep = getNewPlatform();
 			var hubShell = getNewShell();
-			hub.add(hubShell, hubPlatform, hubWindow, hubStreetLine);
+			hub.add(hubShell, hubPlatform, hubWindow, hubStreetLine, ep);
 			hub.setDefaultPos(0, 0, 0);
 			return hub;
 
@@ -178,8 +180,9 @@ function setupWorld() {
 			var city01 = new THREE.Object3D();
 			var city01Buildings = constructModel('city01', {color: defaultColor});
 			var city01Shell = getNewShell();
+			var ep = getNewPlatform();
 			city01.setDefaultPos(0, 0, -808);
-			city01.add(city01Buildings, city01Shell);
+			city01.add(city01Buildings, city01Shell, ep);
 			return city01;
 
 		})();
@@ -189,8 +192,9 @@ function setupWorld() {
 			var city02 = new THREE.Object3D();
 			var city02Buildings = constructModel('city02', {color: defaultColor});
 			var city02Shell = getNewShell();
+			var ep = getNewPlatform();
 			city02.setDefaultPos(700, 0, -405);
-			city02.add(city02Buildings, city02Shell);
+			city02.add(city02Buildings, city02Shell, ep);
 			return city02;
 
 		})();
@@ -200,8 +204,9 @@ function setupWorld() {
 			var city03 = new THREE.Object3D();
 			var city03Buildings = constructModel('city03', {color: defaultColor});
 			var city03Shell = getNewShell();
+			var ep = getNewPlatform();
 			city03.setDefaultPos(0, 0, 810);
-			city03.add(city03Buildings, city03Shell);
+			city03.add(city03Buildings, city03Shell, ep);
 			return city03;
 
 		})();
@@ -210,12 +215,13 @@ function setupWorld() {
 
 			var tollway = new THREE.Object3D();
 			var tollwayStreet = constructModel('tollway', {color: defaultColor});
-			var tollwayLine = constructModel('tollwayLine', {emissive: 0x0066ff});
-			tollwayLine.castShadow = false;
-			tollwayLine.receiveShadow = false;
+			var tollwayLine = constructModel('tollwayLine', {emissive: 0x00aaff});
+				tollwayLine.castShadow = false;
+				tollwayLine.receiveShadow = false;
+			var ep = getNewPlatform();
 			var tollwayShell = getNewShell();
 			tollway.setDefaultPos(-702, 0, -403);
-			tollway.add(tollwayStreet, tollwayLine, tollwayShell);
+			tollway.add(tollwayStreet, tollwayLine, tollwayShell, ep);
 			return tollway;
 
 		})();
@@ -242,7 +248,8 @@ function setupWorld() {
 			var ws = constructModel('watersupply', {color: defaultColor});
 			var wp = constructModel('watersupplyPipe', {map: 'watersupplyPipeTex', envMap: 'reflectionCube', reflectivity: 0.6});
 			var shell = getNewShell();
-			watersupply.add(ws, wp, shell);
+			var ep = getNewPlatform(); 
+			watersupply.add(ws, wp, shell, ep);
 			watersupply.setDefaultPos(700, 0, 405);
 			return watersupply;
 
@@ -252,10 +259,11 @@ function setupWorld() {
 
 			var resident01 = new THREE.Object3D();
 			var resident01Buildings = constructModel('resident01', {color: defaultColor});
+			var ep = getNewPlatform();
 			var resident01Shell = getNewShell();
 			resident01.setDefaultPos(-700, 0, -1213);
 			resident01.rotation.y = THREE.Math.degToRad(120);
-			resident01.add(resident01Buildings, resident01Shell);
+			resident01.add(resident01Buildings, resident01Shell, ep);
 			return resident01;
 
 		})();
@@ -265,8 +273,9 @@ function setupWorld() {
 			var resident02 = new THREE.Object3D();
 			var resident02Buildings = constructModel('resident02', {color: defaultColor});
 			var resident02Shell = getNewShell();
+			var ep = getNewPlatform(); 
 			resident02.setDefaultPos(-1400, 0, -809);
-			resident02.add(resident02Buildings, resident02Shell);
+			resident02.add(resident02Buildings, resident02Shell, ep);
 			return resident02;
 
 		})();

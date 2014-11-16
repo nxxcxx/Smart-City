@@ -13,15 +13,16 @@ canvas {
 	position: absolute;
 	top: 0;
 	left: 0;	
+	z-index: 10;
 }
 
 #loading {
-	z-index: 10;
 	position: absolute;
 	height: 10px;
 	background: #fff;
 	bottom: 0;
 	left: 0;
+	z-index: 100;
 }
 
 .aspect-bar {
@@ -34,13 +35,18 @@ canvas {
 #top-aspect-bar {
 	top: 0px;
 	left: 0px;
+	z-index: 1;
 }
 
 #bot-aspect-bar {
 	bottom: 0px; 
 	left: 0px;
+	z-index: 1;
 }
 
+div.dg.ac {
+	z-index: 100;
+}
 
 .debug-info {
 	overflow: hidden;
@@ -51,6 +57,7 @@ canvas {
 	height: 80px;
 	color: #fff;
 	font: 10px/150% Arial, Helvetica, sans-serif;
+	z-index: 10;
 	/*background: yellow;*/
 }
 
@@ -60,57 +67,76 @@ canvas {
 
 	.debug-camera div {
 		overflow: hidden;
-		/*background: red;*/
 		width: 200px;
-
+		/*background: red;*/
 	}
 
 	.debug-gl {
 		position: absolute;
 		left: 200px;
 		overflow: hidden;
-		/*background: green;*/
 		width: 400px;
 		height: 100px;
+		/*background: green;*/
 	}
-
-
 
 
 div.content {
 	position: absolute;
-	width: 40%;
-	height: 100%;
+	padding: 20px;
+	width: 35%;
 	right: 0px;
-	top: 0px;
-	background-color: rgba(0, 0, 0, 0.2);
-}
-
-.photo {
-	position: relative;
-	margin: auto;
-	top: 150px;
-	width: 95%;
-	height: 40%;
-	background-color: rgba(255, 255, 255, 0.0);
-}
-
-
-.text-area {
-	padding: 10px;
-	position: relative;
-	margin: auto;
-	top: 150px;
-	width: 90%;
-	height: 30%;
-	background-color: rgba(255, 255, 255, 0.5);
-}
-
-.header {
-	font: bold 30px/150% Arial, Helvetica, sans-serif;
+	top: 50%;
+	transform: translateY(-50%);
+	color: white;
+	overflow: hidden;
+	pointer-events:none;
+	background-color: rgba(0, 0, 0, 0.9);
+	/*background-color: rgba(0, 255, 128, 1.0);*/
 
 }
 
-.text-body {
-	font: 25px/150% Arial, Helvetica, sans-serif;
+	.photo {
+		height: 300px;
+		overflow: hidden;
+		position: relative;
+		/*background-color: rgba(255, 0, 0, 1.0);*/
+	}
+
+		.photo img {
+			height: auto;
+			width: auto;
+			min-width: 100%;
+			min-height: 100%;
+			position: absolute;
+		}
+
+
+	.text-area {
+		margin: auto;
+		/*background-color: rgba(255, 255, 0, 1.0);*/
+	}
+
+		.header {
+			font: bold 28px/150% Arial, Helvetica, sans-serif;
+			margin: 30px 0px 5px 0px;
+			/*background: blue;*/
+		}
+
+		.text-body {
+			font: 22px/150% Arial, Helvetica, sans-serif;
+			/*background: orange;*/
+		}
+
+
+
+
+#screen-coords {
+	background-color: rgba(255, 0, 0, 0.8);
+	position: absolute;
+	width: 50px;
+	height: 50px;
+	top: 200px;
+	left: 0px;
+	z-index: 10;
 }

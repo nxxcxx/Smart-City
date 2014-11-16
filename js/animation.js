@@ -31,7 +31,12 @@
 
 	// -------- Main animation
 
-		function animateCameraTo(target, position, speed) {
+		function setCamera(target, position) {
+			cameraCtrl.target.copy(target);
+			cameraCtrl.object.position.copy(position);
+		}
+
+		function animateCameraTo(target, position, speed, callback) {
 
 			new TWEEN.Tween( cameraCtrl.target )
 				.to( {	x: target.x,
@@ -53,7 +58,10 @@
 				.onUpdate(function() {
 					cameraCtrl.update();
 				})
-			.start();
+			.start()
+			.onComplete(function() {
+				if (callback) callback();
+			});
 
 		}
 
@@ -107,6 +115,16 @@
 			.start();
 		}
 
+		function animateBackLightIntensity(x) {
+			new TWEEN.Tween( backLight )
+				.to( { intensity: x }, 3000 )
+				.easing( TWEEN.Easing.Quadratic.Out)
+				.onUpdate(function() {
+					
+				})
+			.start();
+		}
+
 		function animateClearSky(speed) {
 			animateSky(2, 2.7, 0.008, 0.95, 0.7, 0.7, 0.84, speed);
 		}
@@ -134,7 +152,7 @@
 		}
 
 		function animateTurbineViewSky(speed) {
-			animateSky(3, 1.4, 0.003, 0.64, 0.41, 0.71, 0.57, speed);
+			animateSky(40, 1.4, 0.1, 0.64, 0.25, 0.68, 0.58, speed);
 		}
 
 		function animateLandfillViewSky(speed) {
@@ -152,6 +170,7 @@
 			.start();
 		}
 
+
 	// --------- City Views Animation
 
 		function resetView() {
@@ -159,8 +178,11 @@
 			// clear all active animation
 			TWEEN.removeAll();
 
+			animateContentOut();
+
 			animateOceanExposure(0.2);
 			animateFrontLightIntensity(0.0);
+			animateBackLightIntensity(0.5);
 
 			world.watersupply.animateResetPos();
 
@@ -191,15 +213,18 @@
 			animateFOV(110);
 			animateSunsetSky(3000);
 			animateSunLightIntensity(0, 0, 0);
+			animateBackLightIntensity(0.1);
 			animateOceanExposure(0.01);
 
 			currView = 'tollway';
 
 		}
 
-		function animateLowAngleView() {
+		function animateHubView() {
 
 			resetView();
+
+			animateContentIn('#bipv');
 
 			animateCameraTo(new THREE.Vector3(-31.30, 581.13, 372.64), 
 							new THREE.Vector3(-462.15, 171.85, -245.54));
@@ -222,7 +247,7 @@
 			animateFOV(90);
 			animateTurbineViewSky(500);
 			animateSunLightIntensity(1);
-			animateFrontLightIntensity(3.5);
+			animateFrontLightIntensity(2.0);
 			animateOceanExposure(0.1);
 
 			currView = 'turbines';
@@ -293,7 +318,7 @@
 			landfill: animateLandfillView,
 			waterNetwork: animateWaterNetworkView,
 			tollway: animateTollwayView,
-			lowAngle: animateLowAngleView,
+			hub: animateHubView,
 			
 		};
 
@@ -303,5 +328,66 @@
 		guiViews.add(viewCtrl, 'landfill');
 		guiViews.add(viewCtrl, 'waterNetwork');
 		guiViews.add(viewCtrl, 'tollway');
-		guiViews.add(viewCtrl, 'lowAngle');
+		guiViews.add(viewCtrl, 'hub');
 		
+
+
+
+// content bar
+
+
+	var contentBar = $('.content-container');
+	function animateContentOut() {
+		contentBar.children().stop().fadeOut({
+			queue: false,
+			duration: 500
+		});
+	}
+
+	function animateContentIn(elem) {
+		$(elem).stop().fadeIn({
+			queue: false,
+			duration: 500
+		});
+	}
+
+
+
+// photo SlideShow @param elem w/ img tag inside
+	function SlideShow(elem) {
+
+		this._imgArr = $(elem).children();
+		this._currIdx = 1;
+		this._timeout = null;
+
+		this.duration = 1000;
+		this.delay = 1500;
+		this.auto = true;
+
+		this.start();
+
+	}
+
+	SlideShow.prototype.start = function() {
+		
+		var self = this;
+
+		if (this._timeout) {clearTimeout(this._timeout);}
+		this._timeout = setTimeout(doFadeStuff, this.delay);
+
+		function doFadeStuff() {
+			
+			self.fadeOutAll();
+			if ( !self._imgArr[self._currIdx] ) { self._currIdx = 0; }
+			$(self._imgArr[self._currIdx]).stop().fadeIn({
+				duration: self.duration,
+				complete: self.auto ? $.proxy(self.start, self) : null
+			});
+			self._currIdx += 1;
+		}
+
+	};
+
+	SlideShow.prototype.fadeOutAll = function() {
+		this._imgArr.stop().fadeOut(this.duration);
+	};

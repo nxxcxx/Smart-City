@@ -21,8 +21,6 @@
 		SSAOpass.uniforms[ 'lumInfluence' ].value = 1.06;
 		SSAOpass.uniforms[ 'onlyAO' ].value = 0;	// debug
 	
-		// SSAOpass.enabled = false;
-
 	// FXAA
 		var FXAApass = new THREE.ShaderPass( THREE.FXAAShader );
 		FXAApass.uniforms['resolution'].value.set(1 / (screenWidth * dpr), 1 / (screenHeight * dpr));
@@ -61,7 +59,6 @@
 
 	// Post-Processing GUI
 
-		var guiPP = guiDebug.addFolder('Post-Processing');
 		guiPP.open();
 
 
