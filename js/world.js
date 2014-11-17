@@ -54,7 +54,7 @@ function setupWorld() {
 		world.lensflare = initLensflare();
 
 
-			// test skybox
+			// skybox
 				var shader = THREE.ShaderLib[ "cube" ];
 				shader.uniforms[ "tCube" ].value = assetManager.getTexture('reflectionCube');
 
@@ -74,7 +74,7 @@ function setupWorld() {
 				world.skybox = new THREE.Mesh( new THREE.BoxGeometry( 1000000, 1000000, 1000000 ), material );
 
 
-			// test floor
+			// floor
 				// var mat = new THREE.MeshLambertMaterial({
 				// 	color: defaultColor	
 				// });
@@ -86,7 +86,32 @@ function setupWorld() {
 				// world.floor.position.y = 0;
 
 
-		// *****************	test ocean
+			// Pulse Shader
+
+				
+				var pulseUniforms = {
+					time: {type: 'f', value: 0},
+				};	
+
+				var pulseShader = new THREE.ShaderMaterial( {
+					uniforms: pulseUniforms,
+					vertexShader: document.getElementById( 'vPulse' ).textContent,
+					fragmentShader: document.getElementById( 'fPulse' ).textContent,
+					side: THREE.DoubleSide,
+					// blending: THREE.AdditiveBlending,
+					transparent: true,
+					depthWrite: false, // fix white problen & lens flare block
+				});
+
+				var beaconGeom = new THREE.PlaneBufferGeometry(1024,  1024, 1, 1);
+				beaconGeom.applyMatrix( new THREE.Matrix4().makeRotationX(-Math.PI*0.5) );
+				var beacon = new THREE.Mesh( beaconGeom, pulseShader );
+				beacon.position.set(772, 670, 533);
+				world.beacon = beacon;
+				world.beacon.uniforms = pulseUniforms;
+
+
+		// Ocean
 
 		var oceanGeom = assetManager.getModel('oceanSurface').geometry;
 		world.ocean = initOcean(oceanGeom);

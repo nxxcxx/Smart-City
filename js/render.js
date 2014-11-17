@@ -1,4 +1,12 @@
 
+	function initContent() {
+
+		new SlideShow('#photo-bipv');
+		new SlideShow('#photo-sensor');
+
+	}
+
+
 	function startScene() {
 
 		setupWorld();
@@ -9,30 +17,8 @@
 
 	}
 
-	var debugCTGT = $('.ctgt');
-	var debugCPOS = $('.cpos');
-	var debugFOV  = $('.fov');
-	var debugGL = $('.debug-gl');
 
-	function initDebugInfo() {
-
-		var gl = renderer.context;
-		debugGL.html(
-			'Version: ' + gl.getParameter(gl.VERSION) + '<br/>' + 
-			'Shading language: ' + gl.getParameter(gl.SHADING_LANGUAGE_VERSION) + '<br/>' +
-			'Vendor: ' + gl.getParameter(gl.VENDOR) + '<br/>' +
-			'Renderer: ' + gl.getParameter(gl.RENDERER) + '<br/>'
-		);
-
-	}
-
-	function updateDebugCamera() {
-		if (!toggleDebugInfo.value) return;
-		debugCTGT.html( 'CTGT: ' + cameraCtrl.target.x.toFixed(2) + ', '+ cameraCtrl.target.y.toFixed(2) + ', ' + cameraCtrl.target.z.toFixed(2) );
-		debugCPOS.html( 'CPOS: ' + cameraCtrl.object.position.x.toFixed(2) + ', ' + cameraCtrl.object.position.y.toFixed(2) + ', ' + cameraCtrl.object.position.z.toFixed(2) );
-		debugFOV.html( 'CFOV: ' + camera.fov.toFixed(2) );
-	}
-
+	
 	function mapToRange(x, a, b, c, d) {
 		return (x-a)/(b-a)*(d-c) + c;
 	}
@@ -42,6 +28,8 @@
 		requestAnimationFrame(render);
 		TWEEN.update(time);
 		animate(time);
+
+		world.beacon.uniforms.time.value = time;
 
 		// intersectMouse(world);
 
@@ -57,23 +45,29 @@
 			// });
 
 
+
+
 		// render depth to target [ override > render > restore]
 			scene.overrideMaterial = depthMaterial;
+
 			world.lensflare.visible = false; // temporaily disable lens flare, it destroys my depth pass
-			world.ocean.oceanMesh.visible = false; // no depthWrite for ocean
 			world.sky.visible = false;
+			if (world.ocean) world.ocean.oceanMesh.visible = false; // no depthWrite for ocean
+			world.skybox.visible = false;
 
 			renderer.render(scene, camera, depthTarget, true); // force clear
-
 			// renderer.render(scene, camera);	// show depth pass
 
 			scene.overrideMaterial = null;
 			world.lensflare.visible = true;
 			world.sky.visible = true;
-			world.ocean.oceanMesh.visible = true;
+			if (world.ocean) world.ocean.oceanMesh.visible = true;
+			world.skybox.visible = true;
 
 		// render composited passes
 		composer.render();
+
+		// renderer.render(scene, camera);
 
 
 		stats.update();

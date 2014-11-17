@@ -4,21 +4,22 @@
 	var world = {};
 	var screenWidth = window.innerWidth;
 	var screenHeight = window.innerHeight;
-	var dpr = 1.0;
-	if (window.devicePixelRatio !== undefined) { dpr = window.devicePixelRatio; }
 
 	var mouse = new THREE.Vector2(-1, -1);
 
 	// ---- settings
 		var scene_settings = {
 
-			enableHelper: false,
 			bgColor: 0x111113,
 			enableShadow: true,
 			shadowMapType: THREE.PCFSoftShadowMap,
 			shadowMapSize: 4096,
 			shadowDarkness: 0.6,
-			maxAnisotropy: null
+			maxAnisotropy: null,
+
+			enableHelper: false,
+			enableStats: true,
+			enableInfoBar: true,
 
 		};
 
@@ -89,19 +90,90 @@
 		guiViews.open(); 
 		guiDebug.open();
 
+
+	// ---- Status Bar
+
 		var debugInfo = $('.debug-info');
 		var statsDOM = $('#stats');
-		var toggleDebugInfo = {value: false}; debugInfo.css('visibility', 'hidden');
-		var toggleStats = {value: true};
-		guiGeneral.add(toggleStats, 'value').name('FPS').onChange( function(bool) {
-			if (bool) { statsDOM.css('visibility', 'visible');} 
-			else { statsDOM.css('visibility', 'hidden');}
-		});
-		guiGeneral.add(toggleDebugInfo, 'value').name('System Info').onChange( function(bool) {
-			if (bool) {debugInfo.css('visibility', 'visible');} 
-			else {debugInfo.css('visibility', 'hidden');}
-		});
 
+		guiGeneral.add(scene_settings, 'enableStats').name('FPS').onChange( function(bool) {
+			statsDOM.css('visibility', bool ? 'visible':'hidden'); 
+		});
+		guiGeneral.add(scene_settings, 'enableInfoBar').name('Status').onChange( function(bool) {
+
+			debugInfo.css('visibility', bool ? 'visible':'hidden');
+
+		});
 
 		guiGeneral.add(scene_settings, 'enableHelper').name('Visual Helper').onChange( toggleHelper );
 
+
+		var debugCTGT = $('.ctgt');
+		var debugCPOS = $('.cpos');
+		var debugFOV  = $('.fov');
+		var debugGL = $('.debug-gl');
+
+		function initDebugInfo() {
+
+			var gl = renderer.getContext();
+
+			var report = {
+
+				// General
+				Platform: navigator.platform,
+				Version: gl.getParameter(gl.VERSION),
+				ShadingLanguage: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
+				Vendor: gl.getParameter(gl.VENDOR),
+				Renderer: gl.getParameter(gl.RENDERER),
+				unMaskedVendor: getUnmaskedInfo(gl).vendor,
+        		unMaskedRenderer: getUnmaskedInfo(gl).renderer,
+
+        		Antialias: gl.getContextAttributes().antialias ? 'Available' : 'Not available',
+
+				// Texture
+				maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
+				maxCubeMapTextureSize: gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE),
+				maxAnisotropy: renderer.getMaxAnisotropy(),
+
+			};
+
+			console.log(report);
+
+			var reportConcat = '';
+
+
+			_.each(report, function (value, key) {
+
+				reportConcat += key + ': ' + value + ' | ';
+
+			});
+
+
+			debugGL.html(reportConcat);
+
+			function getUnmaskedInfo(gl) {
+				var unMaskedInfo = {
+					renderer: '',
+					vendor: ''
+				};
+				
+				var dbgRenderInfo = gl.getExtension("WEBGL_debug_renderer_info");
+				if (dbgRenderInfo !== null) {
+					unMaskedInfo.renderer = gl.getParameter(dbgRenderInfo.UNMASKED_RENDERER_WEBGL);
+					unMaskedInfo.vendor   = gl.getParameter(dbgRenderInfo.UNMASKED_VENDOR_WEBGL);
+				}
+				
+				return unMaskedInfo;
+			}
+
+		} // end fn initDebugInfo
+
+
+		function updateDebugCamera() {
+			if (!scene_settings.enableInfoBar) return;
+			var tgt = cameraCtrl.target;
+			var pos = cameraCtrl.object.position;
+			debugCTGT.html( 'CTGT: ' + tgt.x.toFixed(2) + ', '+ tgt.y.toFixed(2) + ', ' + tgt.z.toFixed(2) );
+			debugCPOS.html( 'CPOS: ' + pos.x.toFixed(2) + ', ' + pos.y.toFixed(2) + ', ' + pos.z.toFixed(2) );
+			debugFOV.html( 'CFOV: ' + camera.fov.toFixed(2) );
+		}

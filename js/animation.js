@@ -4,7 +4,7 @@
 	function animate(time) {
 
 		world.shore1.spinTurbines();
-		world.ocean.updateOcean();
+		if (world.ocean) world.ocean.updateOcean();
 
 	}
 
@@ -65,10 +65,10 @@
 
 		}
 
-		function animateFOV(fov) {
+		function animateFOV(fov, speed) {
 			new TWEEN.Tween( camera )
 				.to( {	fov: fov
-					 }, 1000 )
+					 }, speed || 1000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() { 
 					camera.updateProjectionMatrix();
@@ -126,7 +126,7 @@
 		}
 
 		function animateClearSky(speed) {
-			animateSky(2, 2.7, 0.008, 0.95, 0.7, 0.7, 0.84, speed);
+			animateSky(33, 2, 0.088, 0.07, 0.13, 0.65, 0.83, speed);
 		}
 
 		function animateSunsetSky(speed) {
@@ -138,13 +138,8 @@
 		}
 
 		function animateCityViewSky(speed) {
-
-			// animateSky(15, 2.7, 0.02, 0.75, 0.79, 0.7, 0.84, speed);
-
 			// bright sky
 			animateSky(20, 0.1, 0.1, 0, 0.02, 0.72, 0.83, speed);
-
-
 		}
 
 		function animateWaterNetworkViewSky(speed) {
@@ -160,6 +155,7 @@
 		}
 
 		function animateOceanExposure(e) {
+			if (!world.ocean) return;
 			new TWEEN.Tween( world.ocean )
 				.to( { exposure: e}, 1000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
@@ -185,6 +181,7 @@
 			animateBackLightIntensity(0.5);
 
 			world.watersupply.animateResetPos();
+			world.beacon.visible = false;
 
 		}
 
@@ -198,6 +195,25 @@
 			animateFOV(80);
 			animateCityViewSky();
 			animateSunLightIntensity(1);
+			
+			currView = 'city';
+
+		}
+
+		function animateSensorView() {
+
+			resetView();
+
+			animateContentIn('#sensor');
+
+			animateCameraTo(new THREE.Vector3( 179.74, -157.19, 77.10 ), 
+							new THREE.Vector3(  1175.80, 1175.81, -181.75 ));
+
+			animateFOV(80);
+			animateCityViewSky();
+			animateSunLightIntensity(1);
+
+			world.beacon.visible = true;
 			
 			currView = 'city';
 
@@ -319,18 +335,19 @@
 			waterNetwork: animateWaterNetworkView,
 			tollway: animateTollwayView,
 			hub: animateHubView,
+			sensor: animateSensorView,
 			
 		};
 
-		guiViews.add(viewCtrl, 'silhouette');
+		// guiViews.add(viewCtrl, 'silhouette');
 		guiViews.add(viewCtrl, 'city');
 		guiViews.add(viewCtrl, 'turbines');
 		guiViews.add(viewCtrl, 'landfill');
 		guiViews.add(viewCtrl, 'waterNetwork');
 		guiViews.add(viewCtrl, 'tollway');
 		guiViews.add(viewCtrl, 'hub');
+		guiViews.add(viewCtrl, 'sensor');
 		
-
 
 
 // content bar
@@ -353,7 +370,7 @@
 
 
 
-// photo SlideShow @param elem w/ img tag inside
+// photo SlideShow @param elem w/ img tags inside
 	function SlideShow(elem) {
 
 		this._imgArr = $(elem).children();
@@ -391,3 +408,32 @@
 	SlideShow.prototype.fadeOutAll = function() {
 		this._imgArr.stop().fadeOut(this.duration);
 	};
+
+
+// idle camera animation
+
+	function animateCameraRotateLeft(duration, step) {
+
+		var temp = {value: 0};
+		new TWEEN.Tween( temp )
+			.to( {value: 1}, duration || 10000 )
+			.easing( TWEEN.Easing.Linear.None )
+			.onUpdate(function() {
+				cameraCtrl.rotateLeft(step || 0.00035);
+			})
+		.start();
+
+	}
+
+	function animateCameraRotateUp(duration, step) {
+
+		var temp = {value: 0};
+		new TWEEN.Tween( temp )
+			.to( {value: 1}, duration || 10000 )
+			.easing( TWEEN.Easing.Linear.None )
+			.onUpdate(function() {
+				cameraCtrl.rotateUp(step || 0.00035);
+			})
+		.start();
+
+	}

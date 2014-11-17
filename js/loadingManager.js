@@ -1,7 +1,10 @@
 
 // initialize loading manager
 
-	var loadingBar = $('#loading');
+	var loadingBar = $('#loadingBar');
+	var loadingScreen = $('#loadingScreen');
+	var loadingText = $('#loadingText');
+
 
 	var totalItems;
 	var loadedItems;
@@ -13,6 +16,7 @@
 			loadedItems = loaded;
 			var percentageCompleted = loaded/total * 100;
 			loadingBar.css('width', percentageCompleted + '%');
+			loadingText.html(loadedItems + '/' + totalItems + ' ' + item);
 		};
 		loadingManager.onError = function () {
 			console.error('Error: loading assets');
@@ -20,10 +24,16 @@
 		loadingManager.onLoad = function () {
 			console.log(loadedItems + '/' + totalItems + ' assets loaded');
 			console.timeEnd('loadingManager');
-			loadingBar.css('display', 'none');
+		
+			initContent();	
 			startScene();
 			initDebugInfo();
 			render();
+
+
+			loadingScreen.css('display', 'none');
+			loadingBar.css('display', 'none');
+			loadingText.css('display', 'none');
 		};
 
 	var textureLoader = new THREE.ImageLoader(loadingManager);

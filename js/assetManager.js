@@ -164,7 +164,7 @@
 		.addFile('landfillBuildingTex', 'landfill/building1k.png')
 		.addFile('landfillBuilding', 'landfill/landfillBuilding.obj')
 
-		.addFile('landfillDirtTex', 'landfill/dirt1k.png')
+		.addFile('landfillDirtTex', 'landfill/dirt.png')
 		.addFile('landfillDirt', 'landfill/landfillDirt.obj')
 
 		.addFile('landfillPipeTex', 'landfill/1024landfillPipe.png')

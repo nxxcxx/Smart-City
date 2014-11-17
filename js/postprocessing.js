@@ -16,14 +16,14 @@
 		SSAOpass.uniforms[ 'tDepth' ].value = depthTarget;
 		SSAOpass.uniforms[ 'size' ].value.set( 1024, 1024 );
 		SSAOpass.uniforms[ 'cameraNear' ].value = camera.near;
-		SSAOpass.uniforms[ 'cameraFar' ].value = 10000;
+		SSAOpass.uniforms[ 'cameraFar' ].value = 20000;
 		SSAOpass.uniforms[ 'aoClamp' ].value = 0.59;
 		SSAOpass.uniforms[ 'lumInfluence' ].value = 1.06;
 		SSAOpass.uniforms[ 'onlyAO' ].value = 0;	// debug
 	
 	// FXAA
 		var FXAApass = new THREE.ShaderPass( THREE.FXAAShader );
-		FXAApass.uniforms['resolution'].value.set(1 / (screenWidth * dpr), 1 / (screenHeight * dpr));
+		FXAApass.uniforms['resolution'].value.set(1/screenWidth, 1/screenHeight);
 
 	// Color Correction
 		var CCpass = new THREE.ShaderPass( THREE.ColorCorrectionShader );
@@ -42,7 +42,7 @@
 
 	// Composer
 		var composer = new THREE.EffectComposer( renderer );
-		composer.setSize(screenWidth * dpr, screenHeight * dpr);
+		composer.setSize(screenWidth, screenHeight);
 
 		composer.addPass(renderPass);
 		

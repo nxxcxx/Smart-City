@@ -3,7 +3,7 @@ function initLensflare() {
 
 	// dirt
 	var lensFlare = new THREE.LensFlare( assetManager.getTexture('lensdirtTex'),
-										 2048, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x555555 ) );
+										 2048, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x444444 ) );
 
 	// sun
 	lensFlare.add( assetManager.getTexture('lensFlare01Tex'), 

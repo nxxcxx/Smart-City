@@ -8,8 +8,10 @@
 <body>
 
 	<!-- <div id="screen-coords"></div> -->
-
-	<div id="loading"></div>
+	
+	<div id="loadingText"></div>
+	<div id="loadingScreen"></div>
+	<div id="loadingBar"></div>
 
 	<div id="top-aspect-bar" class="aspect-bar"></div>
 	<div id="bot-aspect-bar" class="aspect-bar"></div>
@@ -32,9 +34,10 @@
 
 		<div id="bipv" class="content">
 
-			<div class="photo">
+			<div class="photo" id="photo-bipv">
 				<img src="img/bipv/01.jpg" alt="">
 				<img src="img/bipv/02.jpg" alt="">
+				<img src="img/bipv/03.jpg" alt="">
 			</div>
 
 			<div class="text-area">
@@ -46,12 +49,97 @@
 			</div>
 
 		</div>
+
+		<div id="sensor" class="content">
+
+			<div class="photo" id="photo-sensor">
+				<img src="img/sensor/01.jpg" alt="">
+				<img src="img/sensor/02.jpg" alt="">
+				<img src="img/sensor/03.jpg" alt="">
+			</div>
+
+			<div class="text-area">
+				<div class="header">Acoustic Gunfire Locator</div>
+				<div class="text-body">
+					.....<br>
+					.....<br>
+					.....<br>
+					.....<br>
+					.....<br>
+				</div>
+			</div>
+
+		</div>
 		
 	</div>
 
 
 	
+	<!-- Ping Shader-->
 
+		<script id="vPulse" type="x-shader/x-vertex">
+
+			uniform float time;
+			varying vec2 vuv;
+
+			void main()	{
+
+				vuv = uv * 2.0 - 1.0;
+				gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+
+			}
+
+		</script>
+
+		<script id="fPulse" type="x-shader/x-fragment">
+
+
+			uniform float time;
+			varying vec2 vuv;	
+
+			float ping(float len, float t) {
+	
+				float c = 0.0;
+				
+				float inCoef = 1.4; 
+				float innerBlack = smoothstep(0.0 + t*inCoef, 0.2 + t*inCoef, len);
+				c += innerBlack;
+				
+				float outerBlack = 1.0 - smoothstep(0.25 + t, 0.26 + t, len);
+				c *= outerBlack;
+				return c;
+				
+			}
+
+			void main(void) {
+				
+				vec2 uv = vuv;
+				vec4 color = vec4(0.0);
+				
+				float len = length(uv);
+				
+				float t = time*0.001;
+				float period = 3.5;
+				float t1 = fract(t/period);
+				float t2 = fract(t/period + 0.5);
+
+				float c = 0.0; 
+				c += ping(len, t1);
+				c += ping(len, t2);
+				
+				color = vec4(c, 0.0, 0.0, c);
+
+				
+				color = clamp(color ,0.0 ,1.0);
+
+				gl_FragColor = vec4(color);
+				
+			}
+
+		</script>
+
+
+	
 	<script src="js/vendor/underscore.js"></script>
 	<script src="js/vendor/jquery-2.1.1.min.js"></script>
 	<script src="js/vendor/tween.min.js"></script>

@@ -62,6 +62,9 @@ THREE.Object3D.prototype.setDefaultPos = function(x, y, z, rx, ry, rz) {
 
 // animation methods
 THREE.Object3D.prototype.animateResetPos = function () {
+	
+	if (!this.oripos && !this.orirot) return;
+
 	// reset position
 	new TWEEN.Tween( this.position ).to( {
 		x: this.oripos.x,
@@ -104,21 +107,22 @@ THREE.Object3D.prototype.animateY = function (y) {
 	var world = {};
 	var screenWidth = window.innerWidth;
 	var screenHeight = window.innerHeight;
-	var dpr = 1.0;
-	if (window.devicePixelRatio !== undefined) { dpr = window.devicePixelRatio; }
 
 	var mouse = new THREE.Vector2(-1, -1);
 
 	// ---- settings
 		var scene_settings = {
 
-			enableHelper: false,
 			bgColor: 0x111113,
 			enableShadow: true,
 			shadowMapType: THREE.PCFSoftShadowMap,
 			shadowMapSize: 4096,
 			shadowDarkness: 0.6,
-			maxAnisotropy: null
+			maxAnisotropy: null,
+
+			enableHelper: false,
+			enableStats: true,
+			enableInfoBar: true,
 
 		};
 
@@ -189,23 +193,93 @@ THREE.Object3D.prototype.animateY = function (y) {
 		guiViews.open(); 
 		guiDebug.open();
 
+
+	// ---- Status Bar
+
 		var debugInfo = $('.debug-info');
 		var statsDOM = $('#stats');
-		var toggleDebugInfo = {value: false}; debugInfo.css('visibility', 'hidden');
-		var toggleStats = {value: true};
-		guiGeneral.add(toggleStats, 'value').name('FPS').onChange( function(bool) {
-			if (bool) { statsDOM.css('visibility', 'visible');} 
-			else { statsDOM.css('visibility', 'hidden');}
-		});
-		guiGeneral.add(toggleDebugInfo, 'value').name('System Info').onChange( function(bool) {
-			if (bool) {debugInfo.css('visibility', 'visible');} 
-			else {debugInfo.css('visibility', 'hidden');}
-		});
 
+		guiGeneral.add(scene_settings, 'enableStats').name('FPS').onChange( function(bool) {
+			statsDOM.css('visibility', bool ? 'visible':'hidden'); 
+		});
+		guiGeneral.add(scene_settings, 'enableInfoBar').name('Status').onChange( function(bool) {
+
+			debugInfo.css('visibility', bool ? 'visible':'hidden');
+
+		});
 
 		guiGeneral.add(scene_settings, 'enableHelper').name('Visual Helper').onChange( toggleHelper );
 
 
+		var debugCTGT = $('.ctgt');
+		var debugCPOS = $('.cpos');
+		var debugFOV  = $('.fov');
+		var debugGL = $('.debug-gl');
+
+		function initDebugInfo() {
+
+			var gl = renderer.getContext();
+
+			var report = {
+
+				// General
+				Platform: navigator.platform,
+				Version: gl.getParameter(gl.VERSION),
+				ShadingLanguage: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
+				Vendor: gl.getParameter(gl.VENDOR),
+				Renderer: gl.getParameter(gl.RENDERER),
+				unMaskedVendor: getUnmaskedInfo(gl).vendor,
+        		unMaskedRenderer: getUnmaskedInfo(gl).renderer,
+
+        		Antialias: gl.getContextAttributes().antialias ? 'Available' : 'Not available',
+
+				// Texture
+				maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),
+				maxCubeMapTextureSize: gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE),
+				maxAnisotropy: renderer.getMaxAnisotropy(),
+
+			};
+
+			console.log(report);
+
+			var reportConcat = '';
+
+
+			_.each(report, function (value, key) {
+
+				reportConcat += key + ': ' + value + ' | ';
+
+			});
+
+
+			debugGL.html(reportConcat);
+
+			function getUnmaskedInfo(gl) {
+				var unMaskedInfo = {
+					renderer: '',
+					vendor: ''
+				};
+				
+				var dbgRenderInfo = gl.getExtension("WEBGL_debug_renderer_info");
+				if (dbgRenderInfo !== null) {
+					unMaskedInfo.renderer = gl.getParameter(dbgRenderInfo.UNMASKED_RENDERER_WEBGL);
+					unMaskedInfo.vendor   = gl.getParameter(dbgRenderInfo.UNMASKED_VENDOR_WEBGL);
+				}
+				
+				return unMaskedInfo;
+			}
+
+		} // end fn initDebugInfo
+
+
+		function updateDebugCamera() {
+			if (!scene_settings.enableInfoBar) return;
+			var tgt = cameraCtrl.target;
+			var pos = cameraCtrl.object.position;
+			debugCTGT.html( 'CTGT: ' + tgt.x.toFixed(2) + ', '+ tgt.y.toFixed(2) + ', ' + tgt.z.toFixed(2) );
+			debugCPOS.html( 'CPOS: ' + pos.x.toFixed(2) + ', ' + pos.y.toFixed(2) + ', ' + pos.z.toFixed(2) );
+			debugFOV.html( 'CFOV: ' + camera.fov.toFixed(2) );
+		}
 // ---- Lights
 
 	var SHADOW_MAP_WIDTH = scene_settings.shadowMapSize, SHADOW_MAP_HEIGHT = scene_settings.shadowMapSize;
@@ -296,14 +370,14 @@ THREE.Object3D.prototype.animateY = function (y) {
 		SSAOpass.uniforms[ 'tDepth' ].value = depthTarget;
 		SSAOpass.uniforms[ 'size' ].value.set( 1024, 1024 );
 		SSAOpass.uniforms[ 'cameraNear' ].value = camera.near;
-		SSAOpass.uniforms[ 'cameraFar' ].value = 10000;
+		SSAOpass.uniforms[ 'cameraFar' ].value = 20000;
 		SSAOpass.uniforms[ 'aoClamp' ].value = 0.59;
 		SSAOpass.uniforms[ 'lumInfluence' ].value = 1.06;
 		SSAOpass.uniforms[ 'onlyAO' ].value = 0;	// debug
 	
 	// FXAA
 		var FXAApass = new THREE.ShaderPass( THREE.FXAAShader );
-		FXAApass.uniforms['resolution'].value.set(1 / (screenWidth * dpr), 1 / (screenHeight * dpr));
+		FXAApass.uniforms['resolution'].value.set(1/screenWidth, 1/screenHeight);
 
 	// Color Correction
 		var CCpass = new THREE.ShaderPass( THREE.ColorCorrectionShader );
@@ -322,7 +396,7 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 	// Composer
 		var composer = new THREE.EffectComposer( renderer );
-		composer.setSize(screenWidth * dpr, screenHeight * dpr);
+		composer.setSize(screenWidth, screenHeight);
 
 		composer.addPass(renderPass);
 		
@@ -560,7 +634,7 @@ THREE.Object3D.prototype.animateY = function (y) {
 		.addFile('landfillBuildingTex', 'landfill/building1k.png')
 		.addFile('landfillBuilding', 'landfill/landfillBuilding.obj')
 
-		.addFile('landfillDirtTex', 'landfill/dirt1k.png')
+		.addFile('landfillDirtTex', 'landfill/dirt.png')
 		.addFile('landfillDirt', 'landfill/landfillDirt.obj')
 
 		.addFile('landfillPipeTex', 'landfill/1024landfillPipe.png')
@@ -591,7 +665,10 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 // initialize loading manager
 
-	var loadingBar = $('#loading');
+	var loadingBar = $('#loadingBar');
+	var loadingScreen = $('#loadingScreen');
+	var loadingText = $('#loadingText');
+
 
 	var totalItems;
 	var loadedItems;
@@ -603,6 +680,7 @@ THREE.Object3D.prototype.animateY = function (y) {
 			loadedItems = loaded;
 			var percentageCompleted = loaded/total * 100;
 			loadingBar.css('width', percentageCompleted + '%');
+			loadingText.html(loadedItems + '/' + totalItems + ' ' + item);
 		};
 		loadingManager.onError = function () {
 			console.error('Error: loading assets');
@@ -610,10 +688,16 @@ THREE.Object3D.prototype.animateY = function (y) {
 		loadingManager.onLoad = function () {
 			console.log(loadedItems + '/' + totalItems + ' assets loaded');
 			console.timeEnd('loadingManager');
-			loadingBar.css('display', 'none');
+		
+			initContent();	
 			startScene();
 			initDebugInfo();
 			render();
+
+
+			loadingScreen.css('display', 'none');
+			loadingBar.css('display', 'none');
+			loadingText.css('display', 'none');
 		};
 
 	var textureLoader = new THREE.ImageLoader(loadingManager);
@@ -683,6 +767,14 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 	}
 
+	function initContent() {
+
+		new SlideShow('#photo-bipv');
+		new SlideShow('#photo-sensor');
+
+	}
+
+
 	function startScene() {
 
 		setupWorld();
@@ -693,30 +785,8 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 	}
 
-	var debugCTGT = $('.ctgt');
-	var debugCPOS = $('.cpos');
-	var debugFOV  = $('.fov');
-	var debugGL = $('.debug-gl');
 
-	function initDebugInfo() {
-
-		var gl = renderer.context;
-		debugGL.html(
-			'Version: ' + gl.getParameter(gl.VERSION) + '<br/>' + 
-			'Shading language: ' + gl.getParameter(gl.SHADING_LANGUAGE_VERSION) + '<br/>' +
-			'Vendor: ' + gl.getParameter(gl.VENDOR) + '<br/>' +
-			'Renderer: ' + gl.getParameter(gl.RENDERER) + '<br/>'
-		);
-
-	}
-
-	function updateDebugCamera() {
-		if (!toggleDebugInfo.value) return;
-		debugCTGT.html( 'CTGT: ' + cameraCtrl.target.x.toFixed(2) + ', '+ cameraCtrl.target.y.toFixed(2) + ', ' + cameraCtrl.target.z.toFixed(2) );
-		debugCPOS.html( 'CPOS: ' + cameraCtrl.object.position.x.toFixed(2) + ', ' + cameraCtrl.object.position.y.toFixed(2) + ', ' + cameraCtrl.object.position.z.toFixed(2) );
-		debugFOV.html( 'CFOV: ' + camera.fov.toFixed(2) );
-	}
-
+	
 	function mapToRange(x, a, b, c, d) {
 		return (x-a)/(b-a)*(d-c) + c;
 	}
@@ -726,6 +796,8 @@ THREE.Object3D.prototype.animateY = function (y) {
 		requestAnimationFrame(render);
 		TWEEN.update(time);
 		animate(time);
+
+		world.beacon.uniforms.time.value = time;
 
 		// intersectMouse(world);
 
@@ -741,23 +813,29 @@ THREE.Object3D.prototype.animateY = function (y) {
 			// });
 
 
+
+
 		// render depth to target [ override > render > restore]
 			scene.overrideMaterial = depthMaterial;
+
 			world.lensflare.visible = false; // temporaily disable lens flare, it destroys my depth pass
-			world.ocean.oceanMesh.visible = false; // no depthWrite for ocean
 			world.sky.visible = false;
+			if (world.ocean) world.ocean.oceanMesh.visible = false; // no depthWrite for ocean
+			world.skybox.visible = false;
 
 			renderer.render(scene, camera, depthTarget, true); // force clear
-
 			// renderer.render(scene, camera);	// show depth pass
 
 			scene.overrideMaterial = null;
 			world.lensflare.visible = true;
 			world.sky.visible = true;
-			world.ocean.oceanMesh.visible = true;
+			if (world.ocean) world.ocean.oceanMesh.visible = true;
+			world.skybox.visible = true;
 
 		// render composited passes
 		composer.render();
+
+		// renderer.render(scene, camera);
 
 
 		stats.update();
@@ -892,7 +970,7 @@ function setupWorld() {
 		world.lensflare = initLensflare();
 
 
-			// test skybox
+			// skybox
 				var shader = THREE.ShaderLib[ "cube" ];
 				shader.uniforms[ "tCube" ].value = assetManager.getTexture('reflectionCube');
 
@@ -912,7 +990,7 @@ function setupWorld() {
 				world.skybox = new THREE.Mesh( new THREE.BoxGeometry( 1000000, 1000000, 1000000 ), material );
 
 
-			// test floor
+			// floor
 				// var mat = new THREE.MeshLambertMaterial({
 				// 	color: defaultColor	
 				// });
@@ -924,7 +1002,32 @@ function setupWorld() {
 				// world.floor.position.y = 0;
 
 
-		// *****************	test ocean
+			// Pulse Shader
+
+				
+				var pulseUniforms = {
+					time: {type: 'f', value: 0},
+				};	
+
+				var pulseShader = new THREE.ShaderMaterial( {
+					uniforms: pulseUniforms,
+					vertexShader: document.getElementById( 'vPulse' ).textContent,
+					fragmentShader: document.getElementById( 'fPulse' ).textContent,
+					side: THREE.DoubleSide,
+					// blending: THREE.AdditiveBlending,
+					transparent: true,
+					depthWrite: false, // fix white problen & lens flare block
+				});
+
+				var beaconGeom = new THREE.PlaneBufferGeometry(1024,  1024, 1, 1);
+				beaconGeom.applyMatrix( new THREE.Matrix4().makeRotationX(-Math.PI*0.5) );
+				var beacon = new THREE.Mesh( beaconGeom, pulseShader );
+				beacon.position.set(772, 670, 533);
+				world.beacon = beacon;
+				world.beacon.uniforms = pulseUniforms;
+
+
+		// Ocean
 
 		var oceanGeom = assetManager.getModel('oceanSurface').geometry;
 		world.ocean = initOcean(oceanGeom);
@@ -1211,7 +1314,7 @@ function setupWorld() {
 	function animate(time) {
 
 		world.shore1.spinTurbines();
-		world.ocean.updateOcean();
+		if (world.ocean) world.ocean.updateOcean();
 
 	}
 
@@ -1272,10 +1375,10 @@ function setupWorld() {
 
 		}
 
-		function animateFOV(fov) {
+		function animateFOV(fov, speed) {
 			new TWEEN.Tween( camera )
 				.to( {	fov: fov
-					 }, 1000 )
+					 }, speed || 1000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
 				.onUpdate(function() { 
 					camera.updateProjectionMatrix();
@@ -1333,7 +1436,7 @@ function setupWorld() {
 		}
 
 		function animateClearSky(speed) {
-			animateSky(2, 2.7, 0.008, 0.95, 0.7, 0.7, 0.84, speed);
+			animateSky(33, 2, 0.088, 0.07, 0.13, 0.65, 0.83, speed);
 		}
 
 		function animateSunsetSky(speed) {
@@ -1345,13 +1448,8 @@ function setupWorld() {
 		}
 
 		function animateCityViewSky(speed) {
-
-			// animateSky(15, 2.7, 0.02, 0.75, 0.79, 0.7, 0.84, speed);
-
 			// bright sky
 			animateSky(20, 0.1, 0.1, 0, 0.02, 0.72, 0.83, speed);
-
-
 		}
 
 		function animateWaterNetworkViewSky(speed) {
@@ -1367,6 +1465,7 @@ function setupWorld() {
 		}
 
 		function animateOceanExposure(e) {
+			if (!world.ocean) return;
 			new TWEEN.Tween( world.ocean )
 				.to( { exposure: e}, 1000 )
 				.easing( TWEEN.Easing.Quadratic.Out)
@@ -1392,6 +1491,7 @@ function setupWorld() {
 			animateBackLightIntensity(0.5);
 
 			world.watersupply.animateResetPos();
+			world.beacon.visible = false;
 
 		}
 
@@ -1405,6 +1505,25 @@ function setupWorld() {
 			animateFOV(80);
 			animateCityViewSky();
 			animateSunLightIntensity(1);
+			
+			currView = 'city';
+
+		}
+
+		function animateSensorView() {
+
+			resetView();
+
+			animateContentIn('#sensor');
+
+			animateCameraTo(new THREE.Vector3( 179.74, -157.19, 77.10 ), 
+							new THREE.Vector3(  1175.80, 1175.81, -181.75 ));
+
+			animateFOV(80);
+			animateCityViewSky();
+			animateSunLightIntensity(1);
+
+			world.beacon.visible = true;
 			
 			currView = 'city';
 
@@ -1526,18 +1645,19 @@ function setupWorld() {
 			waterNetwork: animateWaterNetworkView,
 			tollway: animateTollwayView,
 			hub: animateHubView,
+			sensor: animateSensorView,
 			
 		};
 
-		guiViews.add(viewCtrl, 'silhouette');
+		// guiViews.add(viewCtrl, 'silhouette');
 		guiViews.add(viewCtrl, 'city');
 		guiViews.add(viewCtrl, 'turbines');
 		guiViews.add(viewCtrl, 'landfill');
 		guiViews.add(viewCtrl, 'waterNetwork');
 		guiViews.add(viewCtrl, 'tollway');
 		guiViews.add(viewCtrl, 'hub');
+		guiViews.add(viewCtrl, 'sensor');
 		
-
 
 
 // content bar
@@ -1560,7 +1680,7 @@ function setupWorld() {
 
 
 
-// photo SlideShow @param elem w/ img tag inside
+// photo SlideShow @param elem w/ img tags inside
 	function SlideShow(elem) {
 
 		this._imgArr = $(elem).children();
@@ -1598,6 +1718,35 @@ function setupWorld() {
 	SlideShow.prototype.fadeOutAll = function() {
 		this._imgArr.stop().fadeOut(this.duration);
 	};
+
+
+// idle camera animation
+
+	function animateCameraRotateLeft(duration, step) {
+
+		var temp = {value: 0};
+		new TWEEN.Tween( temp )
+			.to( {value: 1}, duration || 10000 )
+			.easing( TWEEN.Easing.Linear.None )
+			.onUpdate(function() {
+				cameraCtrl.rotateLeft(step || 0.00035);
+			})
+		.start();
+
+	}
+
+	function animateCameraRotateUp(duration, step) {
+
+		var temp = {value: 0};
+		new TWEEN.Tween( temp )
+			.to( {value: 1}, duration || 10000 )
+			.easing( TWEEN.Easing.Linear.None )
+			.onUpdate(function() {
+				cameraCtrl.rotateUp(step || 0.00035);
+			})
+		.start();
+
+	}
 
 // sky by zz85
 function initSky() {
@@ -1782,7 +1931,7 @@ function initLensflare() {
 
 	// dirt
 	var lensFlare = new THREE.LensFlare( assetManager.getTexture('lensdirtTex'),
-										 2048, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x555555 ) );
+										 2048, 0.0, THREE.AdditiveBlending, new THREE.Color( 0x444444 ) );
 
 	// sun
 	lensFlare.add( assetManager.getTexture('lensFlare01Tex'), 
@@ -1861,17 +2010,48 @@ function initLensflare() {
 
 } // end initLensFlare
 
+
 	window.addEventListener('keypress', function (event) {
-		if (event.keyCode === 32) {	// if spacebar is pressed
+		if (event.charCode === 32) {	// if spacebar is pressed
 			event.preventDefault();
 			gui.closed = !gui.closed; // toggle gui
 
 		}
-		if (event.keyCode === 102) {	// if 'F' is pressed
+		if (event.charCode === 102) {	// if 'F' is pressed
 			event.preventDefault();
 			THREEx.FullScreen.request();
 		}
 	});
+
+
+	var mouseDownFlag = 0;
+
+	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+	function onDocumentMouseMove( event ) {
+		event.preventDefault();
+		mouse.x = ( event.clientX / screenWidth ) * 2 - 1;
+		mouse.y = - ( event.clientY / screenHeight ) * 2 + 1;
+
+		if (mouseDownFlag) {
+			TWEEN.removeAll();
+		}
+	}
+
+	document.addEventListener( 'click', onClick, false);
+	function onClick( event ) {
+		event.preventDefault();
+	} 
+
+	document.addEventListener( 'mousedown', function () {
+		mouseDownFlag = 1;
+	});
+
+	document.addEventListener( 'mouseup', function () {
+		mouseDownFlag = 0;
+	});
+
+
+
 
 	window.addEventListener('resize', onWindowResize, false);
 	function onWindowResize() {
@@ -1879,21 +2059,12 @@ function initLensflare() {
 		screenHeight = window.innerHeight;
 		camera.aspect = screenWidth / screenHeight;
 		camera.updateProjectionMatrix();
+		
 		renderer.setSize(screenWidth, screenHeight);
+		composer.setSize(screenWidth, screenHeight);
 
-		FXAApass.uniforms['resolution'].value.set(1 / (screenWidth * dpr), 1 / (screenHeight * dpr));
-  		composer.setSize(screenWidth * dpr, screenHeight * dpr);
-
+		FXAApass.uniforms['resolution'].value.set(1/screenWidth, 1/screenHeight);
 	}
 
-	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-	function onDocumentMouseMove( event ) {
-		event.preventDefault();
-		mouse.x = ( event.clientX / screenWidth ) * 2 - 1;
-		mouse.y = - ( event.clientY / screenHeight ) * 2 + 1;
-	}
 
-	// document.addEventListener( 'click', onClick, false);
-	// function onClick( event ) {
-	// 	event.preventDefault();
-	// } 
+

@@ -62,6 +62,9 @@ THREE.Object3D.prototype.setDefaultPos = function(x, y, z, rx, ry, rz) {
 
 // animation methods
 THREE.Object3D.prototype.animateResetPos = function () {
+	
+	if (!this.oripos && !this.orirot) return;
+
 	// reset position
 	new TWEEN.Tween( this.position ).to( {
 		x: this.oripos.x,
