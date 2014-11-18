@@ -215,7 +215,7 @@
 
 			world.beacon.visible = true;
 			
-			currView = 'city';
+			currView = 'sensor';
 
 		}
 

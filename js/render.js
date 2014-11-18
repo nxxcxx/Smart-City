@@ -64,7 +64,7 @@
 			world.sky.visible = true;
 			if (world.ocean) world.ocean.oceanMesh.visible = true;
 			world.skybox.visible = true;
-			world.beacon.visible = true;
+			if (currView === 'sensor') world.beacon.visible = true;
 
 		// render composited passes
 		composer.render();
