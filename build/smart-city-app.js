@@ -822,6 +822,7 @@ THREE.Object3D.prototype.animateY = function (y) {
 			world.sky.visible = false;
 			if (world.ocean) world.ocean.oceanMesh.visible = false; // no depthWrite for ocean
 			world.skybox.visible = false;
+			world.beacon.visible = false;
 
 			renderer.render(scene, camera, depthTarget, true); // force clear
 			// renderer.render(scene, camera);	// show depth pass
@@ -831,6 +832,7 @@ THREE.Object3D.prototype.animateY = function (y) {
 			world.sky.visible = true;
 			if (world.ocean) world.ocean.oceanMesh.visible = true;
 			world.skybox.visible = true;
+			world.beacon.visible = true;
 
 		// render composited passes
 		composer.render();
