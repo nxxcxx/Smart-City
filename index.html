@@ -9,9 +9,11 @@
 
 	<!-- <div id="screen-coords"></div> -->
 	
-	<div id="loadingText"></div>
-	<div id="loadingScreen"></div>
-	<div id="loadingBar"></div>
+	<div id="loading">
+		<div id="smart-city">SMART CITY</div>
+		<div id="loadingText"></div>
+		<div id="loadingBar"></div>
+	</div>
 
 	<div id="top-aspect-bar" class="aspect-bar"></div>
 	<div id="bot-aspect-bar" class="aspect-bar"></div>
@@ -32,7 +34,30 @@
 
 	<div class="content-container">
 
+		<div id="windfarm" class="content">
+
+			<div class="header">Energy</div>
+
+			<div class="photo" id="photo-windfarm">
+				<img src="img/turbine/01.jpg" alt="">
+			</div>
+
+			<div class="text-area">
+				<div class="sub-header">Offshore Wind Farm</div>
+				<div class="text-body">
+					Vertical axis wind turbines (VAWT)<br>
+					- Works in any wind direction<br>
+					- Low maintenance costs.<br>
+					- Structurally more stable <br>
+					- Does not generate noise pollution<br>
+				</div>
+			</div>
+
+		</div>
+
 		<div id="bipv" class="content">
+
+			<div class="header">Energy</div>
 
 			<div class="photo" id="photo-bipv">
 				<img src="img/bipv/01.jpg" alt="">
@@ -41,16 +66,80 @@
 			</div>
 
 			<div class="text-area">
-				<div class="header">Building-integrated Photovoltaics</div>
+				<div class="sub-header">Building-integrated Photovoltaics</div>
 				<div class="text-body">
-					Photovoltaics (PV) convert sunlight into electricity. 
+					Photovoltaics (PV) convert sunlight into electricity.<br>
 					BIPV turns skyscraper windows into energy sources.
 				</div>
 			</div>
 
 		</div>
 
+		<div id="landfill" class="content">
+
+			<div class="header">Waste Management</div>
+
+			<div class="photo" id="photo-landfill">
+				<img src="img/landfill/01.jpg" alt="">
+			</div>
+
+			<div class="text-area">
+				<div class="sub-header">Landfill Methane Capture</div>
+				<div class="text-body">
+					1. Non-recyclable waste will be put in landfill.<br>
+					2. Trash decomposes and releases methane gas.<br>
+					3. Methane is collected in pipes.<br>
+					4. The methane is burned to generate electricity.<br>
+				</div>
+			</div>
+
+		</div>
+
+		<div id="water-network" class="content">
+
+			<div class="header">Water Supply Network</div>
+
+			<div class="photo" id="photo-water-network">
+				
+			</div>
+
+			<div class="text-area">
+				<div class="sub-header">Data Logger</div>
+				<div class="text-body">
+					.....<br>
+					.....<br>
+					.....<br>
+					.....<br>
+					.....<br>
+				</div>
+			</div>
+
+		</div>
+
+		<div id="street" class="content">
+
+			<div class="header">Transportation</div>
+
+			<div class="photo" id="photo-street">
+				
+			</div>
+
+			<div class="text-area">
+				<div class="sub-header">Road Surface Marking</div>
+				<div class="text-body">
+					.....<br>
+					.....<br>
+					.....<br>
+					.....<br>
+					.....<br>
+				</div>
+			</div>
+
+		</div>
+
 		<div id="sensor" class="content">
+
+			<div class="header">Security</div>
 
 			<div class="photo" id="photo-sensor">
 				<img src="img/sensor/01.jpg" alt="">
@@ -59,7 +148,7 @@
 			</div>
 
 			<div class="text-area">
-				<div class="header">Acoustic Gunfire Locator</div>
+				<div class="sub-header">Acoustic Gunfire Locator</div>
 				<div class="text-body">
 					.....<br>
 					.....<br>
@@ -167,6 +256,8 @@
 	<script src="js/ocean/OceanSimulator.js"></script>
 	<script src="js/ocean/OceanShaders.js"></script>
 	
+
+	<script src="settings.js"></script>
 	<script src="build/smart-city-app.js"></script>
 	<!-- <script src="build/smart-city-app.min.js"></script> -->
 

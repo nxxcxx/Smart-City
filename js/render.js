@@ -6,7 +6,6 @@
 
 	}
 
-
 	function startScene() {
 
 		setupWorld();
@@ -16,8 +15,6 @@
 		// animateSilhouetteView();
 
 	}
-
-
 	
 	function mapToRange(x, a, b, c, d) {
 		return (x-a)/(b-a)*(d-c) + c;
@@ -43,8 +40,6 @@
 			// 	top:  mapToRange(-sp.y, -1, 1, 0, screenHeight),
 			// 	left: mapToRange(sp.x, -1, 1, 0, screenWidth)
 			// });
-
-
 
 
 		// render depth to target [ override > render > restore]
@@ -75,7 +70,6 @@
 		stats.update();
 
 	}
-
 
 
 	// ------ prototype function

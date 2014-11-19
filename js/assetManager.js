@@ -187,6 +187,10 @@
 		// ocean
 		.addFile('oceanSurface', 'ocean/oceanSurfaceSubdivided.obj')
 
+		// vertical turbine
+		.addFile('verBase', 'turbine/verticalBase.obj')
+		.addFile('verPro', 'turbine/verticalPropeller.obj')
+
 
 	;
 

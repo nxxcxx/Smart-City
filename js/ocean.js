@@ -1,7 +1,7 @@
 
 function initOcean(oceanGeom) {
 
-	var res = 1024; 
+	var res = scene_settings.oceanResolution; 
 	var origx = 0;
 	var origz = 0;
 	var ocean = new THREE.Ocean(oceanGeom, renderer, camera, scene, {

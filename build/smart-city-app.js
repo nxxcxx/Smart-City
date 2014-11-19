@@ -110,23 +110,6 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 	var mouse = new THREE.Vector2(-1, -1);
 
-	// ---- settings
-		var scene_settings = {
-
-			bgColor: 0x111113,
-			enableShadow: true,
-			shadowMapType: THREE.PCFSoftShadowMap,
-			shadowMapSize: 4096,
-			shadowDarkness: 0.6,
-			maxAnisotropy: null,
-
-			enableHelper: false,
-			enableStats: true,
-			enableInfoBar: true,
-
-		};
-
-
 	// ---- Scene
 		container = document.getElementById('canvas-container');
 		scene = new THREE.Scene();
@@ -657,6 +640,10 @@ THREE.Object3D.prototype.animateY = function (y) {
 		// ocean
 		.addFile('oceanSurface', 'ocean/oceanSurfaceSubdivided.obj')
 
+		// vertical turbine
+		.addFile('verBase', 'turbine/verticalBase.obj')
+		.addFile('verPro', 'turbine/verticalPropeller.obj')
+
 
 	;
 
@@ -665,8 +652,8 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 // initialize loading manager
 
+	var loading = $('#loading');
 	var loadingBar = $('#loadingBar');
-	var loadingScreen = $('#loadingScreen');
 	var loadingText = $('#loadingText');
 
 
@@ -694,10 +681,8 @@ THREE.Object3D.prototype.animateY = function (y) {
 			initDebugInfo();
 			render();
 
+			loading.css('display', 'none');
 
-			loadingScreen.css('display', 'none');
-			loadingBar.css('display', 'none');
-			loadingText.css('display', 'none');
 		};
 
 	var textureLoader = new THREE.ImageLoader(loadingManager);
@@ -774,7 +759,6 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 	}
 
-
 	function startScene() {
 
 		setupWorld();
@@ -784,8 +768,6 @@ THREE.Object3D.prototype.animateY = function (y) {
 		// animateSilhouetteView();
 
 	}
-
-
 	
 	function mapToRange(x, a, b, c, d) {
 		return (x-a)/(b-a)*(d-c) + c;
@@ -811,8 +793,6 @@ THREE.Object3D.prototype.animateY = function (y) {
 			// 	top:  mapToRange(-sp.y, -1, 1, 0, screenHeight),
 			// 	left: mapToRange(sp.x, -1, 1, 0, screenWidth)
 			// });
-
-
 
 
 		// render depth to target [ override > render > restore]
@@ -843,7 +823,6 @@ THREE.Object3D.prototype.animateY = function (y) {
 		stats.update();
 
 	}
-
 
 
 	// ------ prototype function
@@ -933,8 +912,9 @@ function setupWorld() {
 
 			var model = assetManager.getModel(modelKey);
 
-			var material = new THREE.MeshLambertMaterial({
-				shading: THREE.FlatShading
+			var material = new THREE.MeshPhongMaterial({
+				// shading: THREE.FlatShading
+				shading: THREE.SmoothShading
 			});
 
 			_.each(settings, function(value, key) {
@@ -1005,7 +985,6 @@ function setupWorld() {
 
 
 			// Pulse Shader
-
 				
 				var pulseUniforms = {
 					time: {type: 'f', value: 0},
@@ -1021,7 +1000,7 @@ function setupWorld() {
 					depthWrite: false, // fix white problen & lens flare block
 				});
 
-				var beaconGeom = new THREE.PlaneBufferGeometry(1024,  1024, 1, 1);
+				var beaconGeom = new THREE.PlaneBufferGeometry(800,  800, 1, 1);
 				beaconGeom.applyMatrix( new THREE.Matrix4().makeRotationX(-Math.PI*0.5) );
 				var beacon = new THREE.Mesh( beaconGeom, pulseShader );
 				beacon.position.set(772, 670, 533);
@@ -1034,7 +1013,7 @@ function setupWorld() {
 		var oceanGeom = assetManager.getModel('oceanSurface').geometry;
 		world.ocean = initOcean(oceanGeom);
 		world.ocean.setRotationY( - Math.PI/6.0 );
-		world.ocean.setPosition(-760.47, 97.23, 1322.69);
+		world.ocean.setPosition(-760.47, 70.23, 1322.69);
 		scene.add(world.ocean.oceanMesh);
 
 
@@ -1071,36 +1050,66 @@ function setupWorld() {
 		})();
 		
 		// add turbines to shore1
-			var allTurbines = new THREE.Object3D();
-			var windTurbine = new THREE.Object3D();
-			var turBase = constructModel('turbineBase', {color: defaultColor});
-			var turPro = constructModel('propeller', {color: defaultColor});
-			turPro.position.set(0, 370.5, -10);
 
-			windTurbine.add(turBase);
-			windTurbine.add(turPro);
-			
-			var windTurbine2 = windTurbine.clone();
-			var windTurbine3 = windTurbine.clone();
+			// horizontal axis wind turbine
+				// var allTurbines = new THREE.Object3D();
+				// var windTurbine = new THREE.Object3D();
+				// var turBase = constructModel('turbineBase', {color: defaultColor});
+				// var turPro = constructModel('propeller', {color: defaultColor});
+				// turPro.position.set(0, 370.5, -10);
 
-			// relative postiton
-			windTurbine.position.set(-223, 40, -75);
-			windTurbine2.position.set(-22, 40, 40);
-			windTurbine3.position.set(175, 40, 153);
+				// windTurbine.add(turBase);
+				// windTurbine.add(turPro);
+				
+				// var windTurbine2 = windTurbine.clone();
+				// var windTurbine3 = windTurbine.clone();
 
-			windTurbine.rotation.y = 
-			windTurbine2.rotation.y = 
-			windTurbine3.rotation.y = THREE.Math.degToRad(110);
+				// // relative postiton
+				// windTurbine.position.set(-223, 40, -75);
+				// windTurbine2.position.set(-22, 40, 40);
+				// windTurbine3.position.set(175, 40, 153);
 
-			allTurbines.add(windTurbine, windTurbine2, windTurbine3);
+				// windTurbine.rotation.y = 
+				// windTurbine2.rotation.y = 
+				// windTurbine3.rotation.y = THREE.Math.degToRad(110);
 
-			world.shore1.add(allTurbines);
+				// allTurbines.add(windTurbine, windTurbine2, windTurbine3);
 
-			world.shore1.spinTurbines = function () {
-				windTurbine.children[1].rotation.z += 0.05;
-				windTurbine2.children[1].rotation.z += 0.05;
-				windTurbine3.children[1].rotation.z += 0.05;
-			};
+				// world.shore1.add(allTurbines);
+
+				// world.shore1.spinTurbines = function () {
+				// 	windTurbine.children[1].rotation.z += 0.05;
+				// 	windTurbine2.children[1].rotation.z += 0.05;
+				// 	windTurbine3.children[1].rotation.z += 0.05;
+				// };
+
+			// vertical axis wind turbine 
+				var allTurbines = new THREE.Object3D();
+				var verTurbine1 = new THREE.Object3D();
+				var verBase = constructModel('verBase', {color: defaultColor});
+				var verPro = constructModel('verPro', {color: defaultColor});
+				verPro.position.y = 250;
+				verTurbine1.add(verBase);
+				verTurbine1.add(verPro);
+
+				var verTurbine2 = verTurbine1.clone();
+				var verTurbine3 = verTurbine1.clone();
+
+
+				verTurbine1.position.set(-223, 40, -75);
+				verTurbine2.position.set(-22, 40, 40);
+				verTurbine3.position.set(175, 40, 153);
+
+				allTurbines.add(verTurbine1, verTurbine2, verTurbine3);
+
+				world.shore1.add(allTurbines);
+
+				world.shore1.spinTurbines = function () {
+					verTurbine1.children[1].rotation.y += 0.05;
+					verTurbine2.children[1].rotation.y += 0.05;
+					verTurbine3.children[1].rotation.y += 0.05;
+				};
+
 			
 		world.hub = (function () {
 
@@ -1462,6 +1471,10 @@ function setupWorld() {
 			animateSky(40, 1.4, 0.1, 0.64, 0.25, 0.68, 0.58, speed);
 		}
 
+		function animateVerticalTurbineViewSky(speed) {
+			animateSky(20, 1.1, 0.088, 0.25, 0.17, 0.71, 0.85, speed);
+		}
+
 		function animateLandfillViewSky(speed) {
 			animateSky(18, 1.9, 0.009, 0.74, 0.7, 1, 0.91, speed);
 		}
@@ -1512,39 +1525,41 @@ function setupWorld() {
 
 		}
 
-		function animateSensorView() {
+		function animateTurbinesView() {
 
 			resetView();
 
-			animateContentIn('#sensor');
+			animateContentIn('#windfarm');
 
-			animateCameraTo(new THREE.Vector3( 179.74, -157.19, 77.10 ), 
-							new THREE.Vector3(  1175.80, 1175.81, -181.75 ));
+			animateCameraTo(new THREE.Vector3( -954.99, 251.94, 957.54 ), 
+							new THREE.Vector3( -1894.62, 378.96, 1018.93 ));
 
-			animateFOV(80);
-			animateCityViewSky();
+			animateFOV(90);
+			animateTurbineViewSky(500);
 			animateSunLightIntensity(1);
+			animateFrontLightIntensity(2.0);
+			animateOceanExposure(0.1);
 
-			world.beacon.visible = true;
-			
-			currView = 'sensor';
+			currView = 'turbines';
 
 		}
 
-		function animateTollwayView() {
+		function animateVerticalTurbinesView() {
 
 			resetView();
 
-			animateCameraTo(new THREE.Vector3(-1568.77 , -343.81 , 262.49), 
-							new THREE.Vector3(-134.94 , 246.37 , -75.15), 2000);
+			animateContentIn('#windfarm');
 
-			animateFOV(110);
-			animateSunsetSky(3000);
-			animateSunLightIntensity(0, 0, 0);
-			animateBackLightIntensity(0.1);
-			animateOceanExposure(0.01);
+			animateCameraTo(new THREE.Vector3( -1466.34, 325.40, 838.34 ), 
+							new THREE.Vector3( -993.63, 182.01, 581.76 ));
 
-			currView = 'tollway';
+			animateFOV(90);
+			animateVerticalTurbineViewSky(500);
+			animateSunLightIntensity(1);
+			animateFrontLightIntensity(0);
+			animateOceanExposure(0.04);
+
+			currView = 'turbines';
 
 		}
 
@@ -1561,30 +1576,15 @@ function setupWorld() {
 			animateClearSky();
 			animateSunLightIntensity(1);
 
-			currView = 'lowAngle';
-
-		}
-
-		function animateTurbinesView() {
-
-			resetView();
-
-			animateCameraTo(new THREE.Vector3( -954.99, 251.94, 957.54 ), 
-							new THREE.Vector3( -1894.62, 378.96, 1018.93 ));
-
-			animateFOV(90);
-			animateTurbineViewSky(500);
-			animateSunLightIntensity(1);
-			animateFrontLightIntensity(2.0);
-			animateOceanExposure(0.1);
-
-			currView = 'turbines';
+			currView = 'bipv';
 
 		}
 
 		function animateLandfillView() {
 
 			resetView();
+
+			animateContentIn('#landfill');
 
 			animateCameraTo(new THREE.Vector3(1426.91, -334.68, 267.19), 
 							new THREE.Vector3(1035.25, 410.91, -1191.15));
@@ -1603,6 +1603,8 @@ function setupWorld() {
 
 			resetView();
 
+			animateContentIn('#water-network');
+
 			animateCameraTo(new THREE.Vector3(832.43 , 397.33 , 697.43),
 							new THREE.Vector3(21.29 , 694.72 , 666.29));
 
@@ -1614,6 +1616,44 @@ function setupWorld() {
 			
 
 			currView = 'waterNetwork';
+
+		}
+
+		function animateTollwayView() {
+
+			resetView();
+
+			animateContentIn('#street');
+
+			animateCameraTo(new THREE.Vector3(-1568.77 , -343.81 , 262.49), 
+							new THREE.Vector3(-134.94 , 246.37 , -75.15), 2000);
+
+			animateFOV(110);
+			animateSunsetSky(3000);
+			animateSunLightIntensity(0, 0, 0);
+			animateBackLightIntensity(0.1);
+			animateOceanExposure(0.01);
+
+			currView = 'tollway';
+
+		}
+
+		function animateSensorView() {
+
+			resetView();
+
+			animateContentIn('#sensor');
+
+			animateCameraTo(new THREE.Vector3( 491.80, 51.46, -60.71 ), 
+							new THREE.Vector3(  1130.75, 959.48, 621.40 ));
+
+			animateFOV(80);
+			animateCityViewSky();
+			animateSunLightIntensity(1);
+
+			world.beacon.visible = true;
+			
+			currView = 'sensor';
 
 		}
 
@@ -1642,7 +1682,7 @@ function setupWorld() {
 
 			silhouette: animateSilhouetteView,
 			city: animateCityView,
-			turbines: animateTurbinesView,
+			turbines: animateVerticalTurbinesView,
 			landfill: animateLandfillView,
 			waterNetwork: animateWaterNetworkView,
 			tollway: animateTollwayView,
@@ -1652,13 +1692,13 @@ function setupWorld() {
 		};
 
 		// guiViews.add(viewCtrl, 'silhouette');
-		guiViews.add(viewCtrl, 'city');
-		guiViews.add(viewCtrl, 'turbines');
-		guiViews.add(viewCtrl, 'landfill');
-		guiViews.add(viewCtrl, 'waterNetwork');
-		guiViews.add(viewCtrl, 'tollway');
-		guiViews.add(viewCtrl, 'hub');
-		guiViews.add(viewCtrl, 'sensor');
+		guiViews.add(viewCtrl, 'city').name('City');
+		guiViews.add(viewCtrl, 'turbines').name('Wind Farm');
+		guiViews.add(viewCtrl, 'hub').name('BIPV');
+		guiViews.add(viewCtrl, 'landfill').name('Landfill');
+		guiViews.add(viewCtrl, 'waterNetwork').name('Water Supply Network');
+		guiViews.add(viewCtrl, 'tollway').name('Street');
+		guiViews.add(viewCtrl, 'sensor').name('Acoustic Sensor');
 		
 
 
@@ -1833,7 +1873,7 @@ function initSky() {
 
 function initOcean(oceanGeom) {
 
-	var res = 1024; 
+	var res = scene_settings.oceanResolution; 
 	var origx = 0;
 	var origz = 0;
 	var ocean = new THREE.Ocean(oceanGeom, renderer, camera, scene, {
@@ -2014,15 +2054,42 @@ function initLensflare() {
 
 
 	window.addEventListener('keypress', function (event) {
-		if (event.charCode === 32) {	// if spacebar is pressed
-			event.preventDefault();
-			gui.closed = !gui.closed; // toggle gui
+
+		event.preventDefault();
+
+		if (event.charCode === 32) {	// spacebar
+			
+			gui.closed = !gui.closed;
 
 		}
-		if (event.charCode === 102) {	// if 'F' is pressed
-			event.preventDefault();
+		if (event.charCode === 102) {	// F
 			THREEx.FullScreen.request();
 		}
+
+		if (event.charCode === 97) {	// A
+			animateCityView();
+		}
+		if (event.charCode === 113) {	// Q
+			animateVerticalTurbinesView();
+		}
+		if (event.charCode === 119) {	// W
+			animateHubView();
+		}
+		if (event.charCode === 101) {	// E
+			animateLandfillView();
+		}
+		if (event.charCode === 114) {	// R
+			animateWaterNetworkView();
+		}
+		if (event.charCode === 116) {	// T
+			animateTollwayView();
+		}
+		if (event.charCode === 121) {	// Y
+			animateSensorView();
+		}
+
+
+
 	});
 
 
@@ -2035,7 +2102,7 @@ function initLensflare() {
 		mouse.y = - ( event.clientY / screenHeight ) * 2 + 1;
 
 		if (mouseDownFlag) {
-			TWEEN.removeAll();
+			// TWEEN.removeAll();
 		}
 	}
 

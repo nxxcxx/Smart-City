@@ -1,8 +1,8 @@
 
 // initialize loading manager
 
+	var loading = $('#loading');
 	var loadingBar = $('#loadingBar');
-	var loadingScreen = $('#loadingScreen');
 	var loadingText = $('#loadingText');
 
 
@@ -30,10 +30,8 @@
 			initDebugInfo();
 			render();
 
+			loading.css('display', 'none');
 
-			loadingScreen.css('display', 'none');
-			loadingBar.css('display', 'none');
-			loadingText.css('display', 'none');
 		};
 
 	var textureLoader = new THREE.ImageLoader(loadingManager);

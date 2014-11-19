@@ -7,23 +7,6 @@
 
 	var mouse = new THREE.Vector2(-1, -1);
 
-	// ---- settings
-		var scene_settings = {
-
-			bgColor: 0x111113,
-			enableShadow: true,
-			shadowMapType: THREE.PCFSoftShadowMap,
-			shadowMapSize: 4096,
-			shadowDarkness: 0.6,
-			maxAnisotropy: null,
-
-			enableHelper: false,
-			enableStats: true,
-			enableInfoBar: true,
-
-		};
-
-
 	// ---- Scene
 		container = document.getElementById('canvas-container');
 		scene = new THREE.Scene();

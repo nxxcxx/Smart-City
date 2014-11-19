@@ -1,15 +1,42 @@
 
 
 	window.addEventListener('keypress', function (event) {
-		if (event.charCode === 32) {	// if spacebar is pressed
-			event.preventDefault();
-			gui.closed = !gui.closed; // toggle gui
+
+		event.preventDefault();
+
+		if (event.charCode === 32) {	// spacebar
+			
+			gui.closed = !gui.closed;
 
 		}
-		if (event.charCode === 102) {	// if 'F' is pressed
-			event.preventDefault();
+		if (event.charCode === 102) {	// F
 			THREEx.FullScreen.request();
 		}
+
+		if (event.charCode === 97) {	// A
+			animateCityView();
+		}
+		if (event.charCode === 113) {	// Q
+			animateVerticalTurbinesView();
+		}
+		if (event.charCode === 119) {	// W
+			animateHubView();
+		}
+		if (event.charCode === 101) {	// E
+			animateLandfillView();
+		}
+		if (event.charCode === 114) {	// R
+			animateWaterNetworkView();
+		}
+		if (event.charCode === 116) {	// T
+			animateTollwayView();
+		}
+		if (event.charCode === 121) {	// Y
+			animateSensorView();
+		}
+
+
+
 	});
 
 
@@ -22,7 +49,7 @@
 		mouse.y = - ( event.clientY / screenHeight ) * 2 + 1;
 
 		if (mouseDownFlag) {
-			TWEEN.removeAll();
+			// TWEEN.removeAll();
 		}
 	}
 

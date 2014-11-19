@@ -150,6 +150,10 @@
 			animateSky(40, 1.4, 0.1, 0.64, 0.25, 0.68, 0.58, speed);
 		}
 
+		function animateVerticalTurbineViewSky(speed) {
+			animateSky(20, 1.1, 0.088, 0.25, 0.17, 0.71, 0.85, speed);
+		}
+
 		function animateLandfillViewSky(speed) {
 			animateSky(18, 1.9, 0.009, 0.74, 0.7, 1, 0.91, speed);
 		}
@@ -200,39 +204,41 @@
 
 		}
 
-		function animateSensorView() {
+		function animateTurbinesView() {
 
 			resetView();
 
-			animateContentIn('#sensor');
+			animateContentIn('#windfarm');
 
-			animateCameraTo(new THREE.Vector3( 179.74, -157.19, 77.10 ), 
-							new THREE.Vector3(  1175.80, 1175.81, -181.75 ));
+			animateCameraTo(new THREE.Vector3( -954.99, 251.94, 957.54 ), 
+							new THREE.Vector3( -1894.62, 378.96, 1018.93 ));
 
-			animateFOV(80);
-			animateCityViewSky();
+			animateFOV(90);
+			animateTurbineViewSky(500);
 			animateSunLightIntensity(1);
+			animateFrontLightIntensity(2.0);
+			animateOceanExposure(0.1);
 
-			world.beacon.visible = true;
-			
-			currView = 'sensor';
+			currView = 'turbines';
 
 		}
 
-		function animateTollwayView() {
+		function animateVerticalTurbinesView() {
 
 			resetView();
 
-			animateCameraTo(new THREE.Vector3(-1568.77 , -343.81 , 262.49), 
-							new THREE.Vector3(-134.94 , 246.37 , -75.15), 2000);
+			animateContentIn('#windfarm');
 
-			animateFOV(110);
-			animateSunsetSky(3000);
-			animateSunLightIntensity(0, 0, 0);
-			animateBackLightIntensity(0.1);
-			animateOceanExposure(0.01);
+			animateCameraTo(new THREE.Vector3( -1466.34, 325.40, 838.34 ), 
+							new THREE.Vector3( -993.63, 182.01, 581.76 ));
 
-			currView = 'tollway';
+			animateFOV(90);
+			animateVerticalTurbineViewSky(500);
+			animateSunLightIntensity(1);
+			animateFrontLightIntensity(0);
+			animateOceanExposure(0.04);
+
+			currView = 'turbines';
 
 		}
 
@@ -249,30 +255,15 @@
 			animateClearSky();
 			animateSunLightIntensity(1);
 
-			currView = 'lowAngle';
-
-		}
-
-		function animateTurbinesView() {
-
-			resetView();
-
-			animateCameraTo(new THREE.Vector3( -954.99, 251.94, 957.54 ), 
-							new THREE.Vector3( -1894.62, 378.96, 1018.93 ));
-
-			animateFOV(90);
-			animateTurbineViewSky(500);
-			animateSunLightIntensity(1);
-			animateFrontLightIntensity(2.0);
-			animateOceanExposure(0.1);
-
-			currView = 'turbines';
+			currView = 'bipv';
 
 		}
 
 		function animateLandfillView() {
 
 			resetView();
+
+			animateContentIn('#landfill');
 
 			animateCameraTo(new THREE.Vector3(1426.91, -334.68, 267.19), 
 							new THREE.Vector3(1035.25, 410.91, -1191.15));
@@ -291,6 +282,8 @@
 
 			resetView();
 
+			animateContentIn('#water-network');
+
 			animateCameraTo(new THREE.Vector3(832.43 , 397.33 , 697.43),
 							new THREE.Vector3(21.29 , 694.72 , 666.29));
 
@@ -302,6 +295,44 @@
 			
 
 			currView = 'waterNetwork';
+
+		}
+
+		function animateTollwayView() {
+
+			resetView();
+
+			animateContentIn('#street');
+
+			animateCameraTo(new THREE.Vector3(-1568.77 , -343.81 , 262.49), 
+							new THREE.Vector3(-134.94 , 246.37 , -75.15), 2000);
+
+			animateFOV(110);
+			animateSunsetSky(3000);
+			animateSunLightIntensity(0, 0, 0);
+			animateBackLightIntensity(0.1);
+			animateOceanExposure(0.01);
+
+			currView = 'tollway';
+
+		}
+
+		function animateSensorView() {
+
+			resetView();
+
+			animateContentIn('#sensor');
+
+			animateCameraTo(new THREE.Vector3( 491.80, 51.46, -60.71 ), 
+							new THREE.Vector3(  1130.75, 959.48, 621.40 ));
+
+			animateFOV(80);
+			animateCityViewSky();
+			animateSunLightIntensity(1);
+
+			world.beacon.visible = true;
+			
+			currView = 'sensor';
 
 		}
 
@@ -330,7 +361,7 @@
 
 			silhouette: animateSilhouetteView,
 			city: animateCityView,
-			turbines: animateTurbinesView,
+			turbines: animateVerticalTurbinesView,
 			landfill: animateLandfillView,
 			waterNetwork: animateWaterNetworkView,
 			tollway: animateTollwayView,
@@ -340,13 +371,13 @@
 		};
 
 		// guiViews.add(viewCtrl, 'silhouette');
-		guiViews.add(viewCtrl, 'city');
-		guiViews.add(viewCtrl, 'turbines');
-		guiViews.add(viewCtrl, 'landfill');
-		guiViews.add(viewCtrl, 'waterNetwork');
-		guiViews.add(viewCtrl, 'tollway');
-		guiViews.add(viewCtrl, 'hub');
-		guiViews.add(viewCtrl, 'sensor');
+		guiViews.add(viewCtrl, 'city').name('City');
+		guiViews.add(viewCtrl, 'turbines').name('Wind Farm');
+		guiViews.add(viewCtrl, 'hub').name('BIPV');
+		guiViews.add(viewCtrl, 'landfill').name('Landfill');
+		guiViews.add(viewCtrl, 'waterNetwork').name('Water Supply Network');
+		guiViews.add(viewCtrl, 'tollway').name('Street');
+		guiViews.add(viewCtrl, 'sensor').name('Acoustic Sensor');
 		
 
 

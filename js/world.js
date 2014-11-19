@@ -15,8 +15,9 @@ function setupWorld() {
 
 			var model = assetManager.getModel(modelKey);
 
-			var material = new THREE.MeshLambertMaterial({
-				shading: THREE.FlatShading
+			var material = new THREE.MeshPhongMaterial({
+				// shading: THREE.FlatShading
+				shading: THREE.SmoothShading
 			});
 
 			_.each(settings, function(value, key) {
@@ -87,7 +88,6 @@ function setupWorld() {
 
 
 			// Pulse Shader
-
 				
 				var pulseUniforms = {
 					time: {type: 'f', value: 0},
@@ -103,7 +103,7 @@ function setupWorld() {
 					depthWrite: false, // fix white problen & lens flare block
 				});
 
-				var beaconGeom = new THREE.PlaneBufferGeometry(1024,  1024, 1, 1);
+				var beaconGeom = new THREE.PlaneBufferGeometry(800,  800, 1, 1);
 				beaconGeom.applyMatrix( new THREE.Matrix4().makeRotationX(-Math.PI*0.5) );
 				var beacon = new THREE.Mesh( beaconGeom, pulseShader );
 				beacon.position.set(772, 670, 533);
@@ -116,7 +116,7 @@ function setupWorld() {
 		var oceanGeom = assetManager.getModel('oceanSurface').geometry;
 		world.ocean = initOcean(oceanGeom);
 		world.ocean.setRotationY( - Math.PI/6.0 );
-		world.ocean.setPosition(-760.47, 97.23, 1322.69);
+		world.ocean.setPosition(-760.47, 70.23, 1322.69);
 		scene.add(world.ocean.oceanMesh);
 
 
@@ -153,36 +153,66 @@ function setupWorld() {
 		})();
 		
 		// add turbines to shore1
-			var allTurbines = new THREE.Object3D();
-			var windTurbine = new THREE.Object3D();
-			var turBase = constructModel('turbineBase', {color: defaultColor});
-			var turPro = constructModel('propeller', {color: defaultColor});
-			turPro.position.set(0, 370.5, -10);
 
-			windTurbine.add(turBase);
-			windTurbine.add(turPro);
-			
-			var windTurbine2 = windTurbine.clone();
-			var windTurbine3 = windTurbine.clone();
+			// horizontal axis wind turbine
+				// var allTurbines = new THREE.Object3D();
+				// var windTurbine = new THREE.Object3D();
+				// var turBase = constructModel('turbineBase', {color: defaultColor});
+				// var turPro = constructModel('propeller', {color: defaultColor});
+				// turPro.position.set(0, 370.5, -10);
 
-			// relative postiton
-			windTurbine.position.set(-223, 40, -75);
-			windTurbine2.position.set(-22, 40, 40);
-			windTurbine3.position.set(175, 40, 153);
+				// windTurbine.add(turBase);
+				// windTurbine.add(turPro);
+				
+				// var windTurbine2 = windTurbine.clone();
+				// var windTurbine3 = windTurbine.clone();
 
-			windTurbine.rotation.y = 
-			windTurbine2.rotation.y = 
-			windTurbine3.rotation.y = THREE.Math.degToRad(110);
+				// // relative postiton
+				// windTurbine.position.set(-223, 40, -75);
+				// windTurbine2.position.set(-22, 40, 40);
+				// windTurbine3.position.set(175, 40, 153);
 
-			allTurbines.add(windTurbine, windTurbine2, windTurbine3);
+				// windTurbine.rotation.y = 
+				// windTurbine2.rotation.y = 
+				// windTurbine3.rotation.y = THREE.Math.degToRad(110);
 
-			world.shore1.add(allTurbines);
+				// allTurbines.add(windTurbine, windTurbine2, windTurbine3);
 
-			world.shore1.spinTurbines = function () {
-				windTurbine.children[1].rotation.z += 0.05;
-				windTurbine2.children[1].rotation.z += 0.05;
-				windTurbine3.children[1].rotation.z += 0.05;
-			};
+				// world.shore1.add(allTurbines);
+
+				// world.shore1.spinTurbines = function () {
+				// 	windTurbine.children[1].rotation.z += 0.05;
+				// 	windTurbine2.children[1].rotation.z += 0.05;
+				// 	windTurbine3.children[1].rotation.z += 0.05;
+				// };
+
+			// vertical axis wind turbine 
+				var allTurbines = new THREE.Object3D();
+				var verTurbine1 = new THREE.Object3D();
+				var verBase = constructModel('verBase', {color: defaultColor});
+				var verPro = constructModel('verPro', {color: defaultColor});
+				verPro.position.y = 250;
+				verTurbine1.add(verBase);
+				verTurbine1.add(verPro);
+
+				var verTurbine2 = verTurbine1.clone();
+				var verTurbine3 = verTurbine1.clone();
+
+
+				verTurbine1.position.set(-223, 40, -75);
+				verTurbine2.position.set(-22, 40, 40);
+				verTurbine3.position.set(175, 40, 153);
+
+				allTurbines.add(verTurbine1, verTurbine2, verTurbine3);
+
+				world.shore1.add(allTurbines);
+
+				world.shore1.spinTurbines = function () {
+					verTurbine1.children[1].rotation.y += 0.05;
+					verTurbine2.children[1].rotation.y += 0.05;
+					verTurbine3.children[1].rotation.y += 0.05;
+				};
+
 			
 		world.hub = (function () {
 
