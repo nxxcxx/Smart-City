@@ -756,6 +756,7 @@ THREE.Object3D.prototype.animateY = function (y) {
 
 		new SlideShow('#photo-bipv');
 		new SlideShow('#photo-sensor');
+		new SlideShow('#photo-road');
 
 	}
 

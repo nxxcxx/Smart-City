@@ -3,6 +3,7 @@
 
 		new SlideShow('#photo-bipv');
 		new SlideShow('#photo-sensor');
+		new SlideShow('#photo-road');
 
 	}
 
