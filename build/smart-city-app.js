@@ -1515,12 +1515,16 @@ function setupWorld() {
 
 			resetView();
 
-			animateCameraTo(new THREE.Vector3(-350.15 , -278.71 , -5.32), 
-							new THREE.Vector3(-1830.50 , 2112.81 , -25.24));
+			animateContentIn('#smartcity');
+
+			animateCameraTo(new THREE.Vector3( -257.72, 233.92, 204.84 ), 
+							new THREE.Vector3( -1691.96, 212.43, 369.93 ));
 
 			animateFOV(80);
 			animateCityViewSky();
 			animateSunLightIntensity(1);
+
+			animateCameraRotateLeft();
 			
 			currView = 'city';
 
@@ -1790,6 +1794,8 @@ function setupWorld() {
 		.start();
 
 	}
+
+
 
 // sky by zz85
 function initSky() {

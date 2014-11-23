@@ -9,7 +9,7 @@ var scene_settings = {
 	shadowMapSize: 4096,
 	shadowDarkness: 0.6,
 	
-	oceanResolution: 256,
+	oceanResolution: 1,
 
 	maxAnisotropy: null,
 

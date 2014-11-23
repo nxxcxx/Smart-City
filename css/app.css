@@ -165,7 +165,12 @@ div.content {
 			/*background: orange;*/
 		}
 
+	#smartcity {
 
+		position: absolute;	
+		top: 750px;
+
+	}
 
 
 #screen-coords {
