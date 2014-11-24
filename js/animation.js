@@ -155,7 +155,7 @@
 		}
 
 		function animateLandfillViewSky(speed) {
-			animateSky(18, 1.9, 0.009, 0.74, 0.7, 1, 0.91, speed);
+			animateSky(20, 0.1, 0.1, 0, 0.02, 0.72, 0.83, speed);
 		}
 
 		function animateOceanExposure(e) {
@@ -202,7 +202,8 @@
 			animateCityViewSky();
 			animateSunLightIntensity(1);
 
-			animateCameraRotateLeft();
+			animateCameraRotateLeft(200000);
+			animateCameraRotateUp(200000, 0.00005);
 			
 			currView = 'city';
 
@@ -242,6 +243,8 @@
 			animateFrontLightIntensity(0);
 			animateOceanExposure(0.04);
 
+			animateCameraRotateLeft(200000, 0.0001);
+
 			currView = 'turbines';
 
 		}
@@ -258,6 +261,10 @@
 			animateFOV(120);
 			animateClearSky();
 			animateSunLightIntensity(1);
+			animateFrontLightIntensity(0.5);
+
+			animateCameraRotateLeft(200000);
+			animateCameraRotateUp(200000, 0.0001);
 
 			currView = 'bipv';
 
@@ -335,6 +342,9 @@
 			animateSunLightIntensity(1);
 
 			world.beacon.visible = true;
+
+			animateCameraRotateLeft(200000, 0.0001);
+			animateCameraRotateUp(200000, -0.0001);
 			
 			currView = 'sensor';
 
